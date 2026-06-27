@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ background:#08070a; }
+  ::selection{ background:rgba(255,107,26,.3); color:#fff; }
+  ::-webkit-scrollbar{ width:9px; } ::-webkit-scrollbar-track{ background:#08070a; }
+  ::-webkit-scrollbar-thumb{ background:rgba(255,140,60,.35); border-radius:20px; }
+  a{ text-decoration:none; color:inherit; }
+  @keyframes spinSlow{ to{ transform:rotate(360deg);} }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-16px);} }
+  @keyframes blink{ 0%,100%{ opacity:1;} 50%{ opacity:.25;} }
+  @keyframes emberRise{ 0%{ transform:translateY(0) scale(1); opacity:0;} 10%{opacity:.9;} 100%{ transform:translateY(-160px) scale(.3); opacity:0;} }
+  @keyframes scrollDot{ 0%{ transform:translateY(0); opacity:0;} 30%{opacity:1;} 100%{ transform:translateY(20px); opacity:0;} }
+  @keyframes shimmer{ 0%{ background-position:0% 50%;} 100%{ background-position:200% 50%;} }
+  @keyframes marquee{ to{ transform:translateX(-50%);} }
+  [data-rv]{ opacity:0; transform:translateY(40px); }
+  [data-rv].in{ opacity:1; transform:none; transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
+  .emword{ display:inline-block; opacity:0; transform:translateY(60px) rotate(3deg); }
+  .emword.in{ opacity:1; transform:none; transition:opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+</style>
+</helmet>
+
+<div id="em-root" style="position:relative; background:#08070a; color:#f3ede4; font-family:'Hanken Grotesk',sans-serif; overflow-x:hidden;">
+
+  <!-- FIXED 3D STAGE -->
+  <div id="em-stage" style="position:fixed; inset:0; z-index:0; pointer-events:none;">
+    <div style="position:absolute; inset:0; background:radial-gradient(900px 700px at 70% 38%, rgba(255,110,30,.16), transparent 60%), radial-gradient(700px 600px at 20% 80%, rgba(255,60,20,.08), transparent 55%);"></div>
+    <div id="em-glow" style="position:absolute; left:50%; top:46%; width:560px; height:560px; margin:-280px 0 0 -280px; border-radius:50%; background:radial-gradient(circle, rgba(255,130,40,.35), rgba(255,80,20,.12) 45%, transparent 68%); filter:blur(30px);"></div>
+    <canvas id="em-canvas" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
+    <!-- CSS fallback core (hidden once webgl runs) -->
+    <div id="em-fallback" style="position:absolute; left:50%; top:46%; width:300px; height:300px; margin:-150px 0 0 -150px; border-radius:50%; background:radial-gradient(circle at 38% 34%, #ffe0a8, #ff8a2c 38%, #e8431f 70%, #7a1d08); box-shadow:0 0 120px rgba(255,110,30,.6); animation:floaty 6s ease-in-out infinite;"></div>
+  </div>
+
+  <!-- grain + vignette overlay -->
+  <div style="position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(circle at 50% 50%, transparent 55%, rgba(8,7,10,.75)); mix-blend-mode:multiply;"></div>
+
+  <!-- NAV -->
+  <nav id="em-nav" style="position:fixed; top:0; left:0; right:0; z-index:60; display:flex; align-items:center; justify-content:space-between; padding:22px 44px; transition:background .4s, backdrop-filter .4s, border-color .4s; border-bottom:1px solid transparent;">
+    <a href="#top" style="display:flex; align-items:center; gap:12px;">
+      <div style="width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe0a8, #ff7a1a 55%, #c8330f); box-shadow:0 0 16px rgba(255,120,30,.9);"></div>
+      <span class="em-logo" style="font-family:'Bricolage Grotesque'; font-weight:700; letter-spacing:.32em; font-size:17px;">EMBER</span>
+    </a>
+    <div class="em-navlinks" style="display:flex; gap:36px; font-size:14.5px; font-weight:500; color:rgba(243,237,228,.7);">
+      <a href="#problem">Problem</a><a href="#solution">Solution</a><a href="#features">Capabilities</a><a href="#app">App</a>
+    </div>
+    <a href="#cta" class="em-navcta" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; padding:11px 20px; border-radius:100px; color:#1a0f06; background:linear-gradient(135deg,#ffd27a,#ff7a1a); box-shadow:0 8px 28px rgba(255,120,30,.35);">
+      <i data-lucide="download" style="width:15px;height:15px;"></i> Download
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <header id="top" style="position:relative; z-index:10; min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:0 44px; max-width:1280px; margin:0 auto;">
+    <div data-par="0.3" style="max-width:880px;">
+      <div data-rv style="display:inline-flex; align-items:center; gap:10px; padding:8px 16px; border-radius:100px; border:1px solid rgba(255,140,60,.3); background:rgba(255,110,30,.06); font-size:12.5px; font-family:'JetBrains Mono',monospace; letter-spacing:.06em; color:#ffb877;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#ff7a1a;box-shadow:0 0 10px #ff7a1a;animation:blink 1.6s infinite;"></span>
+        AUTONOMOUS QA · IGNITION BUILD
+      </div>
+      <h1 id="em-h1" style="margin-top:30px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(52px,8.2vw,116px); line-height:.92; letter-spacing:-.03em;">
+        <span class="emword">Burn</span> <span class="emword">every</span> <span class="emword">bug</span><br>
+        <span class="emword">out</span> <span class="emword">of</span> <span class="emword">your</span> <span class="emword" style="background:linear-gradient(100deg,#ffd27a,#ff6a14 55%,#ffd27a); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 5s linear infinite;">game.</span>
+      </h1>
+      <p data-rv style="margin-top:30px; font-size:clamp(17px,1.5vw,21px); line-height:1.6; color:rgba(243,237,228,.72); max-width:560px;">
+        EMBER is an autonomous QA agent that actually plays your build — a swarm of testers hunting crashes, glitches and logic breaks at white heat, then handing you a full aftermath report. Give it the repo and it writes the fix.
+      </p>
+      <div data-rv style="margin-top:38px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+        <a href="#cta" class="em-btn-primary" style="display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:600; padding:16px 28px; border-radius:100px; color:#1a0f06; background:linear-gradient(135deg,#ffd27a,#ff7a1a); box-shadow:0 16px 46px rgba(255,120,30,.4); transition:transform .25s, box-shadow .25s;">
+          <i data-lucide="download" style="width:18px;height:18px;"></i> Download the app
+        </a>
+        <a href="#app" class="em-btn-ghost" style="display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:500; padding:16px 26px; border-radius:100px; color:#f3ede4; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.03); transition:all .25s;">
+          <i data-lucide="play" style="width:16px;height:16px;"></i> See it run
+        </a>
+      </div>
+    </div>
+    <div data-rv style="position:absolute; bottom:34px; left:44px; display:flex; align-items:center; gap:14px; font-size:12px; font-family:'JetBrains Mono',monospace; color:rgba(243,237,228,.45);">
+      <div style="width:22px; height:36px; border-radius:14px; border:1.5px solid rgba(243,237,228,.3); display:flex; justify-content:center; padding-top:7px;"><span style="width:3px; height:7px; border-radius:3px; background:#ff7a1a; animation:scrollDot 1.8s ease-in-out infinite;"></span></div>
+      SCROLL TO IGNITE
+    </div>
+  </header>
+
+  <!-- PROBLEM (dark cinematic) -->
+  <section id="problem" style="position:relative; z-index:10; min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:120px 44px; max-width:1180px; margin:0 auto;">
+    <div data-rv style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.18em; color:#ff7a1a;">01 — THE HEAT</div>
+    <h2 class="em-bigwords" style="margin-top:24px; font-family:'Bricolage Grotesque'; font-weight:600; font-size:clamp(34px,5.4vw,74px); line-height:1.04; letter-spacing:-.02em; max-width:1000px;">
+      Manual QA melts under the pace games ship at today.
+    </h2>
+    <div style="margin-top:70px; display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.07); border-radius:22px; overflow:hidden;">
+      <div data-rv class="em-prob" style="padding:38px 32px; background:#0c0a0d;"><div data-par="0.12" style="font-family:'Bricolage Grotesque'; font-size:46px; font-weight:700; color:#ff7a1a;">days</div><h3 style="margin-top:14px; font-size:20px; font-weight:600;">per regression pass</h3><p style="margin-top:10px; font-size:15px; line-height:1.6; color:rgba(243,237,228,.6);">Every build eats human hours. Velocity burns out before launch.</p></div>
+      <div data-rv class="em-prob" style="padding:38px 32px; background:#0c0a0d;"><div data-par="0.18" style="font-family:'Bricolage Grotesque'; font-size:46px; font-weight:700; color:#ff7a1a;">edge</div><h3 style="margin-top:14px; font-size:20px; font-weight:600;">cases hide in the dark</h3><p style="margin-top:10px; font-size:15px; line-height:1.6; color:rgba(243,237,228,.6);">Rare state combinations crash where no human thinks to look.</p></div>
+      <div data-rv class="em-prob" style="padding:38px 32px; background:#0c0a0d;"><div data-par="0.24" style="font-family:'Bricolage Grotesque'; font-size:46px; font-weight:700; color:#ff7a1a;">zero</div><h3 style="margin-top:14px; font-size:20px; font-weight:600;">QA budget for indies</h3><p style="margin-top:10px; font-size:15px; line-height:1.6; color:rgba(243,237,228,.6);">Small teams ship and pray the community finds it first.</p></div>
+    </div>
+  </section>
+
+  <!-- SOLUTION (LIGHT stage flip) -->
+  <section id="solution" style="position:relative; z-index:20; background:#f4efe7; color:#1a1512; border-radius:40px 40px 0 0; box-shadow:0 -40px 120px rgba(255,120,30,.18);">
+    <div style="min-height:100vh; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; padding:120px 56px; max-width:1240px; margin:0 auto;">
+      <div>
+        <div data-rv style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.18em; color:#d4520a;">02 — THE FORGE</div>
+        <h2 data-rv style="margin-top:22px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(36px,4.6vw,68px); line-height:1; letter-spacing:-.02em;">It plays.<br>It breaks things.<br>It writes the<br><span style="color:#e85410;">report.</span></h2>
+        <p data-rv style="margin-top:26px; font-size:18px; line-height:1.65; color:rgba(26,21,18,.66); max-width:460px;">A swarm of EMBER agents explores your game, stress-tests every system, and tries the combinations a human never would. Crashes, glitches, UI breaks, logic flaws and perf spikes are captured, reproduced and ranked.</p>
+        <div data-rv style="margin-top:30px; display:flex; flex-direction:column; gap:15px;">
+          <div style="display:flex; align-items:center; gap:13px; font-size:16px; font-weight:500;"><span style="width:26px;height:26px;border-radius:50%;background:#e85410;display:grid;place-items:center;flex-shrink:0;"><i data-lucide="check" style="width:15px;height:15px;color:#fff;"></i></span> Crashes reproduced deterministically</div>
+          <div style="display:flex; align-items:center; gap:13px; font-size:16px; font-weight:500;"><span style="width:26px;height:26px;border-radius:50%;background:#e85410;display:grid;place-items:center;flex-shrink:0;"><i data-lucide="check" style="width:15px;height:15px;color:#fff;"></i></span> Every issue classified by severity</div>
+          <div style="display:flex; align-items:center; gap:13px; font-size:16px; font-weight:500;"><span style="width:26px;height:26px;border-radius:50%;background:#e85410;display:grid;place-items:center;flex-shrink:0;"><i data-lucide="check" style="width:15px;height:15px;color:#fff;"></i></span> Repo access unlocks one-click fixes</div>
+        </div>
+      </div>
+      <div data-rv data-par="0.18" style="position:relative; border-radius:24px; overflow:hidden; background:#100d10; box-shadow:0 50px 120px rgba(0,0,0,.35); border:1px solid rgba(0,0,0,.1);">
+        <div style="display:flex; align-items:center; gap:8px; padding:14px 18px; background:#191418;"><span style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></span><span style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></span><span style="width:11px;height:11px;border-radius:50%;background:#28c840;"></span><span style="margin-left:10px; font-size:12px; font-family:'JetBrains Mono',monospace; color:#7a7470;">ember.run — agent swarm</span></div>
+        <div id="em-solfeed" style="padding:24px; font-family:'JetBrains Mono',monospace; font-size:13.5px; line-height:2.05; color:#9a958f; min-height:300px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPABILITIES (light continues) -->
+  <section id="features" style="position:relative; z-index:20; background:#f4efe7; color:#1a1512; padding:60px 56px 130px;">
+    <div style="max-width:1240px; margin:0 auto;">
+      <div data-rv style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.18em; color:#d4520a;">03 — CAPABILITIES</div>
+      <h2 data-rv style="margin-top:20px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(32px,4.2vw,60px); line-height:1; letter-spacing:-.02em; max-width:760px;">A whole QA department, running in parallel.</h2>
+      <div id="em-features" style="margin-top:54px; display:grid; grid-template-columns:repeat(12,1fr); gap:16px;"></div>
+    </div>
+  </section>
+
+  <!-- APP PREVIEW (dark again) -->
+  <section id="app" style="position:relative; z-index:20; background:#08070a; color:#f3ede4; border-radius:40px 40px 0 0; box-shadow:0 -30px 100px rgba(0,0,0,.5); padding:120px 44px 130px;">
+    <div style="max-width:1240px; margin:0 auto;">
+      <div data-rv style="text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.18em; color:#ff7a1a;">04 — MISSION CONTROL</div>
+        <h2 style="margin-top:20px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(34px,4.6vw,66px); line-height:1; letter-spacing:-.02em;">The desktop app stays calm<br>while it sets fires.</h2>
+      </div>
+      <div data-rv data-par="0.14" style="margin-top:60px; border-radius:20px; padding:9px; background:linear-gradient(135deg, rgba(255,210,122,.5), rgba(255,80,20,.4)); box-shadow:0 60px 150px rgba(0,0,0,.6), 0 0 80px rgba(255,110,30,.2);">
+        <div style="border-radius:13px; overflow:hidden; background:#0c0a0d; border:1px solid rgba(255,255,255,.06);">
+          <div style="display:flex; align-items:center; gap:8px; padding:13px 16px; background:rgba(255,255,255,.03); border-bottom:1px solid rgba(255,255,255,.06);">
+            <span style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></span><span style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></span><span style="width:11px;height:11px;border-radius:50%;background:#28c840;"></span>
+            <span style="margin-left:14px; font-size:12px; color:#7a7470; font-family:'JetBrains Mono',monospace;">EMBER — Dashboard</span>
+          </div>
+          <div style="display:grid; grid-template-columns:200px 1fr;">
+            <div style="padding:18px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; gap:5px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;background:linear-gradient(90deg,rgba(255,122,26,.18),transparent);color:#ffe0c0;font-size:13.5px;"><i data-lucide="flame" style="width:16px;height:16px;"></i> Dashboard</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;color:#8b857f;font-size:13.5px;"><i data-lucide="flask-conical" style="width:16px;height:16px;"></i> Test Runs</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;color:#8b857f;font-size:13.5px;"><i data-lucide="bug" style="width:16px;height:16px;"></i> Bug Reports</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;color:#8b857f;font-size:13.5px;"><i data-lucide="package" style="width:16px;height:16px;"></i> Game Builds</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;color:#8b857f;font-size:13.5px;"><i data-lucide="bot" style="width:16px;height:16px;"></i> AI Agents</div>
+            </div>
+            <div style="padding:22px;">
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:13px;">
+                <div style="padding:16px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);"><div style="font-size:12px;color:#8b857f;">Tests running</div><div style="font-size:26px;font-weight:700;margin-top:6px;font-family:'JetBrains Mono',monospace;color:#ff9d4d;">14</div></div>
+                <div style="padding:16px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);"><div style="font-size:12px;color:#8b857f;">Bugs found</div><div style="font-size:26px;font-weight:700;margin-top:6px;font-family:'JetBrains Mono',monospace;color:#ff6a4d;">37</div></div>
+                <div style="padding:16px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);"><div style="font-size:12px;color:#8b857f;">Stability</div><div style="font-size:26px;font-weight:700;margin-top:6px;font-family:'JetBrains Mono',monospace;color:#ffd27a;">94.2</div></div>
+                <div style="padding:16px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);"><div style="font-size:12px;color:#8b857f;">Perf issues</div><div style="font-size:26px;font-weight:700;margin-top:6px;font-family:'JetBrains Mono',monospace;">5</div></div>
+              </div>
+              <div style="margin-top:13px; display:grid; grid-template-columns:1.5fr 1fr; gap:13px;">
+                <div style="padding:18px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);">
+                  <div style="display:flex;justify-content:space-between; font-size:13px; color:#9a958f;"><span>Stability over builds</span><span style="font-family:'JetBrains Mono',monospace;color:#ff9d4d;">+6.1%</span></div>
+                  <svg viewBox="0 0 320 84" style="width:100%; height:84px; margin-top:12px;"><defs><linearGradient id="emg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff8a3c" stop-opacity=".35"/><stop offset="1" stop-color="#ff8a3c" stop-opacity="0"/></linearGradient></defs><path d="M0,66 L40,56 L80,60 L120,40 L160,46 L200,28 L240,32 L280,16 L320,20 L320,84 L0,84 Z" fill="url(#emg)"/><path d="M0,66 L40,56 L80,60 L120,40 L160,46 L200,28 L240,32 L280,16 L320,20" fill="none" stroke="#ff8a3c" stroke-width="2.2"/></svg>
+                </div>
+                <div style="padding:18px; border-radius:13px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);">
+                  <div style="font-size:13px; color:#9a958f; margin-bottom:12px;">Live bug feed</div>
+                  <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;font-size:12.5px;"><span style="width:7px;height:7px;border-radius:50%;background:#ff5f57;"></span> Critical · SaveSystem null ref</div>
+                  <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;font-size:12.5px;"><span style="width:7px;height:7px;border-radius:50%;background:#ff9d6e;"></span> High · z-fighting wall_04</div>
+                  <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;"><span style="width:7px;height:7px;border-radius:50%;background:#febc2e;"></span> Medium · menu focus trap</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-rv style="text-align:center; margin-top:38px;">
+        <a href="Ember App.dc.html" class="em-btn-primary" style="display:inline-flex; align-items:center; gap:9px; font-size:15px; font-weight:600; padding:15px 28px; border-radius:100px; color:#1a0f06; background:linear-gradient(135deg,#ffd27a,#ff7a1a); box-shadow:0 16px 46px rgba(255,120,30,.4); transition:transform .25s, box-shadow .25s;">Open the full app <i data-lucide="arrow-right" style="width:17px;height:17px;"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section style="position:relative; z-index:20; background:#08070a; padding:30px 44px 130px;">
+    <div style="max-width:1180px; margin:0 auto;">
+      <div data-rv style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.18em; color:#ff7a1a;">05 — IGNITION SEQUENCE</div>
+      <h2 data-rv style="margin-top:20px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(32px,4.2vw,60px); line-height:1; letter-spacing:-.02em;">Six steps from build to confident release.</h2>
+      <div id="em-workflow" style="margin-top:54px;"></div>
+    </div>
+  </section>
+
+  <!-- CTA (molten) -->
+  <section id="cta" style="position:relative; z-index:20; padding:0 44px 110px;">
+    <div data-rv style="position:relative; overflow:hidden; max-width:1100px; margin:0 auto; border-radius:34px; padding:90px 50px; text-align:center; background:linear-gradient(150deg,#1a0d05,#2a1408); border:1px solid rgba(255,140,60,.25);">
+      <div style="position:absolute; top:-160px; left:50%; width:640px; height:420px; margin-left:-320px; background:radial-gradient(circle, rgba(255,120,30,.5), transparent 62%); filter:blur(30px);"></div>
+      <div style="position:absolute; inset:0; pointer-events:none;" id="em-ctaembers"></div>
+      <h2 style="position:relative; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(38px,5.6vw,82px); line-height:.96; letter-spacing:-.03em;">Ship like you have<br>a 50-person QA team.</h2>
+      <p style="position:relative; margin-top:20px; font-size:18px; color:rgba(243,237,228,.7);">Free during the ignition beta. Mac · Windows · Linux.</p>
+      <div style="position:relative; margin-top:36px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a href="#top" class="em-btn-primary" style="display:inline-flex; align-items:center; gap:10px; font-size:17px; font-weight:600; padding:17px 32px; border-radius:100px; color:#1a0f06; background:linear-gradient(135deg,#ffd27a,#ff7a1a); box-shadow:0 18px 54px rgba(255,120,30,.5); transition:transform .25s, box-shadow .25s;"><i data-lucide="download" style="width:19px;height:19px;"></i> Download the app</a>
+        <a href="#top" class="em-btn-ghost" style="display:inline-flex; align-items:center; gap:10px; font-size:17px; font-weight:500; padding:17px 30px; border-radius:100px; color:#f3ede4; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.04); transition:all .25s;">Join the beta</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="position:relative; z-index:20; border-top:1px solid rgba(255,255,255,.07); padding:54px 44px 40px;">
+    <div style="max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:30px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:11px;"><div style="width:11px; height:11px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe0a8, #ff7a1a 55%, #c8330f); box-shadow:0 0 12px rgba(255,120,30,.8);"></div><span style="font-family:'Bricolage Grotesque'; font-weight:700; letter-spacing:.3em; font-size:15px;">EMBER</span></div>
+        <p style="margin-top:14px; font-size:14px; color:rgba(243,237,228,.5); max-width:280px; line-height:1.6;">The autonomous QA agent that burns every bug out of your game.</p>
+      </div>
+      <div style="display:flex; gap:60px; font-size:14px;">
+        <div style="display:flex; flex-direction:column; gap:12px;"><span style="font-weight:600;">Product</span><a href="#features" style="color:rgba(243,237,228,.55);">Capabilities</a><a href="#app" style="color:rgba(243,237,228,.55);">Desktop app</a></div>
+        <div style="display:flex; flex-direction:column; gap:12px;"><span style="font-weight:600;">Company</span><a href="#" style="color:rgba(243,237,228,.55);">About</a><a href="#" style="color:rgba(243,237,228,.55);">Careers</a></div>
+        <div style="display:flex; flex-direction:column; gap:12px;"><span style="font-weight:600;">Resources</span><a href="#" style="color:rgba(243,237,228,.55);">Docs</a><a href="#" style="color:rgba(243,237,228,.55);">Status</a></div>
+      </div>
+    </div>
+    <div style="max-width:1180px; margin:38px auto 0; padding-top:24px; border-top:1px solid rgba(255,255,255,.06); display:flex; justify-content:space-between; font-size:12.5px; font-family:'JetBrains Mono',monospace; color:rgba(243,237,228,.4);"><span>© 2026 EMBER LABS</span><span>FORGED FOR GAME MAKERS</span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  icons(){ try{ window.lucide && window.lucide.createIcons(); }catch(e){} }
+
+  componentDidMount(){
+    const doc = document;
+    this.icons(); setTimeout(()=>this.icons(),300); setTimeout(()=>this.icons(),1000);
+
+    // ---- FEATURES (bento spans on 12-col) ----
+    const feats = [
+      ['gamepad-2','Automated gameplay','Agents play real sessions across every route and system.',5],
+      ['bug','Bug detection','Crashes, glitches and soft-locks caught and reproduced.',4],
+      ['scan-eye','Visual bug detection','Z-fighting, clipping and broken UI spotted on screen.',3],
+      ['gauge','Performance review','Frame spikes, memory leaks and load stalls surfaced.',3],
+      ['code-2','Code analysis','Static + runtime inspection pinpoints the root cause.',4],
+      ['wand-sparkles','Auto-fix suggestions','One-click patches when EMBER has repo access.',5],
+      ['brain','AI gameplay behavior','Human-like and adversarial play styles, side by side.',4],
+      ['shuffle','Test combinations','Thousands of input and state permutations per build.',4],
+      ['git-compare','Build comparison','Regression diffs between any two versions instantly.',4]
+    ];
+    const fc = doc.getElementById('em-features');
+    if(fc) fc.innerHTML = feats.map((f,i)=>`
+      <div data-rv class="em-feat" style="grid-column:span ${f[3]}; padding:26px; border-radius:20px; background:#fff; border:1px solid rgba(26,21,18,.08); transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s, border-color .35s; transition-delay:${(i%3)*0.05}s;">
+        <div style="width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#fff1e0,#ffd9b0);">
+          <i data-lucide="${f[0]}" style="width:22px;height:22px;color:#e8541 0;color:#e85410;"></i>
+        </div>
+        <h3 style="margin-top:18px; font-family:'Bricolage Grotesque'; font-size:21px; font-weight:600; color:#1a1512;">${f[1]}</h3>
+        <p style="margin-top:8px; font-size:14.5px; line-height:1.55; color:rgba(26,21,18,.6);">${f[2]}</p>
+      </div>`).join('');
+
+    // ---- WORKFLOW (cinematic numbered rows) ----
+    const steps = [
+      ['upload','Upload your build','Drop in a Unity, Unreal, Godot or WebGL build — EMBER ingests it in seconds.'],
+      ['sliders-horizontal','Configure the tester','Pick test types, intensity and target systems, then arm the swarm.'],
+      ['flame','Ignite the run','Thousands of agents play your game in parallel, in real time.'],
+      ['bug','Detect & reproduce','Every issue is reproduced deterministically, classified and de-duplicated.'],
+      ['file-text','Generate the report','An aftermath report lands with a stability score and problem zones.'],
+      ['check-check','Fix & verify','Apply suggested fixes, then re-run to confirm the build is sealed.']
+    ];
+    const wc = doc.getElementById('em-workflow');
+    if(wc) wc.innerHTML = steps.map((s,i)=>`
+      <div data-rv class="em-step" style="display:grid; grid-template-columns:120px 1fr auto; gap:28px; align-items:center; padding:30px 10px; border-top:1px solid rgba(255,255,255,.08);">
+        <div data-par="0.1" style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:64px; line-height:1; color:rgba(255,122,26,.18);">0${i+1}</div>
+        <div>
+          <div style="display:flex; align-items:center; gap:12px;"><i data-lucide="${s[0]}" style="width:22px;height:22px;color:#ff9d4d;"></i><h3 style="font-family:'Bricolage Grotesque'; font-size:clamp(22px,2.4vw,32px); font-weight:600;">${s[1]}</h3></div>
+          <p style="margin-top:8px; font-size:16px; line-height:1.55; color:rgba(243,237,228,.6); max-width:640px;">${s[2]}</p>
+        </div>
+        <div class="em-stepbar" style="width:60px; height:4px; border-radius:4px; background:linear-gradient(90deg,#ffd27a,#ff7a1a); opacity:.25; transition:width .6s, opacity .6s;"></div>
+      </div>`).join('');
+
+    // ---- SOLUTION terminal feed ----
+    const solLines = [
+      ['› igniting 1,024 agents…','#ff9d4d'],
+      ['› agent_07 → jump arc @ low fps','#9a958f'],
+      ['› agent_19 → inventory overflow probe','#9a958f'],
+      ['✗ CRASH · null ref SaveSystem.Load()','#ff6a4d'],
+      ['› reproducing… seed=8841 · 12/12 ✓','#ff9d4d'],
+      ['→ candidate fix located · 1 file','#ffd27a'],
+      ['› stability recomputed · 94.2','#ff9d4d']
+    ];
+    const sf = doc.getElementById('em-solfeed');
+    if(sf){ let si=0; const addLine=()=>{ if(si>=solLines.length){ setTimeout(()=>{ sf.innerHTML=''; si=0; addLine(); }, 2600); return; } const [t,c]=solLines[si]; si++; const d=document.createElement('div'); d.style.color=c; d.style.opacity='0'; d.style.transform='translateX(-8px)'; d.style.transition='opacity .4s, transform .4s'; d.textContent=t; sf.appendChild(d); requestAnimationFrame(()=>{ d.style.opacity='1'; d.style.transform='none'; }); setTimeout(addLine, 650); }; addLine(); }
+
+    // ---- CTA floating embers ----
+    const ce = doc.getElementById('em-ctaembers');
+    if(ce){ for(let i=0;i<14;i++){ const e=document.createElement('div'); const x=Math.random()*100, s=2+Math.random()*4, dur=3+Math.random()*4, dl=Math.random()*5; e.style.cssText=`position:absolute; left:${x}%; bottom:0; width:${s}px; height:${s}px; border-radius:50%; background:#ff9d4d; box-shadow:0 0 8px #ff7a1a; animation:emberRise ${dur}s linear ${dl}s infinite;`; ce.appendChild(e); } }
+
+    this.icons(); setTimeout(()=>this.icons(),200);
+
+    // ---- WORD-BY-WORD hero reveal ----
+    doc.querySelectorAll('.emword').forEach((w,i)=>{ setTimeout(()=>w.classList.add('in'), 200 + i*90); });
+
+    // ---- REVEAL on scroll (rect based) ----
+    const revealCheck = ()=>{
+      const vh = window.innerHeight;
+      doc.querySelectorAll('[data-rv]:not(.in)').forEach(el=>{ const r=el.getBoundingClientRect(); if(r.top < vh*0.86 && r.bottom>0) el.classList.add('in'); });
+      doc.querySelectorAll('.em-step').forEach(st=>{ const r=st.getBoundingClientRect(); const bar=st.querySelector('.em-stepbar'); if(bar){ if(r.top<vh*0.7 && r.bottom>0){ bar.style.width='120px'; bar.style.opacity='1'; } } });
+    };
+    revealCheck(); [120,400,900].forEach(t=>setTimeout(revealCheck,t));
+
+    // ---- SCROLL: parallax + nav + stage fade ----
+    const stage = doc.getElementById('em-stage');
+    const nav = doc.getElementById('em-nav');
+    const onScroll = ()=>{
+      const y = window.scrollY;
+      const vh = window.innerHeight;
+      // parallax elements
+      doc.querySelectorAll('[data-par]').forEach(el=>{ const sp=parseFloat(el.dataset.par)||0; const r=el.getBoundingClientRect(); const center=r.top + r.height/2 - vh/2; el.style.transform = `translateY(${ -center*sp }px)`; });
+      // 3D stage fades as we pass hero
+      if(stage){ const f = Math.max(0.06, 1 - y/(vh*0.9)); stage.style.opacity = f.toFixed(3); }
+      // nav solidify
+      if(nav){ if(y>40){ nav.style.background='rgba(8,7,10,.72)'; nav.style.backdropFilter='blur(16px)'; nav.style.borderBottomColor='rgba(255,255,255,.07)'; } else { nav.style.background='transparent'; nav.style.backdropFilter='none'; nav.style.borderBottomColor='transparent'; } }
+      revealCheck();
+      this._coreScroll = y/vh;
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+    // ---- button hovers ----
+    doc.querySelectorAll('.em-btn-primary').forEach(b=>{ b.addEventListener('mouseenter',()=>{ b.style.transform='translateY(-3px) scale(1.02)'; b.style.boxShadow='0 22px 60px rgba(255,120,30,.6)'; }); b.addEventListener('mouseleave',()=>{ b.style.transform=''; }); });
+    doc.querySelectorAll('.em-btn-ghost').forEach(b=>{ b.addEventListener('mouseenter',()=>{ b.style.background='rgba(255,255,255,.08)'; b.style.borderColor='rgba(255,160,80,.5)'; }); b.addEventListener('mouseleave',()=>{ b.style.background='rgba(255,255,255,.03)'; b.style.borderColor='rgba(255,255,255,.16)'; }); });
+    doc.querySelectorAll('.em-feat').forEach(c=>{ c.addEventListener('mouseenter',()=>{ c.style.transform='translateY(-6px)'; c.style.boxShadow='0 26px 60px rgba(232,84,16,.18)'; c.style.borderColor='rgba(232,84,16,.4)'; }); c.addEventListener('mouseleave',()=>{ c.style.transform=''; c.style.boxShadow='none'; c.style.borderColor='rgba(26,21,18,.08)'; }); });
+    doc.querySelectorAll('.em-prob').forEach(c=>{ c.addEventListener('mouseenter',()=>{ c.style.background='#130f12'; }); c.addEventListener('mouseleave',()=>{ c.style.background='#0c0a0d'; }); });
+
+    // ---- THREE.js molten core ----
+    this.initCore();
+  }
+
+  initCore(){
+    const self = this;
+    let tries = 0;
+    const boot = ()=>{
+      if(!window.THREE){ if(tries++<60) return setTimeout(boot,80); return; }
+      const THREE = window.THREE;
+      const canvas = document.getElementById('em-canvas');
+      if(!canvas) return;
+      const fb = document.getElementById('em-fallback'); if(fb) fb.style.display='none';
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      camera.position.z = 4.2;
+
+      const size = ()=>{ const w=canvas.clientWidth, h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
+
+      const noiseGLSL = `
+        vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+        vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+        vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+        float snoise(vec3 v){
+          const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+          vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+          vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+          vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+          i=mod289(i);
+          vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+          float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+          vec4 j=p-49.0*floor(p*ns.z*ns.z);
+          vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);
+          vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);
+          vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+          vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));
+          vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+          vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+          vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+          p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+          vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;
+          return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+        }`;
+
+      const uniforms = { uTime:{value:0}, uScroll:{value:0}, uColA:{value:new THREE.Color('#2a0e02')}, uColB:{value:new THREE.Color('#ff6a14')}, uColC:{value:new THREE.Color('#ffe2a8')} };
+
+      const mat = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: noiseGLSL + `
+          uniform float uTime; uniform float uScroll;
+          varying float vDisp; varying vec3 vNormalW; varying vec3 vView;
+          void main(){
+            float t = uTime*0.45;
+            float n = snoise(normal*1.6 + vec3(t));
+            float n2 = snoise(position*2.6 - vec3(t*0.7))*0.5;
+            float disp = (n + n2) * (0.34 + uScroll*0.18);
+            vDisp = disp;
+            vec3 pos = position + normal*disp;
+            vec4 mv = modelViewMatrix * vec4(pos,1.0);
+            vView = normalize(-mv.xyz);
+            vNormalW = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform vec3 uColA; uniform vec3 uColB; uniform vec3 uColC; uniform float uTime;
+          varying float vDisp; varying vec3 vNormalW; varying vec3 vView;
+          void main(){
+            float fres = pow(1.0 - max(dot(vNormalW, vView),0.0), 2.2);
+            float heat = smoothstep(-0.3, 0.4, vDisp);
+            vec3 col = mix(uColA, uColB, heat);
+            col = mix(col, uColC, fres*0.9 + heat*0.25);
+            col += uColB * pow(heat,2.0) * 0.6;
+            gl_FragColor = vec4(col, 1.0);
+          }`
+      });
+
+      const geo = new THREE.IcosahedronGeometry(1.25, 64);
+      const core = new THREE.Mesh(geo, mat);
+      scene.add(core);
+
+      // inner backlight glow sphere (additive)
+      const glowMat = new THREE.MeshBasicMaterial({ color:new THREE.Color('#ff7a1a'), transparent:true, opacity:0.18, blending:THREE.AdditiveBlending, side:THREE.BackSide });
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(1.7, 32, 32), glowMat);
+      scene.add(glow);
+
+      // rising ember particles
+      const N = 240; const pg = new THREE.BufferGeometry(); const pos = new Float32Array(N*3); const spd = new Float32Array(N);
+      for(let i=0;i<N;i++){ const r=1.6+Math.random()*1.6, a=Math.random()*6.28, b=Math.acos(2*Math.random()-1); pos[i*3]=r*Math.sin(b)*Math.cos(a); pos[i*3+1]=r*Math.cos(b); pos[i*3+2]=r*Math.sin(b)*Math.sin(a); spd[i]=0.2+Math.random()*0.6; }
+      pg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      const pmat = new THREE.PointsMaterial({ color:new THREE.Color('#ffb060'), size:0.045, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending, depthWrite:false });
+      const pts = new THREE.Points(pg, pmat);
+      scene.add(pts);
+
+      const mouse = {x:0,y:0,tx:0,ty:0};
+      window.addEventListener('mousemove', e=>{ mouse.tx=(e.clientX/window.innerWidth-0.5); mouse.ty=(e.clientY/window.innerHeight-0.5); });
+
+      size(); window.addEventListener('resize', size);
+      const clock = new THREE.Clock();
+      const tick = ()=>{
+        const t = clock.getElapsedTime();
+        uniforms.uTime.value = t;
+        uniforms.uScroll.value = self._coreScroll || 0;
+        mouse.x += (mouse.tx-mouse.x)*0.05; mouse.y += (mouse.ty-mouse.y)*0.05;
+        core.rotation.y = t*0.18 + mouse.x*0.6; core.rotation.x = mouse.y*0.5 + Math.sin(t*0.2)*0.1;
+        glow.rotation.copy(core.rotation);
+        const s = 1 + (self._coreScroll||0)*0.15; core.scale.setScalar(s); glow.scale.setScalar(s);
+        // animate embers up & swirl
+        const p = pg.attributes.position.array;
+        for(let i=0;i<N;i++){ p[i*3+1]+= spd[i]*0.01; const ang=0.002*spd[i]; const x=p[i*3], z=p[i*3+2]; p[i*3]=x*Math.cos(ang)-z*Math.sin(ang); p[i*3+2]=x*Math.sin(ang)+z*Math.cos(ang); if(p[i*3+1]>2.6){ p[i*3+1]=-2.0; } }
+        pg.attributes.position.needsUpdate = true;
+        pts.rotation.y = t*0.05;
+        renderer.render(scene, camera);
+        self._raf = requestAnimationFrame(tick);
+      };
+      tick();
+    };
+    boot();
+  }
+
+  componentWillUnmount(){ if(this._raf) cancelAnimationFrame(this._raf); }
+  renderVals(){ return {}; }
+}
+</script>
+</body>
+</html>
