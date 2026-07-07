@@ -1,0 +1,19 @@
+{
+  "name": "@ember/shared",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Shared types, schemas and constants for the Ember platform.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./config-schema": "./src/config-schema.js",
+    "./engines": "./src/engines.js",
+    "./plans": "./src/plans.js",
+    "./constants": "./src/constants.js",
+    "./checks": "./src/checks.js"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('@ember/shared: nothing to build (plain ESM)')\""
+  }
+}

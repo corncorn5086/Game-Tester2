@@ -1,22 +1,138 @@
-# CODING AGENTS: READ THIS FIRST
+# ◆ Ember — autonomous QA agent for game studios
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+**Ember** plugs into your game project, scans the codebase, mines the logs, runs your build
+and test commands, and hands you a professional QA report with reproducible bugs and
+suggested fixes. It is built for studios, indie developers and QA teams — and it never
+fakes a result: every number is counted from real signals, and anything Ember cannot do
+yet is reported as **blocked** with the exact missing piece.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+> Monorepo: marketing site · desktop app · backend API · installable local agent (CLI) · shared schemas · docs.
 
-## What you should do — IMPORTANT
+## What's inside
 
-**Read `design-premium-pour-ai-tester/project/Ember Landing.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+```
+apps/web        Ember marketing site (Vite + React) — presents & distributes the product
+apps/desktop    Ember Desktop (Electron + Vite + React) — the SaaS command center
+apps/agent      Ember Agent — real, offline-first CLI (`ember`), zero external deps
+backend         Ember API (Express + SQLite via node:sqlite) — projects, bugs, reports, auth, billing, team
+shared          Schemas, engine profiles, plans, constants shared by everything
+docs            Developer documentation (installation, integrations, CLI, config…)
+design          Original Claude Design handoff (visual reference for the web site)
+```
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Quick start
 
-## About the design files
+Requires **Node 22.5+**.
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+```bash
+git clone https://github.com/corncorn5086/Game-Tester2
+cd Game-Tester2
+npm install
+```
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+| What | Command | URL |
+|---|---|---|
+| Web site | `npm run dev:web` | http://localhost:4311 |
+| Desktop app (Electron) | `npm run dev:desktop` | native window |
+| Desktop renderer only | `npm run dev:desktop:renderer` | http://localhost:4312 |
+| Backend API | `npm run dev:backend` | http://localhost:4310 |
+| Everything | `npm run dev:all` | all of the above |
+| Agent CLI | `npm run agent -- --help` | — |
 
-## Bundle contents
+Other scripts: `build:web` / `build:desktop` / `build:backend` / `build:agent`,
+`lint`, `typecheck`, `test:agent`, and `npm test --workspace @ember/backend`.
 
-- `design-premium-pour-ai-tester/README.md` — this file
-- `design-premium-pour-ai-tester/project/` — the `Design premium pour AI tester` project files (HTML prototypes, assets, components)
+## Install Ember Agent (the CLI)
+
+```bash
+npm link --workspace @ember/agent    # puts `ember` on your PATH
+
+cd /path/to/your/game
+ember init                           # detects Unity/Unreal/Godot/web/custom, writes ember.config.json
+ember doctor                         # verifies paths, commands, environment
+ember scan                           # inventory + engine detection
+ember analyze                        # static analysis (real findings with file:line evidence)
+ember run --profile smoke            # run a test profile
+ember report --format md             # professional QA report + regression diff
+```
+
+## Connecting a game project
+
+Ember integrates in layers — config file → CLI → desktop app → backend sync → CI → engine SDKs.
+See [docs/game-integration.md](docs/game-integration.md) and the engine guides:
+[Unity](docs/unity.md) · [Unreal](docs/unreal.md) · [Godot](docs/godot.md) · [Web games](docs/web-games.md).
+
+### Example `ember.config.json`
+
+```json
+{
+  "projectName": "My Game",
+  "engine": "unity",
+  "logsPath": "Logs",
+  "crashReportsPath": "CrashReports",
+  "sourcePaths": ["Assets/Scripts"],
+  "buildCommand": "Unity -batchmode -quit -projectPath . -executeMethod BuildScript.Build",
+  "testCommand": "Unity -batchmode -runTests -projectPath . -testResults results.xml",
+  "testProfiles": {
+    "smoke": { "checks": ["scan", "analyze", "logs"] },
+    "full":  { "checks": ["scan", "analyze", "logs", "build", "test"] }
+  },
+  "customRules": [],
+  "backend": { "url": "http://localhost:4310" }
+}
+```
+
+Full reference: [docs/config.md](docs/config.md) · CLI reference: [docs/cli.md](docs/cli.md).
+
+## What is real today
+
+- **File scanning & engine detection** — real markers (Assets/, .uproject, project.godot, package.json deps).
+- **Static code analysis** — 20+ game-specific heuristics + your custom regex rules; every finding cites file, line and code.
+- **Log mining** — engine-specific crash/error patterns, deduplicated with occurrence counts and context.
+- **Command execution** — configured build/test/launch commands run with timeouts; exit codes and error lines become evidence.
+- **Bug records** — severity, category, source, evidence, repro steps, reproducibility confidence, regression risk, status.
+- **QA reports** — executive summary + professional metrics (bugs found, crash risk, failed checks, severity breakdown, build health, logs analyzed, files scanned, commands executed…), JSON & Markdown export, run-over-run regression diff (fixed / still present / new).
+- **Backend** — full REST API with SQLite storage, real auth (scrypt + session tokens), report ingestion into a shared triage board, notifications, usage metrics counted from the database.
+- **Desktop app (v2 design)** — animated splash with real startup checks, auth (backend login/signup + local-only + demo), 8-step onboarding wizard (real folder pick, engine detection, config generation, ember doctor, first scan), bottom command dock, Command Center, Connectors, Agent terminal (runs the real CLI core), Code Analysis with Logs viewer, Live Run with steps tracker, 3-column bug triage board with detail drawer, white report document viewer with JSON/Markdown export, collapsible Settings; Test Plans / Team / Billing via the ⌘K palette; explicit **Real / Demo / Local-only / Not connected** modes (demo data is a labeled real agent run on a bundled sample project). Visual spec: `design/desktop-v2/`.
+
+## Data modes — no fake results
+
+- **Real mode** — a project with a valid `ember.config.json` is connected; everything comes from your files, logs and commands.
+- **Demo mode** — opt-in, clearly labeled; shows a report generated by a real agent run on a bundled sample project.
+- **Not connected** — honest empty states with an onboarding checklist.
+- Checks that need an engine SDK (input driving, save/load probes…) are reported as **blocked**, never simulated.
+
+## Accounts, billing, team
+
+- **Accounts**: signup/login/logout with scrypt-hashed passwords and bearer sessions (`/auth/*`); profile & per-user settings; forgot-password is a placeholder until SMTP exists.
+- **Billing**: Free / Pro ($29) / Studio ($99) / Enterprise plans; full API surface; **Stripe is not wired yet** — checkout returns an explicit 501 until `STRIPE_*` keys are set in `.env` ([docs/billing.md](docs/billing.md)).
+- **Team**: workspaces, roles (owner/admin/developer/qa/viewer), invites, public report share links ([docs/team.md](docs/team.md)).
+- **Export/import**: reports (JSON/Markdown; PDF planned), bugs, settings, config, test plans — plus backend `/exports` & `/imports`.
+- **Security**: local-only mode, secret masking, secret detection in code, no keys in the repo ([docs/security.md](docs/security.md)).
+
+Copy `.env.example` to `.env` for backend configuration. Never commit real keys.
+
+## Current limitations (honest)
+
+- Engine SDKs (Unity package, Unreal plugin, Godot addon, web runner) are not published — gameplay-level checks report as blocked.
+- Stripe, SMTP email, Slack/Discord notifications and PDF export are placeholders with explicit UI states.
+- Auth exists but is not yet enforced on every backend route (local-first default).
+- Desktop binaries are not yet published to GitHub Releases; run from source meanwhile.
+- Static analysis is heuristic (regex-based) — a real signal source, not a full parser; AST-based analyzers are on the roadmap.
+
+## Roadmap (next steps)
+
+1. Playwright-based web game runner — first real *gameplay* automation (input fuzzing, console capture, screenshots).
+2. GitHub Action + PR annotations for `ember run`.
+3. Electron-builder packaging + published desktop binaries on Releases.
+4. Stripe checkout + webhooks; role-enforced API authorization.
+5. Unity UPM package (editor panel + play-mode bridge), then Unreal/Godot.
+6. AST-based analyzers (C# via Roslyn sidecar, TS via ts-morph) to deepen code analysis.
+
+## Documentation
+
+[Installation](docs/installation.md) · [Game integration](docs/game-integration.md) · [CLI](docs/cli.md) · [Config](docs/config.md) · [Unity](docs/unity.md) · [Unreal](docs/unreal.md) · [Godot](docs/godot.md) · [Web games](docs/web-games.md) · [Billing](docs/billing.md) · [Team](docs/team.md) · [Security](docs/security.md)
+
+---
+
+© 2026 Ember Labs — forged for game makers.

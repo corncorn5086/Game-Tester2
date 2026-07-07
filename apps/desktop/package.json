@@ -1,0 +1,27 @@
+{
+  "name": "@ember/desktop",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Ember Desktop — premium command center for the Ember QA agent (Electron + React).",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:renderer": "vite --port 4312",
+    "build": "vite build",
+    "start": "electron .",
+    "preview": "vite preview --port 4312"
+  },
+  "dependencies": {
+    "@ember/agent": "*",
+    "@ember/shared": "*",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^33.3.1",
+    "vite": "^6.0.7"
+  }
+}

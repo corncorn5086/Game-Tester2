@@ -1,0 +1,35 @@
+{
+  "name": "ember-monorepo",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Ember — the autonomous QA agent for game studios. Web site, desktop app, backend API and installable local agent.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "apps/agent",
+    "apps/web",
+    "apps/desktop",
+    "backend"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @ember/web",
+    "dev:desktop": "npm run dev --workspace @ember/desktop",
+    "dev:desktop:renderer": "npm run dev:renderer --workspace @ember/desktop",
+    "dev:backend": "npm run dev --workspace @ember/backend",
+    "dev:agent": "node apps/agent/bin/ember.js",
+    "dev:all": "node scripts/dev-all.mjs",
+    "build:web": "npm run build --workspace @ember/web",
+    "build:desktop": "npm run build --workspace @ember/desktop",
+    "build:backend": "npm run build --workspace @ember/backend",
+    "build:agent": "npm run build --workspace @ember/agent",
+    "build": "npm run build:agent && npm run build:backend && npm run build:web && npm run build:desktop",
+    "lint": "node scripts/lint.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
+    "test:agent": "npm test --workspace @ember/agent",
+    "agent": "node apps/agent/bin/ember.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}
