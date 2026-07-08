@@ -8,9 +8,36 @@ import { makeId, TEAM_ROLES } from '@ember/shared/constants';
 import { PLANS, getPlan } from '@ember/shared/plans';
 import { all, get, run, now, j } from '../db.js';
 import { cloudTeam, mirrorInvite, supabaseEnabled } from '../supabase.js';
-import { captureOrder, listProviders, startCheckout } from '../payments/index.js';
+import { captureOrder, listProviders, startCheckout, clientToken, sale, checkoutPage, braintreeConfigured } from '../payments/index.js';
 
 export const platformRouter = Router();
+
+/** Activate/renew a workspace subscription after a successful payment (any provider). */
+function activateSubscription({ planId, workspaceId, provider, payment }) {
+  const sub = workspaceId
+    ? get('SELECT * FROM subscriptions WHERE workspace_id = ?', [workspaceId])
+    : get('SELECT * FROM subscriptions ORDER BY created_at ASC LIMIT 1');
+  const plan = getPlan(planId);
+  // One-time (Lifetime) purchases never expire; subscriptions renew in ~31 days.
+  const periodEnd = plan?.oneTime ? null : new Date(Date.now() + 31 * 24 * 3600 * 1000).toISOString();
+  const status = plan?.oneTime ? 'lifetime' : 'active';
+  if (sub) {
+    run('UPDATE subscriptions SET plan_id = ?, status = ?, current_period_end = ?, updated_at = ? WHERE id = ?', [
+      planId, status, periodEnd, now(), sub.id
+    ]);
+  } else {
+    run('INSERT INTO subscriptions (id, workspace_id, plan_id, status, current_period_end, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [
+      makeId('sub'), workspaceId, planId, status, periodEnd, now(), now()
+    ]);
+  }
+  run('INSERT INTO usage_events (id, kind, quantity, created_at, meta_json) VALUES (?, ?, ?, ?, ?)', [
+    makeId('use'), 'payment-captured', 1, now(), JSON.stringify({ provider, ...payment })
+  ]);
+  run('INSERT INTO notifications (id, type, title, body, created_at) VALUES (?, ?, ?, ?, ?)', [
+    makeId('ntf'), 'report-generated', `Payment received — ${planId} plan active`, `${provider} ${payment.transactionId ?? payment.captureId ?? ''} (${payment.amount?.value ?? ''} ${payment.amount?.currency_code ?? ''})`, now()
+  ]);
+  return periodEnd;
+}
 
 // ---------- settings (global/workspace key-value) ----------
 platformRouter.get('/settings', (_req, res) => {
@@ -48,7 +75,8 @@ platformRouter.post('/billing/checkout', async (req, res) => {
   if (!plan) return res.status(400).json({ error: `unknown plan "${planId}"`, plans: PLANS.map((p) => p.id) });
   if (!plan.price) return res.status(400).json({ error: plan.id === 'enterprise' ? 'Enterprise is custom-quoted — contact us.' : 'The Free plan needs no checkout.' });
   try {
-    const result = await startCheckout(provider, plan, {});
+    const apiBase = `${req.protocol}://${req.get('host')}`;
+    const result = await startCheckout(provider, plan, { apiBase });
     if (result.error) return res.status(result.notConfigured ? 501 : 400).json({ ...result, plan: plan.id, provider });
     run('INSERT INTO usage_events (id, kind, quantity, created_at, meta_json) VALUES (?, ?, ?, ?, ?)', [
       makeId('use'), 'checkout-started', 1, now(), JSON.stringify({ plan: plan.id, provider, orderId: result.orderId })
@@ -66,29 +94,48 @@ platformRouter.post('/billing/paypal/capture', async (req, res) => {
     const result = await captureOrder(orderId);
     if (result.error) return res.status(501).json(result);
     if (result.captured && result.planId) {
-      const sub = workspaceId
-        ? get('SELECT * FROM subscriptions WHERE workspace_id = ?', [workspaceId])
-        : get('SELECT * FROM subscriptions ORDER BY created_at ASC LIMIT 1');
-      const periodEnd = new Date(Date.now() + 31 * 24 * 3600 * 1000).toISOString();
-      if (sub) {
-        run('UPDATE subscriptions SET plan_id = ?, status = ?, current_period_end = ?, updated_at = ? WHERE id = ?', [
-          result.planId, 'active', periodEnd, now(), sub.id
-        ]);
-      } else {
-        run('INSERT INTO subscriptions (id, workspace_id, plan_id, status, current_period_end, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [
-          makeId('sub'), workspaceId, result.planId, 'active', periodEnd, now(), now()
-        ]);
-      }
-      run('INSERT INTO usage_events (id, kind, quantity, created_at, meta_json) VALUES (?, ?, ?, ?, ?)', [
-        makeId('use'), 'payment-captured', 1, now(), JSON.stringify({ provider: 'paypal', ...result })
-      ]);
-      run('INSERT INTO notifications (id, type, title, body, created_at) VALUES (?, ?, ?, ?, ?)', [
-        makeId('ntf'), 'report-generated', `Payment received — ${result.planId} plan active`, `PayPal capture ${result.captureId} (${result.amount?.value ?? ''} ${result.amount?.currency_code ?? ''})`, now()
-      ]);
+      activateSubscription({ planId: result.planId, workspaceId, provider: 'paypal', payment: result });
     }
     res.json(result);
   } catch (e) {
     res.status(502).json({ error: `paypal capture failed: ${e.message}` });
+  }
+});
+
+// ---------- Braintree (Google Pay / Apple Pay / card) ----------
+platformRouter.get('/billing/braintree/client-token', async (_req, res) => {
+  try {
+    const result = await clientToken();
+    if (result.error) return res.status(result.needsInstall ? 501 : (result.notConfigured ? 501 : 400)).json(result);
+    res.json(result);
+  } catch (e) {
+    res.status(502).json({ error: `braintree client token failed: ${e.message}` });
+  }
+});
+
+// Hosted Drop-in checkout page (opened in the browser like the PayPal window)
+platformRouter.get('/billing/braintree/checkout', (req, res) => {
+  const plan = getPlan(req.query.plan);
+  if (!plan || !plan.price) return res.status(400).send('Unknown or free plan');
+  if (!braintreeConfigured) return res.status(501).send('Braintree is not configured on this server.');
+  const apiBase = `${req.protocol}://${req.get('host')}`;
+  res.set('content-type', 'text/html; charset=utf-8').send(checkoutPage(plan, apiBase));
+});
+
+platformRouter.post('/billing/braintree/transaction', async (req, res) => {
+  const { planId, nonce, deviceData, workspaceId = null } = req.body ?? {};
+  const plan = getPlan(planId);
+  if (!plan || !plan.price) return res.status(400).json({ error: `unknown or free plan "${planId}"` });
+  if (!nonce) return res.status(400).json({ error: 'payment nonce is required' });
+  try {
+    const result = await sale(plan, nonce, { deviceData });
+    if (result.error) return res.status(result.needsInstall || result.notConfigured ? 501 : 402).json(result);
+    if (result.captured) {
+      activateSubscription({ planId: plan.id, workspaceId, provider: `braintree:${result.method ?? 'card'}`, payment: result });
+    }
+    res.json(result);
+  } catch (e) {
+    res.status(502).json({ error: `braintree transaction failed: ${e.message}` });
   }
 });
 

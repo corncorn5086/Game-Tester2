@@ -1,6 +1,6 @@
 /**
- * Billing plans. Prices are placeholders until Stripe is wired
- * (see .env.example — STRIPE_* keys, never hardcoded).
+ * Billing plans. Real checkout runs through PayPal / Braintree
+ * (see backend/src/payments). Prices are the amounts actually charged.
  */
 
 export const PLANS = [
@@ -15,7 +15,6 @@ export const PLANS = [
       '1 connected project',
       'Local scans & code analysis',
       'Limited reports (5 / month)',
-      'Demo mode',
       'Community support'
     ],
     limits: { projects: 1, reportsPerMonth: 5, teamMembers: 1, cloudSync: false }
@@ -53,6 +52,24 @@ export const PLANS = [
       'Priority support'
     ],
     limits: { projects: -1, reportsPerMonth: -1, teamMembers: 15, cloudSync: true }
+  },
+  {
+    id: 'lifetime',
+    name: 'Lifetime',
+    price: 499,
+    period: 'one-time',
+    oneTime: true,
+    tagline: 'Own Ember forever — pay once, no subscription',
+    stripePriceId: null,
+    features: [
+      'Everything in Studio, forever',
+      'One-time payment — no monthly fees, ever',
+      'All future updates included',
+      'Unlimited projects, reports & exports',
+      'Team workspace, shared reports & cloud sync',
+      'Priority support for life'
+    ],
+    limits: { projects: -1, reportsPerMonth: -1, teamMembers: 15, cloudSync: true, lifetime: true }
   },
   {
     id: 'enterprise',

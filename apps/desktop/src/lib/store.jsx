@@ -5,6 +5,7 @@
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { bridge, isDesktop, apiClient } from './bridge.js';
+import { translate, dirFor } from './i18n.js';
 
 const AppCtx = createContext(null);
 
@@ -35,7 +36,7 @@ export const DEFAULT_SETTINGS = {
   dataRetentionDays: 90,
   authToken: '',
   authEmail: '',
-  session: null, // { name, email, ws, kind: 'account'|'local'|'demo' }
+  session: null, // { name, email, ws, kind: 'account' }
   onboarded: false,
   recentProjects: []
 };
@@ -70,6 +71,7 @@ export function AppProvider({ children }) {
   const [phase, setPhase] = useState('splash'); // splash | auth | onboarding | app
   const [project, setProject] = useState(null); // { path, root, config, configPath, detection, warnings }
   const [module, setModule] = useState('command');
+  const [moduleParam, setModuleParam] = useState(null); // e.g. a Settings/Account sub-section to open
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [backendHealth, setBackendHealth] = useState(null);
   const [toastMsg, setToastMsg] = useState(null);
@@ -83,6 +85,8 @@ export function AppProvider({ children }) {
   const [bugSeq, setBugSeq] = useState(1);
   const [selectedBug, setSelectedBug] = useState(null);
   const [activity, setActivity] = useState([]); // { icon, color, text, time }
+  const [user, setUser] = useState(null); // full profile from /auth/me
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
     bridge.settings.get().then((s) => {
@@ -96,6 +100,15 @@ export function AppProvider({ children }) {
     document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark';
     document.documentElement.style.setProperty('--accent', settings.accentColor || '#ff4d00');
   }, [settings.theme, settings.accentColor]);
+
+  // Apply language + text direction (RTL for Arabic) across the whole app.
+  const lang = settings.language || 'en';
+  const dir = dirFor(lang);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = dir;
+  }, [lang, dir]);
+  const t = useCallback((key, vars) => translate(lang, key, vars), [lang]);
 
   const saveSettings = useCallback(async (patch) => {
     setSettings((prev) => {
@@ -116,10 +129,46 @@ export function AppProvider({ children }) {
     setActivity((a) => [{ icon, color, text, time }, ...a.slice(0, 19)]);
   }, []);
 
+  /** Navigate to a module, optionally targeting a sub-section (used by the profile menu). */
+  const openModule = useCallback((mod, param = null) => {
+    setModule(mod);
+    setModuleParam(param);
+    setProfileMenuOpen(false);
+  }, []);
+
   const api = useMemo(
     () => apiClient(settings.backendUrl, settings.authToken || undefined),
     [settings.backendUrl, settings.authToken]
   );
+
+  const refreshUser = useCallback(async () => {
+    if (!settings.authToken) { setUser(null); return null; }
+    try {
+      const res = await api.me();
+      setUser(res.user);
+      // Reapply the language saved on the account.
+      if (res.user?.language && res.user.language !== settings.language) {
+        saveSettings({ language: res.user.language });
+      }
+      return res.user;
+    } catch {
+      return null;
+    }
+  }, [api, settings.authToken, settings.language, saveSettings]);
+
+  // Load the profile whenever a token is present (persistent login).
+  useEffect(() => {
+    if (settingsLoaded && settings.authToken) refreshUser();
+  }, [settingsLoaded, settings.authToken, refreshUser]);
+
+  const logout = useCallback(async () => {
+    try { await api.logout(); } catch { /* best effort */ }
+    setUser(null);
+    setProfileMenuOpen(false);
+    await saveSettings({ session: null, authToken: '', authEmail: '' });
+    setProject(null);
+    setPhase('auth');
+  }, [api, saveSettings]);
 
   useEffect(() => {
     if (!settingsLoaded) return;
@@ -194,9 +243,10 @@ export function AppProvider({ children }) {
 
   const value = {
     settings, settingsLoaded, saveSettings,
+    t, lang, dir,
     phase, setPhase,
     project, setProject, connectProject, disconnectProject,
-    module, setModule,
+    module, setModule, moduleParam, setModuleParam, openModule,
     mode, isDesktop,
     api, backendHealth,
     toastMsg, toast,
@@ -206,7 +256,9 @@ export function AppProvider({ children }) {
     lastRun, setLastRun,
     reports, setReports, ingestReport,
     bugs, setBugs, createBug, updateBug, selectedBug, setSelectedBug,
-    activity, logActivity
+    activity, logActivity,
+    user, setUser, refreshUser, logout,
+    profileMenuOpen, setProfileMenuOpen
   };
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;

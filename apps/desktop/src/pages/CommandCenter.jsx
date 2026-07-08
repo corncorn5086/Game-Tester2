@@ -4,7 +4,7 @@ import logo from '../assets/ember-logo.png';
 /**
  * Command Center (v2): not-connected hero, or connected mission control with
  * key metrics, recent activity, latest run + severity bars, recommended and
- * quick actions. Every number comes from real state (or labeled demo data).
+ * quick actions. Every number comes from real state — scans, runs and logs.
  */
 export default function CommandCenter() {
   const { mode, project, setModule, setPhase, reports, bugs, lastRun, activity } = useApp();

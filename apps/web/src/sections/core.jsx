@@ -25,7 +25,7 @@ export function Nav({ solid }) {
         <a href="#pricing">Pricing</a>
       </div>
       <a href="#download" className="btn btn-primary btn-sm">
-        <Download size={15} /> Download
+        <img src={logo} alt="" className="btn-logo" /> Download
       </a>
     </nav>
   );
@@ -67,7 +67,7 @@ export function Hero() {
         </p>
         <div className="hero-ctas" data-rv>
           <a href="#download" className="btn btn-primary">
-            <Download size={18} /> Download Ember
+            <img src={logo} alt="" className="btn-logo btn-logo-lg" /> Download Ember
           </a>
           <a href="#app" className="btn btn-ghost">
             <Play size={16} /> See the desktop app

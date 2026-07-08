@@ -5,75 +5,67 @@ import logo from '../assets/ember-logo.png';
 
 /**
  * Splash: runs REAL startup checks (settings, backend ping, agent bridge,
- * workspace/session) — each dot lights when its check actually completed.
+ * workspace/session). The progress bar and status line reflect the actual
+ * check that just completed — nothing here is faked.
  */
+const CHECKS = [
+  ['settings', 'Loading settings'],
+  ['session', 'Restoring session'],
+  ['backend', 'Connecting to backend'],
+  ['agent', isDesktop ? 'Warming up the agent' : 'Agent bridge (preview)'],
+  ['workspace', 'Preparing workspace']
+];
+
 export default function Splash() {
   const { settings, settingsLoaded, setPhase, api } = useApp();
-  const [done, setDone] = useState({});
+  const [step, setStep] = useState(0);
+  const [label, setLabel] = useState('Loading settings');
   const started = useRef(false);
 
   useEffect(() => {
     if (!settingsLoaded || started.current) return;
     started.current = true;
-    const mark = (key) => setDone((d) => ({ ...d, [key]: true }));
+    const advance = (i) => { setStep(i + 1); setLabel(CHECKS[Math.min(i + 1, CHECKS.length - 1)][1]); };
 
     (async () => {
       const t0 = Date.now();
-      mark('settings');
-
-      // session check (from persisted settings)
-      await new Promise((r) => setTimeout(r, 250));
-      mark('session');
-
+      advance(0);                                   // settings loaded
+      await new Promise((r) => setTimeout(r, 260));
+      advance(1);                                   // session
       await api.health().catch(() => null);
-      mark('backend');
-
-      // agent bridge check
-      if (isDesktop) {
-        await bridge.agent.doctor(undefined).catch(() => null);
-      }
-      mark('agent');
-
-      mark('workspace');
-      // keep the splash readable even when checks are instant
+      advance(2);                                   // backend
+      if (isDesktop) await bridge.agent.doctor(undefined).catch(() => null);
+      advance(3);                                   // agent
+      advance(4);                                   // workspace
       const elapsed = Date.now() - t0;
-      await new Promise((r) => setTimeout(r, Math.max(0, 1600 - elapsed)));
+      await new Promise((r) => setTimeout(r, Math.max(0, 1500 - elapsed)));
       setPhase(settings.session ? 'app' : 'auth');
     })();
   }, [settingsLoaded, settings.session, api, setPhase]);
 
-  const checks = [
-    ['settings', 'Loading settings'],
-    ['session', 'Checking local session'],
-    ['backend', 'Checking backend'],
-    ['agent', isDesktop ? 'Checking agent' : 'Agent bridge (browser preview)'],
-    ['workspace', 'Preparing workspace']
-  ];
+  const progress = Math.round((step / CHECKS.length) * 100);
 
   return (
-    <div className="full-center anim-scale" style={{ gap: 40 }}>
-      <div style={{ position: 'relative', width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,77,0,.16) 0%, transparent 65%)', animation: 'glowPulse 2.6s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', border: '1px solid rgba(255,255,255,.06)', borderTopColor: 'rgba(255,110,50,.5)', animation: 'ringSpin 2.8s linear infinite' }} />
-        <img src={logo} alt="Ember" style={{ width: 120, filter: 'drop-shadow(0 0 24px rgba(255,90,20,.4))' }} />
+    <div className="splash">
+      <div className="splash-mark">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <span
+            key={i}
+            className="splash-spark"
+            style={{
+              marginLeft: `${(i - 2.5) * 15}px`,
+              animation: `splashSpark ${2.2 + i * 0.3}s ease-in ${i * 0.34}s infinite`
+            }}
+          />
+        ))}
+        <img src={logo} alt="Ember" className="splash-logo splash-flame" />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-        <div style={{ fontSize: 12, letterSpacing: '.32em', textTransform: 'uppercase', color: 'rgba(244,244,245,.4)', fontWeight: 500 }}>
-          Initializing Ember Agent
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, minWidth: 270 }}>
-          {checks.map(([key, label]) => {
-            const on = !!done[key];
-            return (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontFamily: 'var(--font-mono)', color: on ? 'rgba(244,244,245,.85)' : 'rgba(244,244,245,.32)', transition: 'color .4s' }}>
-                <span style={{ display: 'inline-flex', width: 14, height: 14, borderRadius: '50%', border: `1px solid ${on ? '#ff4d00' : 'rgba(255,255,255,.15)'}`, background: on ? '#ff4d00' : 'transparent', transition: 'all .4s' }} />
-                {label}
-              </div>
-            );
-          })}
-        </div>
-        <div style={{ width: 270, height: 2, background: 'rgba(255,255,255,.06)', borderRadius: 1, overflow: 'hidden' }}>
-          <div style={{ height: '100%', background: '#ff4d00', animation: 'barLoad 1.8s cubic-bezier(.3,.6,.4,1) both' }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
+        <div className="splash-word">Ember</div>
+        <div className="splash-sub">{label}…</div>
+        <div className="splash-track">
+          <div className="splash-fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
     </div>

@@ -3,13 +3,14 @@ import { ENGINE_KEYS, ENGINES } from '@ember/shared/engines';
 import { useApp } from '../lib/store.jsx';
 import { bridge } from '../lib/bridge.js';
 import { SettingRow, Toggle } from '../components/common.jsx';
+import LanguageSelect from '../components/LanguageSelect.jsx';
 import { DEFAULT_SETTINGS } from '../lib/store.jsx';
 
 const ACCENTS = ['#ff4d00', '#ff8a50', '#ffd27a', '#34d399', '#93c5fd', '#c58bff'];
 
 /** Settings (v2): collapsible sections, all values persisted for real. */
 export default function Settings() {
-  const { settings, saveSettings, toast, setPhase, setModule, api, backendHealth } = useApp();
+  const { settings, saveSettings, toast, setPhase, setModule, api, backendHealth, moduleParam, t } = useApp();
   const [open, setOpen] = useState({ General: true });
   const [aiStatus, setAiStatus] = useState(null);
   const importRef = useRef(null);
@@ -18,6 +19,11 @@ export default function Settings() {
   useEffect(() => {
     bridge.agent.aiStatus(S.aiProvider).then(setAiStatus);
   }, [S.aiProvider]);
+
+  // Open a specific section when navigated here from the profile menu.
+  useEffect(() => {
+    if (moduleParam) setOpen((o) => ({ ...o, [moduleParam]: true }));
+  }, [moduleParam]);
   const set = (k) => (v) => saveSettings({ [k]: v });
   const input = (k, props = {}) => (
     <input className="input" value={S[k] ?? ''} onChange={(e) => saveSettings({ [k]: props.type === 'number' ? Number(e.target.value) : e.target.value })} {...props} />
@@ -70,11 +76,8 @@ export default function Settings() {
       <h2 className="page-title" style={{ marginBottom: 18 }}>Settings</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 760 }}>
         <Section name="General" icon="⚙">
-          <SettingRow name="Language" desc="More locales coming; reports are language-neutral JSON/Markdown.">
-            <select className="input" value={S.language} onChange={(e) => saveSettings({ language: e.target.value })}>
-              <option value="en">English</option>
-              <option value="fr">Français (soon)</option>
-            </select>
+          <SettingRow name={t('common.language')} desc={t('lang.desc')}>
+            <LanguageSelect variant="chip" />
           </SettingRow>
           <SettingRow name="Default project folder" desc="Starting point for the folder picker.">{input('defaultProjectFolder', { placeholder: 'C:/Projects' })}</SettingRow>
           <SettingRow name="Default report folder" desc="Export destination.">{input('defaultReportFolder', { placeholder: 'C:/Projects/reports' })}</SettingRow>
@@ -109,6 +112,13 @@ export default function Settings() {
           <SettingRow name="Keyboard shortcuts" desc="⌘K command palette · Esc closes overlays">
             <span className="kbd">⌘K</span>
           </SettingRow>
+        </Section>
+
+        <Section name="Language" icon="🌐">
+          <SettingRow name={t('lang.title')} desc={t('lang.desc')}>
+            <span />
+          </SettingRow>
+          <LanguageSelect variant="inline" />
         </Section>
 
         <Section name="Agent & Analysis" icon="⌘">
@@ -162,6 +172,21 @@ export default function Settings() {
               <button className="btn btn-ghost btn-sm" onClick={() => setModule('team')}>Team</button>
               <button className="btn btn-ghost btn-sm" onClick={() => setModule('billing')}>Billing</button>
             </div>
+          </SettingRow>
+        </Section>
+
+        <Section name="Notifications" icon="◔">
+          <SettingRow name="Enable notifications" desc="Master switch for in-app and desktop notifications.">
+            <Toggle on={S.notificationsEnabled} onChange={set('notificationsEnabled')} />
+          </SettingRow>
+          <SettingRow name="Run completed" desc="Notify when a test run finishes.">
+            <Toggle on={S.notifyRuns ?? true} onChange={set('notifyRuns')} />
+          </SettingRow>
+          <SettingRow name="Report generated" desc="Notify when a QA report is ready.">
+            <Toggle on={S.notifyReports ?? true} onChange={set('notifyReports')} />
+          </SettingRow>
+          <SettingRow name="Billing & payments" desc="Notify about payments, renewals and receipts.">
+            <Toggle on={S.notifyBilling ?? true} onChange={set('notifyBilling')} />
           </SettingRow>
         </Section>
 

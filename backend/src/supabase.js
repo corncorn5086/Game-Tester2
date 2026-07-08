@@ -2,20 +2,32 @@
  * Ember Cloud (Supabase) sync layer.
  *
  * The backend stays local-first (SQLite is the source of truth). When
- * SUPABASE_URL + SUPABASE_ANON_KEY are set, writes are mirrored to the
- * Supabase Postgres project over PostgREST so the team shares one cloud
- * triage board. Failures never break local operation — they are recorded
- * and surfaced via /health.
+ * SUPABASE_URL and a Supabase key are set, writes are mirrored to the Supabase
+ * Postgres project over PostgREST so the team shares one cloud triage board.
+ * Failures never break local operation — they are recorded and surfaced via
+ * /health.
  *
- * NOTE: the dev RLS policies allow the publishable key to read/write app
- * tables. Tighten them (service role + per-workspace policies) before any
- * public deployment — see docs/security.md.
+ * SECURITY: the backend is the only Supabase client and must authenticate with
+ * the SERVICE ROLE key (SUPABASE_SERVICE_ROLE_KEY), which bypasses RLS. The
+ * production RLS policy denies the public (anon) key all table access, so the
+ * publishable key can no longer read/write app data — including users.
+ * password_hash. If only the anon key is set, cloud sync is intentionally
+ * denied by the database (recorded in /health), never silently degraded to an
+ * insecure state. See docs/security.md.
  */
 
 const URL_ = process.env.SUPABASE_URL ?? '';
-const KEY = process.env.SUPABASE_ANON_KEY ?? '';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? '';
+const ANON_KEY = process.env.SUPABASE_ANON_KEY ?? '';
+// The backend needs the service-role key to write through the locked-down RLS.
+const KEY = SERVICE_KEY || ANON_KEY;
+const usingServiceRole = !!SERVICE_KEY;
 
 export const supabaseEnabled = !!(URL_ && KEY);
+
+if (URL_ && ANON_KEY && !SERVICE_KEY) {
+  console.warn('[ember-cloud] Only SUPABASE_ANON_KEY is set. Production RLS denies the public key all access — add SUPABASE_SERVICE_ROLE_KEY (Supabase → Settings → API → service_role) to enable cloud sync.');
+}
 
 let lastError = null;
 let lastSyncAt = null;
@@ -55,7 +67,13 @@ async function mirror(fn) {
 }
 
 export function cloudStatus() {
-  return { enabled: supabaseEnabled, url: supabaseEnabled ? URL_ : null, lastSyncAt, lastError };
+  return {
+    enabled: supabaseEnabled,
+    url: supabaseEnabled ? URL_ : null,
+    auth: usingServiceRole ? 'service_role' : (ANON_KEY ? 'anon (insufficient — set SUPABASE_SERVICE_ROLE_KEY)' : 'none'),
+    lastSyncAt,
+    lastError
+  };
 }
 
 export async function cloudHealth() {
@@ -110,6 +128,21 @@ export function mirrorBugPatch(id, patch) {
 export function mirrorEvent(event) {
   return mirror(() =>
     rest('POST', 'agent_events', [{ id: event.id, project_id: event.projectId ?? null, kind: event.kind, payload_json: event.payload ?? {} }], { prefer: 'return=minimal' })
+  );
+}
+
+export function mirrorUser(user) {
+  if (!user) return;
+  return mirror(() =>
+    upsert('users', [{
+      id: user.id, email: user.email, name: user.name ?? null, username: user.username ?? null,
+      password_hash: user.password_hash, dob: user.dob ?? null, phone: user.phone ?? null,
+      address: user.address ?? null, role: user.role ?? null, user_type: user.user_type ?? null, company: user.company ?? null,
+      goal: user.goal ?? null, language: user.language ?? 'en', country: user.country ?? null,
+      tos_accepted: !!user.tos_accepted, email_verified: !!user.email_verified,
+      phone_verified: !!user.phone_verified, avatar_color: user.avatar_color ?? null,
+      created_at: user.created_at, updated_at: user.updated_at ?? new Date().toISOString()
+    }])
   );
 }
 

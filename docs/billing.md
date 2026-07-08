@@ -20,9 +20,9 @@ supply approval/tokenization:
 | Method | Status | How |
 |---|---|---|
 | **PayPal** | **Wired (needs keys)** | Orders v2 REST. `POST /billing/checkout {provider:'paypal'}` creates the order; the user approves in a PayPal window; `POST /billing/paypal/capture` captures and activates the plan. |
-| **Google Pay** | Prepared | Wallet button — requires a PSP behind it. Ships with the Braintree (PayPal) integration. |
-| **Apple Pay** | Prepared | Same as Google Pay + Apple merchant validation. |
-| **Card (in-app fields)** | Prepared | Braintree hosted fields: PCI-safe, fully Ember-styled. Until then cards work inside the PayPal approval window. |
+| **Google Pay** | **Wired (needs Braintree keys)** | Braintree Drop-in. `POST /billing/checkout {provider:'google-pay'}` returns a `checkoutUrl`; the desktop opens the hosted Drop-in page; the page tokenizes and `POST /billing/braintree/transaction` charges + activates the plan. |
+| **Apple Pay** | **Wired (needs Braintree keys)** | Same Braintree Drop-in flow (+ Apple merchant validation in your Braintree dashboard). |
+| **Card (in-app fields)** | **Wired (needs Braintree keys)** | Braintree hosted card fields: PCI-safe, fully Ember-styled. |
 | Stripe | Optional fallback | Env placeholders kept; not used by the UI. |
 
 `GET /billing/providers` reports live availability — the desktop checkout modal
@@ -45,12 +45,33 @@ shows exactly what is configured and never simulates a charge.
 
 Switch `PAYPAL_ENV=live` with live keys for production.
 
+## Enabling Braintree (Google Pay / Apple Pay / card)
+
+1. Get API keys from your [Braintree dashboard](https://www.braintreegateway.com)
+   (Account → My User → API Keys).
+2. Install the SDK once: `npm install braintree -w @ember/backend`.
+3. Put the credentials in `.env`:
+   ```
+   BRAINTREE_MERCHANT_ID=...
+   BRAINTREE_PUBLIC_KEY=...
+   BRAINTREE_PRIVATE_KEY=...
+   BRAINTREE_ENV=sandbox
+   ```
+4. Restart the backend. `GET /billing/providers` now shows `google-pay`,
+   `apple-pay` and `card` as `available`.
+5. In Ember Desktop → Billing → Upgrade → pick Google Pay / Apple Pay / card:
+   an Ember-styled Drop-in checkout window opens, you pay, and the subscription
+   activates automatically. Click **"I paid — verify"** to confirm in-app.
+
+Until the `braintree` package is installed, these endpoints return an explicit
+`needsInstall` message — never a fake charge. Enable Apple Pay and Google Pay in
+your Braintree control panel, and add your web domain for Apple Pay validation.
+
 ## Current honest limits
 
-- Renewals are manual (single captures). Recurring agreements + wallet
-  buttons (Google/Apple Pay) land with the Braintree integration
-  (`BRAINTREE_*` placeholders in `.env.example`).
+- Renewals are manual (single captures/sales). Recurring billing agreements are
+  the next step (Braintree subscriptions API).
 - No email receipts/PDF invoices until SMTP ships; captures are recorded in
-  `usage_events` with the PayPal capture ID.
-- Webhook verification (payment disputes, refunds) is a next step; captures
-  are synchronous today.
+  `usage_events` with the PayPal capture ID / Braintree transaction ID.
+- Webhook verification (disputes, refunds, subscription lifecycle) is a next
+  step; captures are synchronous today.

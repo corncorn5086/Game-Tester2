@@ -112,6 +112,39 @@ const MIGRATIONS = [
 
 for (const migration of MIGRATIONS) db.exec(migration);
 
+// --- additive column migrations (safe on existing databases) ---
+function addColumn(table, column, definition) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+// Extended user profile (multi-step signup + account settings).
+addColumn('users', 'username', 'TEXT');
+addColumn('users', 'dob', 'TEXT');
+addColumn('users', 'phone', 'TEXT');
+addColumn('users', 'address', 'TEXT');
+addColumn('users', 'role', 'TEXT');
+addColumn('users', 'company', 'TEXT');
+addColumn('users', 'goal', 'TEXT');
+addColumn('users', 'tos_accepted', 'INTEGER NOT NULL DEFAULT 0');
+addColumn('users', 'email_verified', 'INTEGER NOT NULL DEFAULT 0');
+addColumn('users', 'phone_verified', 'INTEGER NOT NULL DEFAULT 0');
+addColumn('users', 'avatar_color', 'TEXT');
+addColumn('users', 'updated_at', 'TEXT');
+addColumn('users', 'language', "TEXT DEFAULT 'en'");
+addColumn('users', 'country', 'TEXT');
+addColumn('users', 'user_type', 'TEXT');
+
+// Password reset + email/phone verification tokens.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS auth_tokens (
+    token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id),
+    kind TEXT NOT NULL, code TEXT, created_at TEXT NOT NULL, expires_at TEXT NOT NULL, used INTEGER NOT NULL DEFAULT 0
+  );
+`);
+
 // --- tiny helpers ---
 
 export function all(sql, params = []) {

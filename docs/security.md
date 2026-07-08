@@ -4,8 +4,9 @@ Ember is built local-first so studios keep control of their code.
 
 ## Guarantees today
 
-- **Local-only mode** (default in Ember Desktop): the app never contacts the backend.
-  The CLI works fully offline; sync only happens if you configure `backend.url`.
+- **Local-first**: the Ember Agent CLI works fully offline; cloud sync only
+  happens when you configure `backend.url` (desktop) / `API_URL` (CLI). Analysis,
+  scans and reports all run on your machine.
 - **Code never uploaded**: agent sync pushes *metrics and findings* (scan stats,
   finding messages, log excerpts) — never file contents. The "Do not upload code"
   setting reflects this and will gate any future feature that would need source.
@@ -23,7 +24,7 @@ Ember is built local-first so studios keep control of their code.
 
 ## Controls in Ember Desktop → Settings
 
-- Local-only mode · Privacy mode · Mask secrets · Do not upload code
+- Cloud sync toggle · Privacy mode · Mask secrets · Do not upload code
 - Data retention (days) for local run history
 - Clear local cache · Export settings (secrets always excluded)
 
@@ -34,16 +35,36 @@ Ember is built local-first so studios keep control of their code.
 - Private/on-prem deployment guide (Enterprise)
 - Role-enforced API authorization on every route
 
-## Supabase (Ember Cloud) — current dev posture
+## Supabase (Ember Cloud) — production RLS
 
 The backend mirrors reports, bugs, events, projects and team invites to a
-Supabase project when `SUPABASE_URL` + `SUPABASE_ANON_KEY` are set (see
+Supabase project when `SUPABASE_URL` and a Supabase key are set (see
 `backend/src/supabase.js`). SQLite stays the local source of truth; cloud
 failures never break local operation.
 
-**Dev-mode RLS warning:** the current Row Level Security policies allow the
-publishable (anon) key to read/write the app tables so the backend can sync
-without a service key. This is fine for a private dev project, but before any
-public deployment you must: (1) move writes behind the service-role key kept
-server-side only, (2) replace the permissive policies with per-workspace
-policies keyed on `auth.uid()`, and (3) migrate app auth to Supabase Auth.
+**Security model — backend-mediated, deny-by-default.** The Ember backend is the
+only Supabase client. It authenticates with the **service-role key**
+(`SUPABASE_SERVICE_ROLE_KEY`), which bypasses RLS. Every application table has
+RLS **enabled with no policies**, and direct `anon`/`authenticated` grants are
+revoked (migration `ember_production_rls_lockdown`). Result:
+
+- The public (publishable/anon) key has **no access to any table** — it can no
+  longer read `users.password_hash`, projects, reports or anything else. Verified:
+  a PostgREST call with the anon key returns `401 permission denied`.
+- Only the service-role key (held server-side, never shipped to the desktop/web
+  client) can read or write. The Supabase security advisor reports **no ERROR
+  or WARN** findings — only INFO "RLS enabled, no policy", which is the intended
+  state for this model.
+- The former `SECURITY DEFINER` view (`members_directory`) was dropped.
+
+**Setup:** put your service-role key (Supabase → Settings → API → `service_role`)
+in `.env` as `SUPABASE_SERVICE_ROLE_KEY`. If only the anon key is present, the
+backend logs a warning and cloud sync is denied by the database — it never
+silently falls back to an insecure state. `GET /health` reports which key is in
+use (`cloudStatus.auth`).
+
+**Next step (multi-tenant direct client access):** if you later let the desktop
+app talk to Supabase directly (instead of only through the backend), migrate app
+auth to Supabase Auth and add per-workspace policies keyed on `auth.uid()`
+before granting the authenticated role any table access. Until then, deny-by-
+default + service-role backend is the correct, locked-down posture.

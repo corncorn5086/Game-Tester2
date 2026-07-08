@@ -58,6 +58,35 @@ Data lives in `backend/data/ember.sqlite` (SQLite). The storage layer is isolate
 npm run dev:web              # http://localhost:4311
 ```
 
+## Building the desktop installer (.exe / .dmg / AppImage)
+
+Ember Desktop packages into a native installer with **electron-builder**
+(config: `apps/desktop/electron-builder.yml`). The renderer is built with Vite
+first, then the Electron app — including the bundled Ember agent core — is
+packaged.
+
+```bash
+# from the repo root, after npm install
+npm run dist:win    -w @ember/desktop     # Windows: NSIS installer + portable .exe
+npm run dist:mac    -w @ember/desktop     # macOS: .dmg
+npm run dist:linux  -w @ember/desktop     # Linux: AppImage
+npm run dist        -w @ember/desktop     # current platform's default target
+```
+
+Output lands in `apps/desktop/release/`. The Windows build produces a normal
+double-click **`Ember Setup <version>.exe`** installer (choose install folder,
+desktop + start-menu shortcuts) plus a no-install **portable** `.exe`.
+
+Notes:
+- The first run downloads the Electron binary and electron-builder's platform
+  tools. On a restricted/CI machine that blocks those downloads, packaging
+  fails at the download step — run it on a normal dev machine (build the
+  Windows installer on Windows for a signed, wine-free result).
+- Icons come from `apps/desktop/build-resources/icon.png` (1254×1254).
+- Code signing is off by default. For a trusted, SmartScreen-clean installer,
+  add your certificate via the standard electron-builder `win.certificateFile`
+  / `CSC_LINK` settings before shipping publicly.
+
 ## Connecting Ember to a game
 
 See [game-integration.md](./game-integration.md), then the engine guides:

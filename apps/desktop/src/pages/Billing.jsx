@@ -13,9 +13,9 @@ import { Blocked } from '../components/common.jsx';
  */
 const METHOD_META = {
   paypal: { mark: 'P', markBg: '#003087', desc: 'Pay with your PayPal balance, bank or card. Only the approval window is external — everything else stays in Ember.' },
-  'google-pay': { mark: 'G', markBg: '#1a73e8', desc: 'One-tap wallet payment. Ships with the Braintree integration.' },
-  'apple-pay': { mark: '', markBg: '#f4f4f5', desc: 'Touch ID / Face ID wallet payment. Ships with Braintree + Apple merchant validation.' },
-  card: { mark: '💳', markBg: 'transparent', desc: 'PCI-safe hosted card fields, fully Ember-styled, via Braintree. Until then, cards work inside the PayPal window.' }
+  'google-pay': { mark: 'G', markBg: '#1a73e8', desc: 'One-tap wallet payment via Braintree — opens an Ember-styled checkout window.' },
+  'apple-pay': { mark: '', markBg: '#f4f4f5', desc: 'Touch ID / Face ID wallet payment via Braintree — opens an Ember-styled checkout window.' },
+  card: { mark: '💳', markBg: 'transparent', desc: 'PCI-safe hosted card fields via Braintree, fully Ember-styled.' }
 };
 
 function CheckoutModal({ plan, providers, onClose }) {
@@ -31,9 +31,15 @@ function CheckoutModal({ plan, providers, onClose }) {
     try {
       const res = await api.checkout(plan.id, method);
       if (res.approveUrl) {
+        // PayPal: approve window → manual capture
         setOrder(res);
         setPhase('approving');
         bridge.openExternal(res.approveUrl);
+      } else if (res.braintree && res.checkoutUrl) {
+        // Braintree (Google Pay / Apple Pay / card): hosted Drop-in page charges server-side
+        setOrder(res);
+        setPhase('braintree');
+        bridge.openExternal(res.checkoutUrl);
       } else {
         setError(res.detail ?? res.error ?? 'Checkout could not start');
         setPhase('error');
@@ -52,6 +58,21 @@ function CheckoutModal({ plan, providers, onClose }) {
         toast(`Payment received — ${plan.name} plan active`);
       } else {
         setError(`Order status: ${res.status}. Approve the payment in the PayPal window first.`);
+      }
+    } catch (e) {
+      setError(e.data?.error ?? e.message);
+    }
+  };
+
+  const verifyBraintree = async () => {
+    setError(null);
+    try {
+      const sub = await api.subscription();
+      if (sub?.plan?.id === plan.id && sub.status === 'active') {
+        setPhase('done');
+        toast(`Payment received — ${plan.name} plan active`);
+      } else {
+        setError('No completed payment yet — finish the checkout in the browser window, then verify again.');
       }
     } catch (e) {
       setError(e.data?.error ?? e.message);
@@ -122,6 +143,18 @@ function CheckoutModal({ plan, providers, onClose }) {
                 Once you approve it there, come back and finish below.
               </p>
               <button className="btn btn-white" onClick={finishCapture}>I approved — capture payment</button>
+              {error && <div className="error-banner" style={{ marginTop: 12, textAlign: 'left' }}>{error}</div>}
+            </div>
+          )}
+
+          {phase === 'braintree' && (
+            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Complete payment in the secure window</div>
+              <p style={{ fontSize: 12, color: 'var(--ink-dim)', lineHeight: 1.6, marginBottom: 16 }}>
+                An Ember checkout window opened in your browser with {providers.find((p) => p.id === method)?.label ?? 'your payment method'}.
+                Finish the payment there — it's charged securely via Braintree — then verify below.
+              </p>
+              <button className="btn btn-white" onClick={verifyBraintree}>I paid — verify</button>
               {error && <div className="error-banner" style={{ marginTop: 12, textAlign: 'left' }}>{error}</div>}
             </div>
           )}
@@ -206,21 +239,27 @@ export default function Billing() {
           })}
         </div>
         <div className="micro-mono" style={{ marginTop: 12, fontSize: 10 }}>
-          Checkout runs in Ember's own UI — no hosted processor page. Stripe was dropped as the primary processor by design.
+          Checkout runs in Ember's own UI. PayPal is the primary processor; Google Pay, Apple Pay and cards run through Braintree. No Stripe by design.
         </div>
       </div>
 
       {/* plans */}
-      <div className="grid g4" style={{ marginTop: 16 }}>
-        {PLANS.map((p) => (
-          <div key={p.id} className="card" style={p.id === currentPlan ? { borderColor: 'rgba(255,110,50,.5)' } : undefined}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(198px,1fr))', gap: 12, marginTop: 16 }}>
+        {PLANS.map((p) => {
+          const isLifetime = p.oneTime;
+          return (
+          <div key={p.id} className="card" style={{
+            ...(p.id === currentPlan ? { borderColor: 'rgba(255,110,50,.5)' } : {}),
+            ...(isLifetime ? { borderColor: 'rgba(255,110,50,.45)', background: 'linear-gradient(180deg, rgba(255,77,0,.06), transparent 60%)' } : {})
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <h3>{p.name}</h3>
               {p.id === currentPlan && <span className="chip ok">current</span>}
+              {isLifetime && p.id !== currentPlan && <span className="chip fire" style={{ fontSize: 8.5 }}>best value</span>}
             </div>
             <div style={{ marginTop: 10, fontSize: 30, fontWeight: 600 }}>
               {p.price === null ? 'Custom' : p.price === 0 ? 'Free' : `$${p.price}`}
-              {p.price ? <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}> /{p.period}</span> : null}
+              {p.price ? <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}> {isLifetime ? 'once' : `/${p.period}`}</span> : null}
             </div>
             <div style={{ fontSize: 12, color: 'var(--ink-dim)', marginTop: 4, minHeight: 32 }}>{p.tagline}</div>
             <ul style={{ marginTop: 12, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7, fontSize: 12, color: 'var(--ink-dim)', minHeight: 130 }}>
@@ -231,13 +270,14 @@ export default function Billing() {
             <button
               className={`btn btn-sm ${p.id === currentPlan ? 'btn-ghost' : 'btn-fire'}`}
               style={{ width: '100%', marginTop: 12 }}
-              disabled={p.id === currentPlan || !online || p.id === 'enterprise' && false}
+              disabled={p.id === currentPlan || !online}
               onClick={() => (p.id === 'enterprise' ? toast('Enterprise is custom-quoted — hello@ember.dev') : setCheckoutPlan(p))}
             >
-              {p.id === currentPlan ? 'Active' : p.id === 'enterprise' ? 'Contact us' : p.price === 0 ? 'Downgrade' : `Upgrade to ${p.name}`}
+              {p.id === currentPlan ? 'Active' : p.id === 'enterprise' ? 'Contact us' : isLifetime ? 'Buy Lifetime' : p.price === 0 ? 'Downgrade' : `Upgrade to ${p.name}`}
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="card" style={{ marginTop: 16 }}>

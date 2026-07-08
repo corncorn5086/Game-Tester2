@@ -85,6 +85,8 @@ button { font-family: inherit; }
   box-shadow: 0 0 16px rgba(255, 120, 30, 0.9);
 }
 .brand-logo { width: 26px; height: auto; filter: drop-shadow(0 0 10px rgba(255, 120, 30, 0.55)); }
+.btn-logo { width: 18px; height: 18px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255, 120, 30, 0.6)); }
+.btn-logo-lg { width: 22px; height: 22px; }
 .brand-name { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.32em; font-size: 17px; }
 .nav-links { display: flex; gap: 32px; font-size: 14.5px; font-weight: 500; color: var(--ink-dim); }
 .nav-links a:hover { color: var(--ink); }

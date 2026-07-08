@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  User, Pencil, Lock, ShieldCheck, SlidersHorizontal, Palette as PaletteIcon, Globe, Bell,
+  Crown, CreditCard, Receipt, History, Wallet, Plug, EyeOff, LifeBuoy, LogOut
+} from 'lucide-react';
 import { useApp } from './lib/store.jsx';
 import logo from './assets/ember-logo.png';
 import Splash from './screens/Splash.jsx';
@@ -15,6 +19,7 @@ import Settings from './pages/Settings.jsx';
 import TestPlans from './pages/TestPlans.jsx';
 import Team from './pages/Team.jsx';
 import Billing from './pages/Billing.jsx';
+import Account from './pages/Account.jsx';
 
 const DOCK = [
   ['command', 'Center', '◉'],
@@ -38,8 +43,76 @@ const MODULES = {
   settings: Settings,
   plans: TestPlans,
   team: Team,
-  billing: Billing
+  billing: Billing,
+  account: Account
 };
+
+const PROFILE_MENU = [
+  ['menu.account', [
+    ['menu.profile', User, 'account', 'profile'],
+    ['menu.editInfo', Pencil, 'account', 'edit'],
+    ['menu.changePassword', Lock, 'account', 'password'],
+    ['menu.security', ShieldCheck, 'account', 'security']
+  ]],
+  ['menu.preferences', [
+    ['menu.general', SlidersHorizontal, 'settings', 'General'],
+    ['menu.language', Globe, 'settings', 'Language'],
+    ['menu.appearance', PaletteIcon, 'settings', 'Appearance'],
+    ['menu.notifications', Bell, 'settings', 'Notifications']
+  ]],
+  ['menu.subscription', [
+    ['menu.subscriptionItem', Crown, 'billing', null],
+    ['menu.payments', CreditCard, 'billing', null],
+    ['menu.billing', Receipt, 'billing', null],
+    ['menu.history', History, 'billing', null],
+    ['menu.paymentMethods', Wallet, 'billing', null]
+  ]],
+  ['menu.system', [
+    ['menu.integrations', Plug, 'account', 'integrations'],
+    ['menu.privacy', EyeOff, 'settings', 'Privacy'],
+    ['menu.support', LifeBuoy, 'account', 'support']
+  ]]
+];
+
+function ProfileMenu() {
+  const { user, settings, openModule, logout, setProfileMenuOpen, t } = useApp();
+  const name = user?.name || settings.session?.name || 'Account';
+  const email = user?.email || settings.authEmail || '';
+  const initials = (name || email || '?').split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+  const color = user?.avatarColor || '#ff4d00';
+
+  return (
+    <>
+      <div className="pmenu-veil" onClick={() => setProfileMenuOpen(false)} />
+      <div className="pmenu" onClick={(e) => e.stopPropagation()}>
+        <div className="pmenu-head">
+          <div className="avatar" style={{ width: 40, height: 40, fontSize: 15, background: color }}>{initials}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="name">{name}</div>
+            <div className="email" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>
+          </div>
+        </div>
+        <div className="pmenu-body">
+          {PROFILE_MENU.map(([group, items]) => (
+            <div className="pmenu-group" key={group}>
+              <div className="pmenu-group-label">{t(group)}</div>
+              {items.map(([label, Icon, mod, param]) => (
+                <button key={label} className="pmenu-item" onClick={() => openModule(mod, param)}>
+                  <span className="pm-ic"><Icon size={15} /></span>{t(label)}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div className="pmenu-group">
+            <button className="pmenu-item danger" onClick={logout}>
+              <span className="pm-ic"><LogOut size={15} /></span>{t('menu.signout')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 const MODE_PILL = {
   real: ['Real project', 'var(--ok)', 'rgba(52,211,153,.07)', 'rgba(52,211,153,.22)'],
@@ -96,11 +169,14 @@ function Palette({ onClose }) {
 }
 
 function Shell() {
-  const { module, setModule, mode, project, settings, paletteOpen, setPaletteOpen, selectedBug, setSelectedBug, toastMsg, backendHealth } = useApp();
+  const { module, setModule, mode, project, settings, user, paletteOpen, setPaletteOpen, selectedBug, setSelectedBug, toastMsg, backendHealth, profileMenuOpen, setProfileMenuOpen, t } = useApp();
   const Module = MODULES[module] ?? CommandCenter;
   const [label, color, bg, border] = MODE_PILL[mode] ?? MODE_PILL.none;
 
   const projectLabel = project ? `${project.config.projectName} — ${project.root}` : 'No project connected';
+  const avName = user?.name || settings.session?.name || settings.authEmail || 'Account';
+  const avInitials = avName.split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+  const avColor = user?.avatarColor || '#ff4d00';
 
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
@@ -120,7 +196,10 @@ function Shell() {
         <button className="kbtn" onClick={() => setPaletteOpen(true)}>
           ⌘K <span style={{ fontFamily: 'var(--font-body)' }}>Command palette</span>
         </button>
+        <div className="avatar" style={{ background: avColor }} title={avName} onClick={() => setProfileMenuOpen((o) => !o)}>{avInitials}</div>
       </div>
+
+      {profileMenuOpen && <ProfileMenu />}
 
       <div key={module} className="module">
         <Module />
@@ -128,9 +207,9 @@ function Shell() {
 
       <div className="dock">
         {DOCK.map(([id, dlabel, icon]) => (
-          <button key={id} className={module === id ? 'on' : ''} title={dlabel} onClick={() => setModule(id)}>
+          <button key={id} className={module === id ? 'on' : ''} title={t(`nav.${id}`)} onClick={() => setModule(id)}>
             <span className="d-icon">{icon}</span>
-            <span className="d-label">{dlabel}</span>
+            <span className="d-label">{t(`nav.${id}`)}</span>
             <span className="d-dot" />
           </button>
         ))}

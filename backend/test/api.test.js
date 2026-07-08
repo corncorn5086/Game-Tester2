@@ -28,12 +28,25 @@ assert.equal(health.status, 200);
 assert.equal(health.body.status, 'ok');
 
 // auth flow
-const signup = await api('POST', '/auth/signup', { email: 'dev@studio.gg', password: 'hunter2hunter2', name: 'Dev' });
+const signup = await api('POST', '/auth/signup', { email: 'dev@studio.gg', password: 'Hunter2Hunter2', name: 'Dev', username: 'devstudio', tosAccepted: true });
 assert.equal(signup.status, 201);
 const token = signup.body.token;
 const me = await api('GET', '/auth/me', undefined, token);
 assert.equal(me.body.user.email, 'dev@studio.gg');
+assert.equal(me.body.user.username, 'devstudio');
 assert.ok(me.body.workspace.id);
+
+// signup requires ToS acceptance and a strong password
+const noTos = await api('POST', '/auth/signup', { email: 'x@y.gg', password: 'Hunter2Hunter2', tosAccepted: false });
+assert.equal(noTos.status, 400);
+const weakPw = await api('POST', '/auth/signup', { email: 'x2@y.gg', password: 'alllowercase1', tosAccepted: true });
+assert.equal(weakPw.status, 400);
+
+// profile update + change password
+const patch = await api('PATCH', '/auth/me', { role: 'Studio lead', goal: 'Ship faster' }, token);
+assert.equal(patch.body.user.role, 'Studio lead');
+const chpw = await api('POST', '/auth/change-password', { currentPassword: 'Hunter2Hunter2', newPassword: 'Newpass88X' }, token);
+assert.equal(chpw.status, 200);
 
 const badLogin = await api('POST', '/auth/login', { email: 'dev@studio.gg', password: 'wrong' });
 assert.equal(badLogin.status, 401);
@@ -91,7 +104,7 @@ assert.ok(notifications.body.some((n) => n.type === 'critical-bug-found'));
 
 // billing
 const plans = await api('GET', '/billing/plans');
-assert.equal(plans.body.length, 4);
+assert.equal(plans.body.length, 5);
 const providers = await api('GET', '/billing/providers');
 assert.ok(providers.body.some((p) => p.id === 'paypal'));
 const checkout = await api('POST', '/billing/checkout', { planId: 'pro', provider: 'paypal' });

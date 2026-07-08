@@ -42,7 +42,7 @@ export function userForToken(token) {
   if (!token) return null;
   const session = get('SELECT * FROM sessions WHERE token = ?', [token]);
   if (!session || session.expires_at < now()) return null;
-  const user = get('SELECT id, email, name, created_at, settings_json FROM users WHERE id = ?', [session.user_id]);
+  const user = get('SELECT * FROM users WHERE id = ?', [session.user_id]);
   return user ?? null;
 }
 
@@ -63,7 +63,33 @@ export function requireAuth(req, res, next) {
 
 export function publicUser(user) {
   if (!user) return null;
-  return { id: user.id, email: user.email, name: user.name, createdAt: user.created_at };
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    username: user.username ?? null,
+    dob: user.dob ?? null,
+    phone: user.phone ?? null,
+    address: user.address ?? null,
+    role: user.role ?? null,
+    userType: user.user_type ?? null,
+    company: user.company ?? null,
+    goal: user.goal ?? null,
+    language: user.language ?? 'en',
+    country: user.country ?? null,
+    avatarColor: user.avatar_color ?? null,
+    emailVerified: !!user.email_verified,
+    phoneVerified: !!user.phone_verified,
+    tosAccepted: !!user.tos_accepted,
+    createdAt: user.created_at
+  };
+}
+
+const AVATAR_COLORS = ['#ff4d00', '#ff8a50', '#f59e0b', '#34d399', '#60a5fa', '#c58bff', '#f472b6'];
+export function pickAvatarColor(seed = '') {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
 export function ensureDefaultWorkspace(userId, name = 'My Workspace') {

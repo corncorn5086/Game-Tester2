@@ -2,14 +2,20 @@
  * Provider-agnostic payment layer. Ember owns the checkout UI (no hosted
  * processor page) — providers only supply approval/tokenization.
  *
- *  - paypal      → real (Orders v2) when PAYPAL_* env keys are set
- *  - google-pay  → wallet button; requires a PSP behind it (Braintree/PayPal).
- *                  Prepared: returns an explicit roadmap status, never fakes.
- *  - apple-pay   → same as Google Pay + Apple merchant validation.
- *  - card        → direct card processing needs a PCI-scoped PSP; offered
- *                  through PayPal's card fields once Braintree keys exist.
+ *  - paypal      → real (Orders v2) when PAYPAL_* env keys are set.
+ *  - google-pay  → real via Braintree Drop-in when BRAINTREE_* keys are set.
+ *  - apple-pay   → real via Braintree Drop-in (+ Apple merchant validation).
+ *  - card        → real via Braintree hosted card fields.
+ *
+ * Without the matching keys, every provider returns an explicit
+ * not-configured result — never a fake payment.
  */
 import { createOrder, captureOrder, paypalConfigured, paypalStatus } from './paypal.js';
+import { braintreeConfigured, braintreeStatus, clientToken, sale, checkoutPage } from './braintree.js';
+
+const braintreeNote = (wallet) => braintreeConfigured
+  ? `${wallet} is live via Braintree — opens an Ember-styled Drop-in checkout.`
+  : `${wallet} ships with Braintree. UI is ready; add BRAINTREE_* keys in .env to enable it.`;
 
 export const PROVIDERS = [
   {
@@ -23,43 +29,47 @@ export const PROVIDERS = [
     id: 'google-pay',
     label: 'Google Pay',
     kind: 'wallet',
-    available: () => false,
-    status: () => ({
-      provider: 'google-pay', configured: false,
-      note: 'Google Pay is a wallet, not a processor — it ships with the Braintree (PayPal) integration. UI is ready; add BRAINTREE_* keys when available.'
-    })
+    available: () => braintreeConfigured,
+    status: () => ({ provider: 'google-pay', configured: braintreeConfigured, via: 'braintree', note: braintreeNote('Google Pay') })
   },
   {
     id: 'apple-pay',
     label: 'Apple Pay',
     kind: 'wallet',
-    available: () => false,
-    status: () => ({
-      provider: 'apple-pay', configured: false,
-      note: 'Apple Pay requires a PSP (Braintree) plus Apple merchant validation. UI is ready; enable after Braintree + merchant ID setup.'
-    })
+    available: () => braintreeConfigured,
+    status: () => ({ provider: 'apple-pay', configured: braintreeConfigured, via: 'braintree', note: braintreeNote('Apple Pay') })
   },
   {
     id: 'card',
     label: 'Credit / debit card',
     kind: 'card',
-    available: () => false,
-    status: () => ({
-      provider: 'card', configured: false,
-      note: 'Direct card fields come with Braintree hosted fields (PCI-safe, fully Ember-styled). Until then cards work inside the PayPal approval window.'
-    })
+    available: () => braintreeConfigured,
+    status: () => ({ provider: 'card', configured: braintreeConfigured, via: 'braintree', note: braintreeNote('Card payments') })
   }
 ];
+
+const BRAINTREE_PROVIDERS = new Set(['google-pay', 'apple-pay', 'card']);
 
 export function listProviders() {
   return PROVIDERS.map((p) => ({ id: p.id, label: p.label, kind: p.kind, available: p.available(), ...p.status() }));
 }
 
-export async function startCheckout(provider, plan, urls) {
+export async function startCheckout(provider, plan, urls = {}) {
   if (provider === 'paypal') return createOrder(plan, urls);
+
+  if (BRAINTREE_PROVIDERS.has(provider)) {
+    if (!braintreeConfigured) {
+      return { error: `${provider} is not available yet`, detail: braintreeStatus().note, notConfigured: true };
+    }
+    // Braintree providers tokenize in a hosted Drop-in page, opened like the
+    // PayPal approval window; the desktop app opens `checkoutUrl`.
+    const base = urls.apiBase ?? '';
+    return { braintree: true, provider, checkoutUrl: `${base}/billing/braintree/checkout?plan=${encodeURIComponent(plan.id)}` };
+  }
+
   const p = PROVIDERS.find((x) => x.id === provider);
   if (!p) return { error: `unknown provider "${provider}"`, providers: PROVIDERS.map((x) => x.id) };
   return { error: `${p.label} is not available yet`, detail: p.status().note, notConfigured: true };
 }
 
-export { captureOrder };
+export { captureOrder, braintreeConfigured, clientToken, sale, checkoutPage };

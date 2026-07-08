@@ -37,7 +37,7 @@ $ ember report --format md`
   {
     icon: MonitorSmartphone,
     title: 'Pilot from Ember Desktop',
-    body: 'The desktop app is mission control: connect projects, build test plans, watch live runs, triage bugs and export reports — with clear Real / Demo / Not-connected states.',
+    body: 'The desktop app is mission control: connect projects, build test plans, watch live runs, triage bugs and export reports — every value comes from a real scan, run or log, with clear connected / not-connected states.',
     code: null
   },
   {
