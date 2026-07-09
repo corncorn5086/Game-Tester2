@@ -12,7 +12,6 @@ import logo from '../assets/ember-logo.png';
 const WORKFLOWS = [
   ['Connect existing game project', 'Point Ember at your working copy — code, assets, logs.', 'available', '◈'],
   ['Connect build folder', 'Attach a packaged build for launch + runtime checks.', 'available', '▣'],
-  ['Connect Git repository', 'Clone locally first — direct remote cloning is coming soon.', 'coming soon', '⎇'],
   ['Install Ember Agent only', 'CLI-first setup: npm link --workspace @ember/agent.', 'available', '⌁']
 ];
 
@@ -166,13 +165,12 @@ export default function Onboarding() {
             <p style={{ fontSize: 13, color: 'rgba(244,244,245,.45)', margin: '0 0 24px' }}>How do you want Ember to reach your game?</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {WORKFLOWS.map(([name, desc, tag, icon], i) => {
-                const soon = tag === 'coming soon';
                 return (
                   <div key={name} className="anim-up" style={{ ...card(false), animationDelay: `${i * 0.05}s` }}
-                    onClick={() => (soon ? toast('Git cloning is coming soon — clone locally and connect the folder') : next())}>
+                    onClick={next}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                       <span style={{ fontFamily: 'var(--font-mono)', fontSize: 16, color: 'var(--accent-mid)' }}>{icon}</span>
-                      <span className={`chip ${soon ? 'dim' : 'ok'}`} style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '.07em' }}>{tag}</span>
+                      <span className="chip ok" style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '.07em' }}>{tag}</span>
                     </div>
                     <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 5 }}>{name}</div>
                     <div style={{ fontSize: 11.5, lineHeight: 1.55, color: 'rgba(244,244,245,.45)' }}>{desc}</div>

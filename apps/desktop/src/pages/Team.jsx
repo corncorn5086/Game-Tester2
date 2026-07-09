@@ -101,7 +101,7 @@ export default function Team() {
                 <button className="btn btn-primary btn-sm" disabled={!email.includes('@')} onClick={invite}><Send size={13} /> Invite</button>
               </div>
               <p style={{ marginTop: 10, fontSize: 11.5, color: 'var(--ink-faint)' }}>
-                Invites are stored in the workspace. Email delivery is a placeholder until SMTP is configured.
+                Invites are stored in the workspace immediately. Share access details directly with the teammate.
               </p>
             </>
           ) : (
