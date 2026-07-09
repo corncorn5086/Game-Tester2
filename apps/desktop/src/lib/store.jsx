@@ -16,6 +16,7 @@ export const DEFAULT_SETTINGS = {
   defaultReportFolder: '',
   preferredEngine: 'auto',
   theme: 'dark',
+  density: 'comfortable', // 'comfortable' | 'compact'
   accentColor: '#ff4d00',
   language: 'en',
   animationIntensity: 'full',
@@ -101,7 +102,8 @@ export function AppProvider({ children }) {
   useEffect(() => {
     document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark';
     document.documentElement.style.setProperty('--accent', settings.accentColor || '#ff4d00');
-  }, [settings.theme, settings.accentColor]);
+    document.documentElement.dataset.density = settings.density === 'compact' ? 'compact' : 'comfortable';
+  }, [settings.theme, settings.accentColor, settings.density]);
 
   // Apply language + text direction (RTL for Arabic) across the whole app.
   const lang = settings.language || 'en';

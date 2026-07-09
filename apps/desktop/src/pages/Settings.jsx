@@ -109,9 +109,25 @@ export default function Settings() {
               <option value="reduced">Reduced</option>
             </select>
           </SettingRow>
-          <SettingRow name="Keyboard shortcuts" desc="⌘K command palette · Esc closes overlays">
-            <span className="kbd">⌘K</span>
+          <SettingRow name="Density" desc="Compact tightens spacing across the whole app for smaller screens.">
+            <div className="seg">
+              <button className={S.density !== 'compact' ? 'on' : ''} onClick={() => saveSettings({ density: 'comfortable' })}>Comfortable</button>
+              <button className={S.density === 'compact' ? 'on' : ''} onClick={() => saveSettings({ density: 'compact' })}>Compact</button>
+            </div>
           </SettingRow>
+        </Section>
+
+        <Section name="Keyboard shortcuts" icon="⌨">
+          {[
+            ['⌘K / Ctrl K', 'Open the command palette'],
+            ['⌘1–9 / Ctrl 1–9', 'Jump to a dock section (Center, Projects, Connect…)'],
+            ['⌘/ / Ctrl /', 'Show this shortcuts list'],
+            ['Esc', 'Close the palette, a drawer, notifications or the profile menu']
+          ].map(([keys, desc]) => (
+            <SettingRow key={keys} name={desc} desc="">
+              <span className="kbd">{keys}</span>
+            </SettingRow>
+          ))}
         </Section>
 
         <Section name="Language" icon="🌐">

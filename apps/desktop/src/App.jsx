@@ -192,24 +192,51 @@ const MODE_PILL = {
   none: ['Not connected', 'rgba(244,244,245,.35)', 'rgba(255,255,255,.04)', 'rgba(255,255,255,.1)']
 };
 
+/** Subsequence fuzzy match: -1 if query's chars aren't all present in order, else a score (lower = better). */
+function fuzzyScore(text, query) {
+  if (!query) return 0;
+  text = text.toLowerCase();
+  query = query.toLowerCase();
+  let ti = 0;
+  let score = 0;
+  let streak = 0;
+  for (let qi = 0; qi < query.length; qi++) {
+    const idx = text.indexOf(query[qi], ti);
+    if (idx === -1) return -1;
+    score += (idx - ti) - streak;
+    streak = idx === ti ? streak + 1 : 0;
+    ti = idx + 1;
+  }
+  return score;
+}
+
 function Palette({ onClose }) {
-  const { setModule, saveSettings, settings, toast } = useApp();
+  const { setModule, setModuleParam, saveSettings, settings, openModule } = useApp();
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
 
+  const allItems = useMemo(() => [
+    ...DOCK.map(([id, label, icon], i) => ({ label: `Go to ${label}`, icon, kind: 'nav', shortcut: `⌘${i + 1}`, go: () => setModule(id) })),
+    { label: 'Go to Test Plans', icon: '▣', kind: 'nav', go: () => setModule('plans') },
+    { label: 'Go to Scenario Recorder', icon: '⌗', kind: 'nav', go: () => setModule('scenarios') },
+    { label: 'Go to Config Editor', icon: '{ }', kind: 'nav', go: () => setModule('configEditor') },
+    { label: 'Go to Team & Share', icon: '◫', kind: 'nav', go: () => setModule('team') },
+    { label: 'Go to Billing', icon: '◇', kind: 'nav', go: () => setModule('billing') },
+    { label: 'Go to Account', icon: '◔', kind: 'nav', go: () => setModule('account') },
+    { label: 'Go to Diagnostics', icon: '◑', kind: 'nav', go: () => setModule('diagnostics') },
+    { label: 'Show keyboard shortcuts', icon: '⌨', kind: 'help', shortcut: '⌘/', go: () => openModule('settings', 'Keyboard shortcuts') },
+    { label: settings.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme', icon: '◐', kind: 'mode', go: () => saveSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' }) },
+    { label: settings.density === 'compact' ? 'Switch to comfortable density' : 'Switch to compact density', icon: '▤', kind: 'mode', go: () => saveSettings({ density: settings.density === 'compact' ? 'comfortable' : 'compact' }) }
+  ], [setModule, setModuleParam, saveSettings, settings.theme, settings.density, openModule]);
+
   const items = useMemo(() => {
-    const nav = [
-      ...DOCK.map(([id, label, icon]) => ({ label: `Go to ${label}`, icon, kind: 'nav', go: () => setModule(id) })),
-      { label: 'Go to Test Plans', icon: '▣', kind: 'nav', go: () => setModule('plans') },
-      { label: 'Go to Scenario Recorder', icon: '⌗', kind: 'nav', go: () => setModule('scenarios') },
-      { label: 'Go to Config Editor', icon: '{ }', kind: 'nav', go: () => setModule('configEditor') },
-      { label: 'Go to Team & Share', icon: '◫', kind: 'nav', go: () => setModule('team') },
-      { label: 'Go to Billing', icon: '◇', kind: 'nav', go: () => setModule('billing') },
-      { label: settings.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme', icon: '◐', kind: 'mode', go: () => saveSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' }) }
-    ];
-    if (!q) return nav;
-    return nav.filter((a) => a.label.toLowerCase().includes(q.toLowerCase()));
-  }, [q, setModule, saveSettings, settings.theme, toast]);
+    if (!q) return allItems;
+    return allItems
+      .map((a) => ({ a, score: fuzzyScore(a.label, q) }))
+      .filter((x) => x.score !== -1)
+      .sort((x, y) => x.score - y.score)
+      .map((x) => x.a);
+  }, [q, allItems]);
 
   useEffect(() => setSel(0), [q]);
 
@@ -233,6 +260,7 @@ function Palette({ onClose }) {
             <button key={a.label} className={`item ${i === sel ? 'sel' : ''}`} onMouseEnter={() => setSel(i)} onClick={() => { a.go(); onClose(); }}>
               <span className="icon">{a.icon}</span>
               {a.label}
+              {a.shortcut && <span className="kbd" style={{ marginLeft: 8 }}>{a.shortcut}</span>}
               <span className="kind">{a.kind}</span>
             </button>
           ))}
@@ -301,22 +329,40 @@ function Shell() {
 }
 
 export default function App() {
-  const { phase, setPaletteOpen, setSelectedBug, settingsLoaded } = useApp();
+  const { phase, setPaletteOpen, setSelectedBug, settingsLoaded, setModule, setModuleParam, setNotificationsOpen, setProfileMenuOpen } = useApp();
 
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setPaletteOpen((o) => !o);
+        return;
       }
       if (e.key === 'Escape') {
         setPaletteOpen(false);
         setSelectedBug(null);
+        setNotificationsOpen(false);
+        setProfileMenuOpen(false);
+        return;
+      }
+      if (phase !== 'app') return;
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        setModule('settings');
+        setModuleParam('Keyboard shortcuts');
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && /^[1-9]$/.test(e.key)) {
+        const target = DOCK[Number(e.key) - 1];
+        if (target) {
+          e.preventDefault();
+          setModule(target[0]);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [setPaletteOpen, setSelectedBug]);
+  }, [phase, setPaletteOpen, setSelectedBug, setModule, setModuleParam, setNotificationsOpen, setProfileMenuOpen]);
 
   return (
     <div className="frame">
