@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { randomBytes } from 'node:crypto';
 import { makeId } from '@ember/shared/constants';
-import { get, run, now, j } from '../db.js';
+import { get, all, run, now, j } from '../db.js';
 import { createSession, destroySession, ensureDefaultWorkspace, hashPassword, publicUser, requireAuth, verifyPassword, pickAvatarColor } from '../auth.js';
 import { cloudUserByEmail, mirrorUser } from '../supabase.js';
 
@@ -77,7 +77,7 @@ authRouter.post('/auth/login', async (req, res) => {
     }
   }
 
-  if (!user || !verifyPassword(String(password ?? ''), user.password_hash)) {
+  if (!user || user.deleted_at || !verifyPassword(String(password ?? ''), user.password_hash)) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
   const token = createSession(user.id);
@@ -111,6 +111,14 @@ authRouter.patch('/auth/me', requireAuth, (req, res) => {
     if (body.username && get('SELECT id FROM users WHERE username = ? AND id != ?', [body.username, req.user.id])) {
       return res.status(409).json({ error: 'This username is taken', field: 'username' });
     }
+  }
+  if (body.avatar !== undefined) {
+    const avatar = body.avatar;
+    if (avatar !== null && (typeof avatar !== 'string' || !/^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(avatar))) {
+      return res.status(400).json({ error: 'Avatar must be a PNG/JPEG/WEBP/GIF image', field: 'avatar' });
+    }
+    if (avatar && avatar.length > 1_500_000) return res.status(400).json({ error: 'Image too large — max ~1MB', field: 'avatar' });
+    updates.push('avatar_data = ?'); params.push(avatar);
   }
   for (const [key, col] of Object.entries(PROFILE_FIELDS)) {
     if (body[key] !== undefined) { updates.push(`${col} = ?`); params.push(body[key]); }
@@ -214,5 +222,47 @@ authRouter.post('/auth/verify-phone/confirm', requireAuth, (req, res) => {
 // Delete all sessions except the current one (used by "sign out other devices").
 authRouter.post('/auth/sessions/revoke-others', requireAuth, (req, res) => {
   run('DELETE FROM sessions WHERE user_id = ? AND token != ?', [req.user.id, req.token]);
+  res.json({ ok: true });
+});
+
+// List active sessions (no raw tokens ever leave the server).
+authRouter.get('/auth/sessions', requireAuth, (req, res) => {
+  const rows = all(
+    'SELECT id, token, created_at, expires_at FROM sessions WHERE user_id = ? AND expires_at > ? ORDER BY created_at DESC',
+    [req.user.id, now()]
+  );
+  res.json(rows.map((r) => ({ id: r.id, createdAt: r.created_at, expiresAt: r.expires_at, current: r.token === req.token })));
+});
+
+// Revoke a single session by id.
+authRouter.delete('/auth/sessions/:id', requireAuth, (req, res) => {
+  const row = get('SELECT * FROM sessions WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+  if (!row) return res.status(404).json({ error: 'Session not found' });
+  run('DELETE FROM sessions WHERE id = ?', [req.params.id]);
+  res.json({ ok: true, wasCurrent: row.token === req.token });
+});
+
+// Export the account's own data (profile + workspace + subscription) as JSON.
+authRouter.get('/auth/export', requireAuth, (req, res) => {
+  const workspace = ensureDefaultWorkspace(req.user.id);
+  const subscription = get('SELECT plan_id, status, current_period_end FROM subscriptions WHERE workspace_id = ?', [workspace.id]);
+  res.json({
+    exportedAt: now(),
+    user: publicUser(req.user),
+    workspace: { id: workspace.id, name: workspace.name },
+    subscription: subscription ?? null
+  });
+});
+
+// Deactivate the account (soft delete): blocks login, scrubs the password,
+// destroys sessions. Data stays referenced (workspaces/reports keep FK
+// integrity) — a hard, cascading erase is a larger, separate operation.
+authRouter.post('/auth/deactivate', requireAuth, (req, res) => {
+  const { password } = req.body ?? {};
+  if (!verifyPassword(String(password ?? ''), req.user.password_hash)) {
+    return res.status(403).json({ error: 'Incorrect password', field: 'password' });
+  }
+  run('UPDATE users SET deleted_at = ?, password_hash = NULL, updated_at = ? WHERE id = ?', [now(), now(), req.user.id]);
+  run('DELETE FROM sessions WHERE user_id = ?', [req.user.id]);
   res.json({ ok: true });
 });

@@ -70,6 +70,24 @@ app.whenReady().then(() => {
   ipcMain.handle('shell:openPath', (_e, p) => shell.openPath(p));
   ipcMain.handle('shell:openExternal', (_e, url) => shell.openExternal(url));
 
+  // Pick a profile photo and return it as a data URL the renderer can preview
+  // and send straight to the backend — no separate upload endpoint needed.
+  ipcMain.handle('dialog:selectImage', async () => {
+    const res = await dialog.showOpenDialog(win, {
+      title: 'Choose a profile photo',
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] }]
+    });
+    if (res.canceled || !res.filePaths[0]) return null;
+    const path = res.filePaths[0];
+    const stat = require('node:fs').statSync(path);
+    if (stat.size > 1_200_000) return { error: 'Image is too large — pick one under ~1MB.' };
+    const ext = path.split('.').pop().toLowerCase();
+    const mime = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }[ext] ?? 'image/png';
+    const dataUrl = `data:${mime};base64,${readFileSync(path).toString('base64')}`;
+    return { dataUrl };
+  });
+
   // ---------- project / config ----------
   ipcMain.handle('project:detect', async (_e, dir) => {
     const { detectEngine } = await loadAgent();
@@ -162,6 +180,16 @@ app.whenReady().then(() => {
     return report;
   });
 
+  ipcMain.handle('agent:reportPdf', async (_e, report) => {
+    try {
+      const { buildReportPdf } = require('./pdf.cjs');
+      const buf = await buildReportPdf(report, { logoPath: join(__dirname, '..', 'src', 'assets', 'ember-logo.png') });
+      return { ok: true, base64: buf.toString('base64') };
+    } catch (e) {
+      return { ok: false, error: `PDF generation failed: ${e.message}` };
+    }
+  });
+
   const normalizeProvider = (p) => (p === 'claude' || p === 'openai' ? p : undefined);
 
   ipcMain.handle('agent:aiStatus', async (_e, provider) => {
@@ -179,9 +207,33 @@ app.whenReady().then(() => {
     return summarizeReport(report, { provider: normalizeProvider(provider) });
   });
 
+  ipcMain.handle('agent:aiTriageBug', async (_e, bug, provider) => {
+    const { triageBug } = await loadAgent();
+    return triageBug(bug, { provider: normalizeProvider(provider) });
+  });
+
   ipcMain.handle('agent:doctor', async (_e, dir) => {
     const { doctor } = await loadAgent();
     return doctor(dir ?? process.cwd());
+  });
+
+  ipcMain.handle('system:info', async () => {
+    const os = require('node:os');
+    const { execFile } = require('node:child_process');
+    // `ember` with no args prints usage and exits 0 when installed on PATH.
+    const cliInstalled = await new Promise((resolve) => {
+      execFile('ember', [], { timeout: 3000, shell: process.platform === 'win32' }, (err) => resolve(!err));
+    }).catch(() => false);
+    return {
+      appVersion: app.getVersion(),
+      electronVersion: process.versions.electron,
+      chromeVersion: process.versions.chrome,
+      nodeVersion: process.versions.node,
+      platform: os.platform(),
+      osRelease: os.release(),
+      arch: process.arch,
+      cliInstalled
+    };
   });
 
   ipcMain.handle('agent:listReports', async (_e, dir) => {
@@ -199,10 +251,10 @@ app.whenReady().then(() => {
     writeFileSync(path, content);
     return { ok: true };
   });
-  ipcMain.handle('file:saveDialog', async (_e, { title, defaultPath, content }) => {
+  ipcMain.handle('file:saveDialog', async (_e, { title, defaultPath, content, encoding }) => {
     const res = await dialog.showSaveDialog(win, { title, defaultPath });
     if (res.canceled || !res.filePath) return null;
-    writeFileSync(res.filePath, content);
+    writeFileSync(res.filePath, encoding === 'base64' ? Buffer.from(content, 'base64') : content);
     return res.filePath;
   });
 

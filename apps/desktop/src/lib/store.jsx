@@ -87,6 +87,8 @@ export function AppProvider({ children }) {
   const [activity, setActivity] = useState([]); // { icon, color, text, time }
   const [user, setUser] = useState(null); // full profile from /auth/me
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]); // persistent, backend-backed
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     bridge.settings.get().then((s) => {
@@ -182,6 +184,34 @@ export function AppProvider({ children }) {
     return () => { alive = false; clearInterval(t); };
   }, [api, settingsLoaded]);
 
+  const refreshNotifications = useCallback(async () => {
+    try { setNotifications(await api.notifications()); }
+    catch { /* backend offline — keep last known list */ }
+  }, [api]);
+
+  useEffect(() => {
+    if (!settingsLoaded || !backendHealth?.ok) return;
+    refreshNotifications();
+    const t = setInterval(refreshNotifications, 20000);
+    return () => clearInterval(t);
+  }, [settingsLoaded, backendHealth?.ok, refreshNotifications]);
+
+  /** Best-effort: persist a notification to the backend if reachable. Never blocks the caller. */
+  const notify = useCallback((type, title, body) => {
+    if (!backendHealth?.ok) return;
+    api.notify(type, title, body).then(() => refreshNotifications()).catch(() => {});
+  }, [api, backendHealth?.ok, refreshNotifications]);
+
+  const markNotificationRead = useCallback((id) => {
+    setNotifications((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    api.markNotificationRead(id).catch(() => {});
+  }, [api]);
+
+  const markAllNotificationsRead = useCallback(() => {
+    setNotifications((ns) => ns.map((n) => ({ ...n, read: true })));
+    api.markAllNotificationsRead().catch(() => {});
+  }, [api]);
+
   const connectProject = useCallback(
     async (dir) => {
       const loaded = await bridge.config.load(dir);
@@ -204,13 +234,14 @@ export function AppProvider({ children }) {
   );
 
   const disconnectProject = useCallback(() => {
+    if (project) notify('project-disconnected', `Disconnected: ${project.config?.projectName ?? project.root}`, 'The project no longer appears in Command Center.');
     setProject(null);
     setAnalysis(null);
     setLogsRes(null);
     setLastRun(null);
     setBugs([]);
     setReports([]);
-  }, []);
+  }, [project, notify]);
 
   /** Ingest a real generated report: store it + open bugs into the triage list. */
   const ingestReport = useCallback((report) => {
@@ -221,7 +252,11 @@ export function AppProvider({ children }) {
       return [...fresh, ...existing];
     });
     logActivity('▤', 'var(--ok)', `QA report generated — ${report.metrics?.bugsFound ?? 0} issue(s)`);
-  }, [logActivity]);
+    const n = report.metrics?.bugsFound ?? 0;
+    notify('report-generated', `Report generated — ${n} issue(s)`, report.executiveSummary?.slice(0, 200));
+    const critical = report.metrics?.severityBreakdown?.critical ?? 0;
+    if (critical > 0) notify('critical-bug', `${critical} critical bug(s) found`, report.bugs?.find((b) => b.severity === 'critical')?.title);
+  }, [logActivity, notify]);
 
   const createBug = useCallback((src) => {
     setBugSeq((seq) => {
@@ -229,9 +264,10 @@ export function AppProvider({ children }) {
       setBugs((b) => [bug, ...b]);
       toast(`${bug.id} created — view it in Bugs`);
       logActivity('⬡', 'var(--high)', `Bug created: ${bug.title.slice(0, 60)}`);
+      if (bug.severity === 'critical') notify('critical-bug', `Critical bug: ${bug.title.slice(0, 80)}`, bug.evidence);
       return seq + 1;
     });
-  }, [toast, logActivity]);
+  }, [toast, logActivity, notify]);
 
   const updateBug = useCallback((id, patch) => {
     setBugs((b) => b.map((x) => (x.id === id ? { ...x, ...patch } : x)));
@@ -258,7 +294,9 @@ export function AppProvider({ children }) {
     bugs, setBugs, createBug, updateBug, selectedBug, setSelectedBug,
     activity, logActivity,
     user, setUser, refreshUser, logout,
-    profileMenuOpen, setProfileMenuOpen
+    profileMenuOpen, setProfileMenuOpen,
+    notifications, notify, refreshNotifications, markNotificationRead, markAllNotificationsRead,
+    notificationsOpen, setNotificationsOpen
   };
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;

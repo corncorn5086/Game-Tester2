@@ -136,6 +136,8 @@ addColumn('users', 'updated_at', 'TEXT');
 addColumn('users', 'language', "TEXT DEFAULT 'en'");
 addColumn('users', 'country', 'TEXT');
 addColumn('users', 'user_type', 'TEXT');
+addColumn('users', 'avatar_data', 'TEXT'); // data: URL, local-first (not mirrored to cloud)
+addColumn('users', 'deleted_at', 'TEXT'); // soft-deactivation — preserves FK integrity across workspaces/reports
 
 // Password reset + email/phone verification tokens.
 db.exec(`
@@ -144,6 +146,12 @@ db.exec(`
     kind TEXT NOT NULL, code TEXT, created_at TEXT NOT NULL, expires_at TEXT NOT NULL, used INTEGER NOT NULL DEFAULT 0
   );
 `);
+
+// Give sessions a stable short id for listing/revoking individually (existing
+// rows are backfilled; SQLite's randomblob/hex generate a safe unique value).
+addColumn('sessions', 'id', 'TEXT');
+db.exec(`UPDATE sessions SET id = lower(hex(randomblob(8))) WHERE id IS NULL`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_sessions_id ON sessions(id)`);
 
 // --- tiny helpers ---
 

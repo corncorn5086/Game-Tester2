@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('ember', {
     set: (patch) => ipcRenderer.invoke('settings:set', patch)
   },
   selectFolder: (title) => ipcRenderer.invoke('dialog:selectFolder', title),
+  selectImage: () => ipcRenderer.invoke('dialog:selectImage'),
+  systemInfo: () => ipcRenderer.invoke('system:info'),
   openPath: (p) => ipcRenderer.invoke('shell:openPath', p),
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   project: {
@@ -28,11 +30,13 @@ contextBridge.exposeInMainWorld('ember', {
     logs: (dir) => ipcRenderer.invoke('agent:logs', dir),
     run: (dir, profile) => ipcRenderer.invoke('agent:run', dir, profile),
     report: (dir, opts) => ipcRenderer.invoke('agent:report', dir, opts),
+    reportPdf: (report) => ipcRenderer.invoke('agent:reportPdf', report),
     doctor: (dir) => ipcRenderer.invoke('agent:doctor', dir),
     listReports: (dir) => ipcRenderer.invoke('agent:listReports', dir),
     aiStatus: (provider) => ipcRenderer.invoke('agent:aiStatus', provider),
     aiExplainBug: (bug, provider) => ipcRenderer.invoke('agent:aiExplainBug', bug, provider),
     aiSummarizeReport: (report, provider) => ipcRenderer.invoke('agent:aiSummarizeReport', report, provider),
+    aiTriageBug: (bug, provider) => ipcRenderer.invoke('agent:aiTriageBug', bug, provider),
     onRunStep: (cb) => {
       const handler = (_e, step) => cb(step);
       ipcRenderer.on('agent:run-step', handler);

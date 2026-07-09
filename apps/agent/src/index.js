@@ -15,4 +15,4 @@ export { doctor } from './doctor.js';
 export { BackendClient, backendFromConfig } from './backend-client.js';
 export { LocalStore } from './store.js';
 export { maskSecrets } from './util.js';
-export { aiConfigured, aiStatus, explainBug, summarizeReport } from './ai.js';
+export { aiConfigured, aiStatus, explainBug, summarizeReport, triageBug } from './ai.js';

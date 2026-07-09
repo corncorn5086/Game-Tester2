@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../lib/store.jsx';
 import { bridge, isDesktop } from '../lib/bridge.js';
 
@@ -7,10 +7,15 @@ import { bridge, isDesktop } from '../lib/bridge.js';
  * placeholders. Working ones call the real bridge.
  */
 export default function Connect() {
-  const { project, connectProject, disconnectProject, setModule, setPhase, toast, settings, saveSettings, setProject, logsRes, setLogsRes } = useApp();
+  const { project, connectProject, disconnectProject, setModule, setPhase, toast, settings, saveSettings, setProject, logsRes, setLogsRes, api, backendHealth } = useApp();
   const [pathInput, setPathInput] = useState('');
   const [initOffer, setInitOffer] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [cloud, setCloud] = useState(null);
+
+  useEffect(() => {
+    if (backendHealth?.ok) api.health().then((h) => setCloud(h.cloud)).catch(() => setCloud(null));
+  }, [api, backendHealth?.ok]);
 
   const connect = async (dir) => {
     if (!dir) return;
@@ -45,26 +50,32 @@ export default function Connect() {
     toast(logs?.logsAnalyzed ? `Logs connected — ${logs.logsAnalyzed} file(s) parsed` : 'logsPath saved — no log files found there yet');
   };
 
-  const validateConfig = async () => {
-    if (!project) return toast('No project connected');
-    const res = await bridge.config.validate(project.root);
-    if (res?.unavailable) return toast(res.error);
-    toast(res.valid ? 'ember.config.json valid — schema OK' : `Config invalid: ${res.errors?.[0]}`);
-  };
+
+  const cloudConnected = cloud?.enabled && cloud?.auth && !String(cloud.auth).startsWith('anon');
 
   const CONNECTORS = [
     { name: 'Local Project', icon: '◈', desc: 'Scan a project folder — files, engine detection, markers.', status: project ? 'Connected' : 'Available', action: () => (project ? toast('Project already connected') : pickProject()), btn: project ? 'Reconnect' : 'Connect' },
     { name: 'Build Folder', icon: '▣', desc: 'Attach a packaged build for launch checks (set launchCommand).', status: project?.config?.launchCommand ? 'Connected' : 'Needs setup', action: () => (project ? setModule('settings') : pickProject()), btn: 'Configure' },
     { name: 'Logs Folder', icon: '≡', desc: 'Parse .log / .txt / .json for errors, crashes, warnings.', status: project?.config?.logsPath ? 'Connected' : 'Available', action: connectLogs, btn: project?.config?.logsPath ? 'Re-pick folder' : 'Connect' },
-    { name: 'Ember Config', icon: '{ }', desc: 'Read, create and validate ember.config.json.', status: project ? 'Connected' : 'Available', action: validateConfig, btn: 'Validate' },
+    { name: 'Ember Config', icon: '{ }', desc: 'Edit, validate and preview ember.config.json — every field, no raw JSON editing required.', status: project ? 'Connected' : 'Available', action: () => (project ? setModule('configEditor') : pickProject()), btn: project ? 'Open editor' : 'Connect' },
     { name: 'Ember CLI', icon: '⌘', desc: 'Local agent: doctor, scan, analyze, report.', status: isDesktop ? 'Connected' : 'Desktop only', action: () => setModule('agent'), btn: 'Open Agent' },
+    {
+      name: 'Supabase', icon: '▤',
+      desc: 'Cloud sync for projects, reports and team — works alongside the local backend.',
+      status: !cloud ? (backendHealth?.ok ? 'Checking…' : 'Backend offline') : cloudConnected ? 'Connected' : cloud.enabled ? 'Needs service key' : 'Not configured',
+      lastSync: cloud?.lastSyncAt ? new Date(cloud.lastSyncAt).toLocaleString() : null,
+      action: () => setModule('diagnostics'), btn: 'View status'
+    },
     { name: 'GitHub', icon: '⎇', desc: 'Sync issues + PR checks from your repo.', status: 'Coming soon' },
     { name: 'GitLab', icon: '⎇', desc: 'Pipeline hooks and issue sync.', status: 'Coming soon' },
     { name: 'Jira', icon: '◫', desc: 'Push Ember bugs into your Jira backlog.', status: 'Coming soon' },
     { name: 'Linear', icon: '◫', desc: 'One-click bug export to Linear.', status: 'Coming soon' },
     { name: 'Slack', icon: '◇', desc: 'Report digests + critical alerts in channels.', status: 'Coming soon' },
     { name: 'Discord', icon: '◇', desc: 'Alerts for your team server.', status: 'Coming soon' },
-    { name: 'Unity Plugin', icon: '▲', desc: 'In-editor hooks: play-mode checks, live capture.', status: 'Coming soon' }
+    { name: 'Unity Plugin', icon: '▲', desc: 'In-editor hooks: play-mode checks, live capture.', status: 'Coming soon' },
+    { name: 'Unreal Plugin', icon: '▲', desc: 'In-editor hooks: PIE checks, Blueprint capture.', status: 'Coming soon' },
+    { name: 'Godot Plugin', icon: '▲', desc: 'In-editor hooks: scene checks, live capture.', status: 'Coming soon' },
+    { name: 'Web / Playwright', icon: '◎', desc: 'Scripted browser input driver for web games — powers scenario replay.', status: 'Coming soon' }
   ];
 
   const runInit = async () => {
@@ -109,7 +120,8 @@ export default function Connect() {
                 <span className={`chip ${conn ? 'ok' : soon ? 'dim' : 'fire'}`} style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '.06em' }}>{c.status}</span>
               </div>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>{c.name}</div>
-              <div style={{ fontSize: 11, lineHeight: 1.55, color: 'rgba(244,244,245,.45)', marginBottom: 14, minHeight: 34 }}>{c.desc}</div>
+              <div style={{ fontSize: 11, lineHeight: 1.55, color: 'rgba(244,244,245,.45)', marginBottom: c.lastSync ? 6 : 14, minHeight: 34 }}>{c.desc}</div>
+              {c.lastSync && <div className="micro-mono" style={{ fontSize: 9.5, color: 'var(--ink-faint)', marginBottom: 10 }}>Last sync: {c.lastSync}</div>}
               <button
                 className="btn btn-ghost btn-sm"
                 style={{ width: '100%', opacity: soon ? 0.55 : 1 }}

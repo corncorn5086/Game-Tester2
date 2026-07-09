@@ -88,7 +88,63 @@ export function buildReport({ config, root, scan, analyze, logs, run }) {
       : null,
     recommendedNextActions: buildNextActions({ config, metrics, bugs, logs, run })
   };
+  report.releaseReadiness = buildReleaseReadiness({ metrics, bugs, run });
   return report;
+}
+
+/**
+ * Release Readiness Score: a transparent 0-100 score with every deduction
+ * traceable to a real signal — never an opaque or invented number.
+ */
+function buildReleaseReadiness({ metrics, bugs, run }) {
+  const sb = metrics.severityBreakdown;
+  const deductions = [];
+  const deduct = (points, reason) => { if (points > 0) deductions.push({ points, reason }); };
+
+  deduct(Math.min(sb.critical * 25, 60), sb.critical ? `${sb.critical} critical bug(s) open` : null);
+  deduct(Math.min(sb.high * 10, 30), sb.high ? `${sb.high} high-severity bug(s) open` : null);
+  deduct(Math.min(sb.medium * 3, 15), sb.medium ? `${sb.medium} medium-severity bug(s) open` : null);
+
+  if (metrics.crashRisk === 'high') deduct(15, 'Crash risk is high');
+  else if (metrics.crashRisk === 'medium') deduct(7, 'Crash risk is medium');
+
+  if (metrics.buildHealth === 'failing') deduct(20, 'Build is failing');
+  else if (metrics.buildHealth === 'not-configured') deduct(5, 'Build health unknown — no buildCommand configured');
+
+  if (metrics.regressionRisk === 'high') deduct(10, 'High regression risk — previously fixed issues may resurface');
+  else if (metrics.regressionRisk === 'medium') deduct(5, 'Medium regression risk');
+
+  deduct(Math.min(metrics.failedChecks * 5, 20), metrics.failedChecks ? `${metrics.failedChecks} check(s) failed` : null);
+  deduct(Math.min(metrics.blockedChecks * 2, 10), metrics.blockedChecks ? `${metrics.blockedChecks} check(s) blocked (missing SDK/config)` : null);
+
+  if (metrics.filesScanned === 0) deduct(10, 'No files were scanned — signals are incomplete');
+  if (metrics.logsAnalyzed === 0) deduct(5, 'No logs were analyzed — crash/error signals may be missing');
+
+  const totalDeduction = deductions.reduce((sum, d) => sum + d.points, 0);
+  const score = Math.max(0, Math.min(100, 100 - totalDeduction));
+  const band = score >= 85 ? 'ready' : score >= 60 ? 'needs-fixes' : 'risky';
+  const bandLabel = { ready: 'Ready', 'needs-fixes': 'Needs fixes', risky: 'Risky release' }[band];
+
+  const blocksRelease = [];
+  if (sb.critical > 0) blocksRelease.push(`${sb.critical} critical bug(s) must be fixed before release.`);
+  if (metrics.buildHealth === 'failing') blocksRelease.push('The build is currently failing.');
+  if (metrics.crashRisk === 'high') blocksRelease.push('Crash risk is high based on real crash-category findings.');
+
+  const risksIfShipped = [];
+  if (sb.high > 0) risksIfShipped.push(`${sb.high} high-severity issue(s) will reach players.`);
+  if (metrics.regressionRisk !== 'low') risksIfShipped.push('Previously fixed bugs may resurface (regression risk).');
+  if (metrics.blockedChecks > 0) risksIfShipped.push(`${metrics.blockedChecks} check(s) never ran — real coverage is lower than it looks.`);
+  if (metrics.logsAnalyzed === 0) risksIfShipped.push('No log evidence was available — crash signals may be under-detected.');
+
+  return {
+    score,
+    band,
+    bandLabel,
+    deductions: deductions.filter((d) => d.reason),
+    blocksRelease,
+    risksIfShipped,
+    note: 'Score is fully derived from this report\'s metrics — every point lost is listed in "deductions".'
+  };
 }
 
 function summarizeConfidence(bugs) {
@@ -148,6 +204,27 @@ export function reportToMarkdown(report) {
     lines.push('');
     lines.push(report.aiExecutiveSummary);
     lines.push('');
+  }
+  if (report.releaseReadiness) {
+    const rr = report.releaseReadiness;
+    lines.push(`## Release Readiness — ${rr.score}/100 (${rr.bandLabel})`);
+    lines.push('');
+    if (rr.deductions.length) {
+      lines.push('| Deduction | Reason |');
+      lines.push('|---|---|');
+      for (const d of rr.deductions) lines.push(`| -${d.points} | ${d.reason} |`);
+      lines.push('');
+    }
+    if (rr.blocksRelease.length) {
+      lines.push('**What blocks release:**');
+      for (const b of rr.blocksRelease) lines.push(`- ${b}`);
+      lines.push('');
+    }
+    if (rr.risksIfShipped.length) {
+      lines.push('**Risks if you ship today:**');
+      for (const r of rr.risksIfShipped) lines.push(`- ${r}`);
+      lines.push('');
+    }
   }
   lines.push('## Metrics');
   lines.push('');

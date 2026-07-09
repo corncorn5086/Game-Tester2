@@ -29,6 +29,7 @@ export const CONFIG_FIELDS = {
   maxFiles: ['number', false, 'Max files to analyze per run (default 5000)'],
   testProfiles: ['object', false, 'Named test profiles: { smoke: { checks: [...], commands: [...] } }'],
   customRules: ['array', false, 'Custom analysis rules: { id, pattern, flags?, message, severity, category, extensions? }'],
+  scenarios: ['array', false, 'Recorded playtest scenarios: { id, name, steps: string[], expectedResult, createdAt }'],
   backend: ['object', false, 'Optional backend sync: { url, projectId?, token? (prefer EMBER_AGENT_TOKEN env) }']
 };
 
@@ -70,6 +71,7 @@ export const SAMPLE_CONFIG = {
       extensions: ['.cs']
     }
   ],
+  scenarios: [],
   backend: {
     url: '',
     projectId: ''

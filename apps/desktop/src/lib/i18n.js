@@ -110,6 +110,7 @@ const en = {
   'common.soon': 'soon',
 
   'nav.command': 'Center',
+  'nav.projects': 'Projects',
   'nav.connect': 'Connect',
   'nav.agent': 'Agent',
   'nav.analyze': 'Analyze',
@@ -137,6 +138,7 @@ const en = {
   'menu.paymentMethods': 'Payment methods',
   'menu.integrations': 'Integrations',
   'menu.privacy': 'Privacy',
+  'menu.diagnostics': 'Diagnostics',
   'menu.support': 'Support',
   'menu.signout': 'Sign out',
 
@@ -179,13 +181,13 @@ const fr = {
   'err.backend': 'Backend injoignable — lancez `npm run dev:backend`, puis réessayez.', 'err.password2': 'Entrez votre mot de passe',
   'common.optional': 'Optionnel', 'common.back': 'Retour', 'common.continue': 'Continuer', 'common.save': 'Enregistrer',
   'common.language': 'Langue', 'common.selectRole': 'Choisir…', 'common.soon': 'bientôt',
-  'nav.command': 'Centre', 'nav.connect': 'Connecter', 'nav.agent': 'Agent', 'nav.analyze': 'Analyser',
+  'nav.command': 'Centre', 'nav.projects': 'Projets', 'nav.connect': 'Connecter', 'nav.agent': 'Agent', 'nav.analyze': 'Analyser',
   'nav.run': 'Exécuter', 'nav.bugs': 'Bugs', 'nav.reports': 'Rapports', 'nav.settings': 'Paramètres',
   'menu.account': 'Compte', 'menu.preferences': 'Préférences', 'menu.subscription': 'Abonnement et paiements', 'menu.system': 'Système',
   'menu.profile': 'Profil', 'menu.editInfo': 'Modifier mes informations', 'menu.changePassword': 'Changer le mot de passe', 'menu.security': 'Sécurité',
   'menu.general': 'Paramètres généraux', 'menu.language': "Langue de l'application", 'menu.appearance': 'Apparence', 'menu.notifications': 'Notifications',
   'menu.subscriptionItem': 'Abonnement', 'menu.payments': 'Paiements', 'menu.billing': 'Facturation', 'menu.history': 'Historique des transactions', 'menu.paymentMethods': 'Moyens de paiement',
-  'menu.integrations': 'Intégrations', 'menu.privacy': 'Confidentialité', 'menu.support': 'Support', 'menu.signout': 'Se déconnecter',
+  'menu.integrations': 'Intégrations', 'menu.privacy': 'Confidentialité', 'menu.diagnostics': 'Diagnostics', 'menu.support': 'Support', 'menu.signout': 'Se déconnecter',
   'lang.title': "Langue de l'application", 'lang.desc': 'Choisissez votre langue — appliquée instantanément dans toute l’app et enregistrée sur votre compte.'
 };
 
@@ -219,13 +221,13 @@ const es = {
   'err.backend': 'Backend inaccesible — inícialo con `npm run dev:backend` e inténtalo de nuevo.', 'err.password2': 'Introduce tu contraseña',
   'common.optional': 'Opcional', 'common.back': 'Atrás', 'common.continue': 'Continuar', 'common.save': 'Guardar cambios',
   'common.language': 'Idioma', 'common.selectRole': 'Seleccionar…', 'common.soon': 'pronto',
-  'nav.command': 'Centro', 'nav.connect': 'Conectar', 'nav.agent': 'Agente', 'nav.analyze': 'Analizar',
+  'nav.command': 'Centro', 'nav.projects': 'Proyectos', 'nav.connect': 'Conectar', 'nav.agent': 'Agente', 'nav.analyze': 'Analizar',
   'nav.run': 'Ejecutar', 'nav.bugs': 'Errores', 'nav.reports': 'Informes', 'nav.settings': 'Ajustes',
   'menu.account': 'Cuenta', 'menu.preferences': 'Preferencias', 'menu.subscription': 'Suscripción y pagos', 'menu.system': 'Sistema',
   'menu.profile': 'Perfil', 'menu.editInfo': 'Editar mi información', 'menu.changePassword': 'Cambiar contraseña', 'menu.security': 'Seguridad',
   'menu.general': 'Ajustes generales', 'menu.language': 'Idioma de la aplicación', 'menu.appearance': 'Apariencia', 'menu.notifications': 'Notificaciones',
   'menu.subscriptionItem': 'Suscripción', 'menu.payments': 'Pagos', 'menu.billing': 'Facturación', 'menu.history': 'Historial de transacciones', 'menu.paymentMethods': 'Métodos de pago',
-  'menu.integrations': 'Integraciones', 'menu.privacy': 'Privacidad', 'menu.support': 'Soporte', 'menu.signout': 'Cerrar sesión',
+  'menu.integrations': 'Integraciones', 'menu.privacy': 'Privacidad', 'menu.diagnostics': 'Diagnóstico', 'menu.support': 'Soporte', 'menu.signout': 'Cerrar sesión',
   'lang.title': 'Idioma de la aplicación', 'lang.desc': 'Elige tu idioma — se aplica al instante en toda la app y se guarda en tu cuenta.'
 };
 
@@ -259,13 +261,13 @@ const de = {
   'err.backend': 'Backend nicht erreichbar — starte es mit `npm run dev:backend` und versuche es erneut.', 'err.password2': 'Gib dein Passwort ein',
   'common.optional': 'Optional', 'common.back': 'Zurück', 'common.continue': 'Weiter', 'common.save': 'Änderungen speichern',
   'common.language': 'Sprache', 'common.selectRole': 'Auswählen…', 'common.soon': 'bald',
-  'nav.command': 'Zentrale', 'nav.connect': 'Verbinden', 'nav.agent': 'Agent', 'nav.analyze': 'Analysieren',
+  'nav.command': 'Zentrale', 'nav.projects': 'Projekte', 'nav.connect': 'Verbinden', 'nav.agent': 'Agent', 'nav.analyze': 'Analysieren',
   'nav.run': 'Ausführen', 'nav.bugs': 'Bugs', 'nav.reports': 'Berichte', 'nav.settings': 'Einstellungen',
   'menu.account': 'Konto', 'menu.preferences': 'Einstellungen', 'menu.subscription': 'Abo & Zahlungen', 'menu.system': 'System',
   'menu.profile': 'Profil', 'menu.editInfo': 'Meine Daten bearbeiten', 'menu.changePassword': 'Passwort ändern', 'menu.security': 'Sicherheit',
   'menu.general': 'Allgemeine Einstellungen', 'menu.language': 'App-Sprache', 'menu.appearance': 'Darstellung', 'menu.notifications': 'Benachrichtigungen',
   'menu.subscriptionItem': 'Abonnement', 'menu.payments': 'Zahlungen', 'menu.billing': 'Abrechnung', 'menu.history': 'Transaktionsverlauf', 'menu.paymentMethods': 'Zahlungsmethoden',
-  'menu.integrations': 'Integrationen', 'menu.privacy': 'Datenschutz', 'menu.support': 'Support', 'menu.signout': 'Abmelden',
+  'menu.integrations': 'Integrationen', 'menu.privacy': 'Datenschutz', 'menu.diagnostics': 'Diagnose', 'menu.support': 'Support', 'menu.signout': 'Abmelden',
   'lang.title': 'App-Sprache', 'lang.desc': 'Wähle deine Sprache — sofort in der ganzen App aktiv und in deinem Konto gespeichert.'
 };
 
@@ -299,13 +301,13 @@ const it = {
   'err.backend': 'Backend non raggiungibile — avvialo con `npm run dev:backend`, poi riprova.', 'err.password2': 'Inserisci la password',
   'common.optional': 'Opzionale', 'common.back': 'Indietro', 'common.continue': 'Continua', 'common.save': 'Salva modifiche',
   'common.language': 'Lingua', 'common.selectRole': 'Seleziona…', 'common.soon': 'presto',
-  'nav.command': 'Centro', 'nav.connect': 'Connetti', 'nav.agent': 'Agente', 'nav.analyze': 'Analizza',
+  'nav.command': 'Centro', 'nav.projects': 'Progetti', 'nav.connect': 'Connetti', 'nav.agent': 'Agente', 'nav.analyze': 'Analizza',
   'nav.run': 'Esegui', 'nav.bugs': 'Bug', 'nav.reports': 'Report', 'nav.settings': 'Impostazioni',
   'menu.account': 'Account', 'menu.preferences': 'Preferenze', 'menu.subscription': 'Abbonamento e pagamenti', 'menu.system': 'Sistema',
   'menu.profile': 'Profilo', 'menu.editInfo': 'Modifica i miei dati', 'menu.changePassword': 'Cambia password', 'menu.security': 'Sicurezza',
   'menu.general': 'Impostazioni generali', 'menu.language': 'Lingua dell’app', 'menu.appearance': 'Aspetto', 'menu.notifications': 'Notifiche',
   'menu.subscriptionItem': 'Abbonamento', 'menu.payments': 'Pagamenti', 'menu.billing': 'Fatturazione', 'menu.history': 'Storico transazioni', 'menu.paymentMethods': 'Metodi di pagamento',
-  'menu.integrations': 'Integrazioni', 'menu.privacy': 'Privacy', 'menu.support': 'Supporto', 'menu.signout': 'Esci',
+  'menu.integrations': 'Integrazioni', 'menu.privacy': 'Privacy', 'menu.diagnostics': 'Diagnostica', 'menu.support': 'Supporto', 'menu.signout': 'Esci',
   'lang.title': 'Lingua dell’app', 'lang.desc': 'Scegli la lingua — applicata subito in tutta l’app e salvata sul tuo account.'
 };
 
@@ -339,13 +341,13 @@ const pt = {
   'err.backend': 'Backend inacessível — inicie com `npm run dev:backend` e tente novamente.', 'err.password2': 'Digite sua senha',
   'common.optional': 'Opcional', 'common.back': 'Voltar', 'common.continue': 'Continuar', 'common.save': 'Salvar alterações',
   'common.language': 'Idioma', 'common.selectRole': 'Selecionar…', 'common.soon': 'em breve',
-  'nav.command': 'Central', 'nav.connect': 'Conectar', 'nav.agent': 'Agente', 'nav.analyze': 'Analisar',
+  'nav.command': 'Central', 'nav.projects': 'Projetos', 'nav.connect': 'Conectar', 'nav.agent': 'Agente', 'nav.analyze': 'Analisar',
   'nav.run': 'Executar', 'nav.bugs': 'Bugs', 'nav.reports': 'Relatórios', 'nav.settings': 'Configurações',
   'menu.account': 'Conta', 'menu.preferences': 'Preferências', 'menu.subscription': 'Assinatura e pagamentos', 'menu.system': 'Sistema',
   'menu.profile': 'Perfil', 'menu.editInfo': 'Editar minhas informações', 'menu.changePassword': 'Alterar senha', 'menu.security': 'Segurança',
   'menu.general': 'Configurações gerais', 'menu.language': 'Idioma do aplicativo', 'menu.appearance': 'Aparência', 'menu.notifications': 'Notificações',
   'menu.subscriptionItem': 'Assinatura', 'menu.payments': 'Pagamentos', 'menu.billing': 'Faturamento', 'menu.history': 'Histórico de transações', 'menu.paymentMethods': 'Formas de pagamento',
-  'menu.integrations': 'Integrações', 'menu.privacy': 'Privacidade', 'menu.support': 'Suporte', 'menu.signout': 'Sair',
+  'menu.integrations': 'Integrações', 'menu.privacy': 'Privacidade', 'menu.diagnostics': 'Diagnóstico', 'menu.support': 'Suporte', 'menu.signout': 'Sair',
   'lang.title': 'Idioma do aplicativo', 'lang.desc': 'Escolha seu idioma — aplicado na hora em todo o app e salvo na sua conta.'
 };
 
@@ -379,13 +381,13 @@ const ar = {
   'err.backend': 'الخادم غير متاح — شغّله عبر `npm run dev:backend` ثم أعد المحاولة.', 'err.password2': 'أدخل كلمة المرور',
   'common.optional': 'اختياري', 'common.back': 'رجوع', 'common.continue': 'متابعة', 'common.save': 'حفظ التغييرات',
   'common.language': 'اللغة', 'common.selectRole': 'اختر…', 'common.soon': 'قريبًا',
-  'nav.command': 'المركز', 'nav.connect': 'اتصال', 'nav.agent': 'الوكيل', 'nav.analyze': 'تحليل',
+  'nav.command': 'المركز', 'nav.projects': 'المشاريع', 'nav.connect': 'اتصال', 'nav.agent': 'الوكيل', 'nav.analyze': 'تحليل',
   'nav.run': 'تشغيل', 'nav.bugs': 'الأخطاء', 'nav.reports': 'التقارير', 'nav.settings': 'الإعدادات',
   'menu.account': 'الحساب', 'menu.preferences': 'التفضيلات', 'menu.subscription': 'الاشتراك والمدفوعات', 'menu.system': 'النظام',
   'menu.profile': 'الملف الشخصي', 'menu.editInfo': 'تعديل معلوماتي', 'menu.changePassword': 'تغيير كلمة المرور', 'menu.security': 'الأمان',
   'menu.general': 'الإعدادات العامة', 'menu.language': 'لغة التطبيق', 'menu.appearance': 'المظهر', 'menu.notifications': 'الإشعارات',
   'menu.subscriptionItem': 'الاشتراك', 'menu.payments': 'المدفوعات', 'menu.billing': 'الفوترة', 'menu.history': 'سجل المعاملات', 'menu.paymentMethods': 'طرق الدفع',
-  'menu.integrations': 'التكاملات', 'menu.privacy': 'الخصوصية', 'menu.support': 'الدعم', 'menu.signout': 'تسجيل الخروج',
+  'menu.integrations': 'التكاملات', 'menu.privacy': 'الخصوصية', 'menu.diagnostics': 'التشخيص', 'menu.support': 'الدعم', 'menu.signout': 'تسجيل الخروج',
   'lang.title': 'لغة التطبيق', 'lang.desc': 'اختر لغتك — تُطبَّق فورًا على التطبيق بالكامل وتُحفظ في حسابك.'
 };
 
@@ -419,13 +421,13 @@ const zh = {
   'err.backend': '无法连接后端——用 `npm run dev:backend` 启动后重试。', 'err.password2': '请输入密码',
   'common.optional': '可选', 'common.back': '返回', 'common.continue': '继续', 'common.save': '保存更改',
   'common.language': '语言', 'common.selectRole': '选择…', 'common.soon': '即将推出',
-  'nav.command': '中心', 'nav.connect': '连接', 'nav.agent': '代理', 'nav.analyze': '分析',
+  'nav.command': '中心', 'nav.projects': '项目', 'nav.connect': '连接', 'nav.agent': '代理', 'nav.analyze': '分析',
   'nav.run': '运行', 'nav.bugs': '缺陷', 'nav.reports': '报告', 'nav.settings': '设置',
   'menu.account': '账户', 'menu.preferences': '偏好设置', 'menu.subscription': '订阅与付款', 'menu.system': '系统',
   'menu.profile': '个人资料', 'menu.editInfo': '编辑我的信息', 'menu.changePassword': '修改密码', 'menu.security': '安全',
   'menu.general': '常规设置', 'menu.language': '应用语言', 'menu.appearance': '外观', 'menu.notifications': '通知',
   'menu.subscriptionItem': '订阅', 'menu.payments': '付款', 'menu.billing': '账单', 'menu.history': '交易记录', 'menu.paymentMethods': '付款方式',
-  'menu.integrations': '集成', 'menu.privacy': '隐私', 'menu.support': '支持', 'menu.signout': '退出登录',
+  'menu.integrations': '集成', 'menu.privacy': '隐私', 'menu.diagnostics': '诊断', 'menu.support': '支持', 'menu.signout': '退出登录',
   'lang.title': '应用语言', 'lang.desc': '选择你的语言——立即应用于整个应用并保存到你的账户。'
 };
 
@@ -459,13 +461,13 @@ const ja = {
   'err.backend': 'バックエンドに接続できません — `npm run dev:backend` で起動して再試行してください。', 'err.password2': 'パスワードを入力してください',
   'common.optional': '任意', 'common.back': '戻る', 'common.continue': '続行', 'common.save': '変更を保存',
   'common.language': '言語', 'common.selectRole': '選択…', 'common.soon': '近日公開',
-  'nav.command': 'センター', 'nav.connect': '接続', 'nav.agent': 'エージェント', 'nav.analyze': '分析',
+  'nav.command': 'センター', 'nav.projects': 'プロジェクト', 'nav.connect': '接続', 'nav.agent': 'エージェント', 'nav.analyze': '分析',
   'nav.run': '実行', 'nav.bugs': 'バグ', 'nav.reports': 'レポート', 'nav.settings': '設定',
   'menu.account': 'アカウント', 'menu.preferences': '設定', 'menu.subscription': 'サブスクと支払い', 'menu.system': 'システム',
   'menu.profile': 'プロフィール', 'menu.editInfo': '情報を編集', 'menu.changePassword': 'パスワード変更', 'menu.security': 'セキュリティ',
   'menu.general': '一般設定', 'menu.language': 'アプリの言語', 'menu.appearance': '外観', 'menu.notifications': '通知',
   'menu.subscriptionItem': 'サブスクリプション', 'menu.payments': '支払い', 'menu.billing': '請求', 'menu.history': '取引履歴', 'menu.paymentMethods': '支払い方法',
-  'menu.integrations': '連携', 'menu.privacy': 'プライバシー', 'menu.support': 'サポート', 'menu.signout': 'サインアウト',
+  'menu.integrations': '連携', 'menu.privacy': 'プライバシー', 'menu.diagnostics': '診断', 'menu.support': 'サポート', 'menu.signout': 'サインアウト',
   'lang.title': 'アプリの言語', 'lang.desc': '言語を選択 — アプリ全体に即時適用され、アカウントに保存されます。'
 };
 
@@ -499,13 +501,13 @@ const ko = {
   'err.backend': '백엔드에 연결할 수 없습니다 — `npm run dev:backend`로 시작한 뒤 다시 시도하세요.', 'err.password2': '비밀번호를 입력하세요',
   'common.optional': '선택', 'common.back': '뒤로', 'common.continue': '계속', 'common.save': '변경 사항 저장',
   'common.language': '언어', 'common.selectRole': '선택…', 'common.soon': '곧 제공',
-  'nav.command': '센터', 'nav.connect': '연결', 'nav.agent': '에이전트', 'nav.analyze': '분석',
+  'nav.command': '센터', 'nav.projects': '프로젝트', 'nav.connect': '연결', 'nav.agent': '에이전트', 'nav.analyze': '분석',
   'nav.run': '실행', 'nav.bugs': '버그', 'nav.reports': '리포트', 'nav.settings': '설정',
   'menu.account': '계정', 'menu.preferences': '환경설정', 'menu.subscription': '구독 및 결제', 'menu.system': '시스템',
   'menu.profile': '프로필', 'menu.editInfo': '내 정보 수정', 'menu.changePassword': '비밀번호 변경', 'menu.security': '보안',
   'menu.general': '일반 설정', 'menu.language': '앱 언어', 'menu.appearance': '외관', 'menu.notifications': '알림',
   'menu.subscriptionItem': '구독', 'menu.payments': '결제', 'menu.billing': '청구', 'menu.history': '거래 내역', 'menu.paymentMethods': '결제 수단',
-  'menu.integrations': '통합', 'menu.privacy': '개인정보', 'menu.support': '지원', 'menu.signout': '로그아웃',
+  'menu.integrations': '통합', 'menu.privacy': '개인정보', 'menu.diagnostics': '진단', 'menu.support': '지원', 'menu.signout': '로그아웃',
   'lang.title': '앱 언어', 'lang.desc': '언어를 선택하세요 — 앱 전체에 즉시 적용되고 계정에 저장됩니다.'
 };
 
@@ -539,13 +541,13 @@ const hi = {
   'err.backend': 'बैकएंड उपलब्ध नहीं — `npm run dev:backend` से शुरू करें और पुनः प्रयास करें।', 'err.password2': 'अपना पासवर्ड दर्ज करें',
   'common.optional': 'वैकल्पिक', 'common.back': 'वापस', 'common.continue': 'जारी रखें', 'common.save': 'परिवर्तन सहेजें',
   'common.language': 'भाषा', 'common.selectRole': 'चुनें…', 'common.soon': 'जल्द ही',
-  'nav.command': 'केंद्र', 'nav.connect': 'कनेक्ट', 'nav.agent': 'एजेंट', 'nav.analyze': 'विश्लेषण',
+  'nav.command': 'केंद्र', 'nav.projects': 'परियोजनाएँ', 'nav.connect': 'कनेक्ट', 'nav.agent': 'एजेंट', 'nav.analyze': 'विश्लेषण',
   'nav.run': 'चलाएँ', 'nav.bugs': 'बग', 'nav.reports': 'रिपोर्ट', 'nav.settings': 'सेटिंग्स',
   'menu.account': 'खाता', 'menu.preferences': 'प्राथमिकताएँ', 'menu.subscription': 'सदस्यता और भुगतान', 'menu.system': 'सिस्टम',
   'menu.profile': 'प्रोफ़ाइल', 'menu.editInfo': 'मेरी जानकारी संपादित करें', 'menu.changePassword': 'पासवर्ड बदलें', 'menu.security': 'सुरक्षा',
   'menu.general': 'सामान्य सेटिंग्स', 'menu.language': 'ऐप की भाषा', 'menu.appearance': 'रूप', 'menu.notifications': 'सूचनाएँ',
   'menu.subscriptionItem': 'सदस्यता', 'menu.payments': 'भुगतान', 'menu.billing': 'बिलिंग', 'menu.history': 'लेन-देन इतिहास', 'menu.paymentMethods': 'भुगतान विधियाँ',
-  'menu.integrations': 'एकीकरण', 'menu.privacy': 'गोपनीयता', 'menu.support': 'सहायता', 'menu.signout': 'साइन आउट',
+  'menu.integrations': 'एकीकरण', 'menu.privacy': 'गोपनीयता', 'menu.diagnostics': 'निदान', 'menu.support': 'सहायता', 'menu.signout': 'साइन आउट',
   'lang.title': 'ऐप की भाषा', 'lang.desc': 'अपनी भाषा चुनें — पूरे ऐप में तुरंत लागू होती है और आपके खाते में सहेजी जाती है।'
 };
 

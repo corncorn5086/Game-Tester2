@@ -15,6 +15,7 @@ export default function Reports() {
   const [selected, setSelected] = useState(0);
   const [withProfile, setWithProfile] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   if (gate) return gate;
 
@@ -52,6 +53,19 @@ export default function Reports() {
     }
   };
 
+  const exportPdf = async () => {
+    if (!report) return;
+    setPdfBusy(true);
+    const res = await bridge.agent.reportPdf(report);
+    setPdfBusy(false);
+    if (!res?.ok) return toast(res?.error || 'PDF export requires the Ember Desktop shell');
+    const f = await bridge.file.saveAs({ title: 'Export report (PDF)', defaultPath: `${report.id}.pdf`, content: res.base64, encoding: 'base64' });
+    if (f) {
+      toast(`Exported ${f}`);
+      logActivity('▤', 'var(--ok)', 'Report exported (pdf)');
+    }
+  };
+
   const m = report?.metrics;
 
   return (
@@ -77,7 +91,12 @@ export default function Reports() {
               }}>
                 <div style={{ fontSize: 12.5, fontWeight: 500, marginBottom: 5 }}>QA Report — {r.project?.name ?? 'Project'}</div>
                 <div className="micro-mono" style={{ fontSize: 10 }}>{r.id} · {new Date(r.generatedAt).toLocaleString()}</div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                  {r.releaseReadiness && (
+                    <span className={`chip ${{ ready: 'ok', 'needs-fixes': 'warn', risky: 'err' }[r.releaseReadiness.band]}`} style={{ fontSize: 8.5 }}>
+                      {r.releaseReadiness.score}/100
+                    </span>
+                  )}
                   <span className="chip dim" style={{ fontSize: 8.5 }}>{r.metrics?.bugsFound ?? 0} issues</span>
                   {r.metrics?.severityBreakdown?.critical > 0 && <span className="chip err" style={{ fontSize: 8.5 }}>{r.metrics.severityBreakdown.critical} critical</span>}
                 </div>
@@ -95,8 +114,33 @@ export default function Reports() {
               <div style={{ flex: 1 }} />
               <button className="doc-btn" onClick={() => exportAs('json')}>Export JSON</button>
               <button className="doc-btn" onClick={() => exportAs('md')}>Export Markdown</button>
-              <button className="doc-btn" disabled title="PDF export is planned">PDF (soon)</button>
+              <button className="doc-btn" disabled={pdfBusy} onClick={exportPdf}>{pdfBusy ? 'Rendering…' : 'Export PDF'}</button>
             </div>
+
+            {report.releaseReadiness && (() => {
+              const rr = report.releaseReadiness;
+              const bandColor = { ready: '#16a34a', 'needs-fixes': '#ca8a04', risky: '#dc2626' }[rr.band];
+              const bandBg = { ready: 'rgba(22,163,74,.08)', 'needs-fixes': 'rgba(202,138,4,.08)', risky: 'rgba(220,38,38,.08)' }[rr.band];
+              return (
+                <div style={{ display: 'flex', gap: 18, alignItems: 'center', padding: '18px 20px', borderRadius: 14, background: bandBg, border: `1px solid ${bandColor}33`, marginBottom: 24 }}>
+                  <div style={{ fontSize: 34, fontWeight: 700, fontFamily: 'var(--font-mono)', color: bandColor, lineHeight: 1 }}>{rr.score}<span style={{ fontSize: 15, opacity: .5 }}>/100</span></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: bandColor }}>{rr.bandLabel.toUpperCase()}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(24,24,27,.55)', marginTop: 2 }}>Release Readiness — {rr.note}</div>
+                    {rr.blocksRelease.length > 0 && (
+                      <div style={{ marginTop: 8, fontSize: 11.5, color: 'rgba(24,24,27,.75)' }}>
+                        <b>What blocks release:</b> {rr.blocksRelease.join(' ')}
+                      </div>
+                    )}
+                    {rr.risksIfShipped.length > 0 && (
+                      <div style={{ marginTop: 4, fontSize: 11.5, color: 'rgba(24,24,27,.75)' }}>
+                        <b>Risks if you ship today:</b> {rr.risksIfShipped.join(' ')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="doc-sec">Executive summary</div>
             <p style={{ margin: '0 0 24px' }}>{report.executiveSummary}</p>

@@ -52,7 +52,7 @@ export class LocalStore {
       .map((f) => {
         try {
           const r = JSON.parse(readFileSync(join(dir, f), 'utf8'));
-          return { file: join(dir, f), id: r.id, generatedAt: r.generatedAt, bugs: r.metrics?.bugsFound ?? 0 };
+          return { file: join(dir, f), id: r.id, generatedAt: r.generatedAt, bugs: r.metrics?.bugsFound ?? 0, releaseReadiness: r.releaseReadiness ?? null };
         } catch {
           return null;
         }

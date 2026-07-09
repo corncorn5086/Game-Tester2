@@ -34,7 +34,7 @@ function activateSubscription({ planId, workspaceId, provider, payment }) {
     makeId('use'), 'payment-captured', 1, now(), JSON.stringify({ provider, ...payment })
   ]);
   run('INSERT INTO notifications (id, type, title, body, created_at) VALUES (?, ?, ?, ?, ?)', [
-    makeId('ntf'), 'report-generated', `Payment received — ${planId} plan active`, `${provider} ${payment.transactionId ?? payment.captureId ?? ''} (${payment.amount?.value ?? ''} ${payment.amount?.currency_code ?? ''})`, now()
+    makeId('ntf'), 'payment-succeeded', `Payment received — ${planId} plan active`, `${provider} ${payment.transactionId ?? payment.captureId ?? ''} (${payment.amount?.value ?? ''} ${payment.amount?.currency_code ?? ''})`, now()
   ]);
   return periodEnd;
 }
@@ -202,6 +202,14 @@ platformRouter.post('/team/invite', (req, res) => {
   res.status(201).json({ id, email, role, status: 'invited', note: 'Invite stored. Email delivery pending SMTP configuration (placeholder).' });
 });
 
+platformRouter.delete('/team/:id', (req, res) => {
+  const member = get('SELECT * FROM team_members WHERE id = ?', [req.params.id]);
+  if (!member) return res.status(404).json({ error: 'Team member not found (it may only exist in the cloud workspace).' });
+  if (member.role === 'owner') return res.status(400).json({ error: 'The workspace owner cannot be removed.' });
+  run('DELETE FROM team_members WHERE id = ?', [req.params.id]);
+  res.json({ ok: true, id: req.params.id });
+});
+
 // ---------- exports / imports ----------
 platformRouter.get('/exports', (_req, res) => {
   res.json(all('SELECT * FROM exports ORDER BY created_at DESC LIMIT 100').map((e) => ({ id: e.id, kind: e.kind, format: e.format, status: e.status, createdAt: e.created_at })));
@@ -302,8 +310,26 @@ platformRouter.get('/notifications', (_req, res) => {
   })));
 });
 
+// Client-triggered notifications (scan/report/bug events happen in the
+// desktop app's local agent, not on the server, so the client posts them
+// here to keep the Notification Center a real, persistent, cross-session feed).
+const NOTIFICATION_TYPES = ['scan-completed', 'critical-bug', 'report-generated', 'payment-succeeded', 'subscription-expired', 'project-disconnected', 'backend-error', 'update-available', 'teammate-invited', 'import-failed'];
+platformRouter.post('/notifications', (req, res) => {
+  const { type, title, body = null } = req.body ?? {};
+  if (!type || !NOTIFICATION_TYPES.includes(type)) return res.status(400).json({ error: `type must be one of ${NOTIFICATION_TYPES.join(', ')}` });
+  if (!title) return res.status(400).json({ error: 'title is required' });
+  const id = makeId('ntf');
+  run('INSERT INTO notifications (id, type, title, body, created_at) VALUES (?, ?, ?, ?, ?)', [id, type, title, body, now()]);
+  res.status(201).json({ id, type, title, body, read: false, createdAt: now() });
+});
+
 platformRouter.post('/notifications/:id/read', (req, res) => {
   run('UPDATE notifications SET read = 1 WHERE id = ?', [req.params.id]);
+  res.json({ ok: true });
+});
+
+platformRouter.post('/notifications/read-all', (_req, res) => {
+  run('UPDATE notifications SET read = 1 WHERE read = 0');
   res.json({ ok: true });
 });
 

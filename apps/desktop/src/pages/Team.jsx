@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Users, Send, Share2, Link2, Copy } from 'lucide-react';
+import { Users, Send, Share2, Link2, Copy, UserMinus } from 'lucide-react';
 import { TEAM_ROLES } from '@ember/shared/constants';
 import { useApp } from '../lib/store.jsx';
-import { Blocked } from '../components/common.jsx';
+import { Blocked, ConfirmDialog } from '../components/common.jsx';
 
 const ROLE_DESC = {
   owner: 'Full control, billing, delete workspace',
@@ -17,6 +17,8 @@ export default function Team() {
   const [team, setTeam] = useState(null);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('developer');
+  const [removing, setRemoving] = useState(null); // member pending confirm
+  const [busy, setBusy] = useState(false);
   const online = backendHealth?.ok;
 
   useEffect(() => {
@@ -31,6 +33,20 @@ export default function Team() {
       api.team().then(setTeam).catch(() => {});
     } catch (e) {
       toast('Invite failed', e.message, 'err');
+    }
+  };
+
+  const confirmRemove = async () => {
+    setBusy(true);
+    try {
+      await api.removeTeamMember(removing.id);
+      toast('Member removed', removing.email, 'ok');
+      setRemoving(null);
+      api.team().then(setTeam).catch(() => {});
+    } catch (e) {
+      toast('Remove failed', e.message, 'err');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -55,15 +71,26 @@ export default function Team() {
           {online && team ? (
             <>
               <div style={{ marginTop: 12 }} className="row-list">
-                {team.members.map((m) => (
-                  <div key={m.id} className="row" style={{ cursor: 'default' }}>
-                    <div className="grow">
-                      <div className="title">{m.email}</div>
-                      <div className="meta">{m.status} · invited {new Date(m.invitedAt).toLocaleDateString()}</div>
+                {team.members.map((m) => {
+                  const removable = m.role !== 'owner' && !m.cloud;
+                  return (
+                    <div key={m.id} className="row" style={{ cursor: 'default' }}>
+                      <div className="grow">
+                        <div className="title">{m.email}</div>
+                        <div className="meta">{m.status} · invited {new Date(m.invitedAt).toLocaleDateString()}</div>
+                      </div>
+                      <span className="tag">{m.role}</span>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        disabled={!removable}
+                        title={m.role === 'owner' ? 'The workspace owner cannot be removed' : m.cloud ? 'This member is managed in the cloud workspace' : 'Remove member'}
+                        onClick={() => setRemoving(m)}
+                      >
+                        <UserMinus size={12} />
+                      </button>
                     </div>
-                    <span className="tag">{m.role}</span>
-                  </div>
-                ))}
+                  );
+                })}
                 {team.members.length === 0 && <div style={{ fontSize: 13, color: 'var(--ink-faint)' }}>No members yet — invite your first teammate below.</div>}
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
@@ -139,6 +166,17 @@ export default function Team() {
           </p>
         </div>
       </div>
+
+      {removing && (
+        <ConfirmDialog
+          title="Remove this member?"
+          body={`${removing.email} will lose access to this workspace immediately. They can be re-invited later.`}
+          confirmLabel="Remove"
+          busy={busy}
+          onConfirm={confirmRemove}
+          onCancel={() => setRemoving(null)}
+        />
+      )}
     </div>
   );
 }

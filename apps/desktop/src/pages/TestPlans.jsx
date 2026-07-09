@@ -114,6 +114,7 @@ export default function TestPlans() {
           Plans live in <code style={{ fontSize: 12 }}>ember.config.json → testProfiles</code> — the CLI runs the same plans (<code style={{ fontSize: 12 }}>ember run --profile name</code>).
         </span>
         <div style={{ flex: 1 }} />
+        <button className="btn btn-ghost btn-sm" onClick={() => setModule('scenarios')}>Scenario Recorder</button>
         <button className="btn btn-primary btn-sm" onClick={() => setEditing('new')}><Plus size={14} /> New plan</button>
       </div>
 

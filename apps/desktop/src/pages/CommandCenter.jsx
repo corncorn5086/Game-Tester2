@@ -54,7 +54,7 @@ export default function CommandCenter() {
   const recommended = (report?.recommendedNextActions ?? []).slice(0, 3);
   const quick = [
     ['Connect Project', 'connect'], ['Analyze Codebase', 'analyze'], ['Run Test Plan', 'run'],
-    ['Open Reports', 'reports'], ['Test Plans', 'plans'], ['Agent Tools', 'agent']
+    ['Open Reports', 'reports'], ['Test Plans', 'plans'], ['Scenarios', 'scenarios'], ['Agent Tools', 'agent']
   ];
 
   return (
@@ -68,6 +68,14 @@ export default function CommandCenter() {
             <span className="chip fire">{projectEngine}</span>
             <span className="chip ok">Config valid</span>
             <span className="chip dim"><span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--ok)', display: 'inline-block' }} />Agent ready · v0.2</span>
+            {report?.releaseReadiness && (
+              <span
+                className={`chip ${{ ready: 'ok', 'needs-fixes': 'warn', risky: 'err' }[report.releaseReadiness.band]}`}
+                title={report.releaseReadiness.note}
+              >
+                Release: {report.releaseReadiness.score}/100 — {report.releaseReadiness.bandLabel}
+              </span>
+            )}
           </div>
           <div className="micro-mono" style={{ marginTop: 9, color: 'rgba(244,244,245,.35)' }}>
             {projectPath}{report ? ` · last report ${new Date(report.generatedAt).toLocaleString()}` : ' · no report yet'}

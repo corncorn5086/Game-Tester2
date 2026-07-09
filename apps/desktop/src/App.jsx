@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   User, Pencil, Lock, ShieldCheck, SlidersHorizontal, Palette as PaletteIcon, Globe, Bell,
-  Crown, CreditCard, Receipt, History, Wallet, Plug, EyeOff, LifeBuoy, LogOut
+  Crown, CreditCard, Receipt, History, Wallet, Plug, EyeOff, LifeBuoy, LogOut, Activity,
+  ScanLine, AlertTriangle, FileText, CalendarX, Unplug, ServerCrash, DownloadCloud, UserPlus, FileWarning
 } from 'lucide-react';
 import { useApp } from './lib/store.jsx';
 import logo from './assets/ember-logo.png';
@@ -9,6 +10,7 @@ import Splash from './screens/Splash.jsx';
 import Auth from './screens/Auth.jsx';
 import Onboarding from './screens/Onboarding.jsx';
 import CommandCenter from './pages/CommandCenter.jsx';
+import Projects from './pages/Projects.jsx';
 import Connect from './pages/Connect.jsx';
 import Agent from './pages/Agent.jsx';
 import Analysis from './pages/Analysis.jsx';
@@ -17,12 +19,16 @@ import Bugs, { BugDrawer } from './pages/Bugs.jsx';
 import Reports from './pages/Reports.jsx';
 import Settings from './pages/Settings.jsx';
 import TestPlans from './pages/TestPlans.jsx';
+import Scenarios from './pages/Scenarios.jsx';
+import ConfigEditor from './pages/ConfigEditor.jsx';
 import Team from './pages/Team.jsx';
 import Billing from './pages/Billing.jsx';
 import Account from './pages/Account.jsx';
+import Diagnostics from './pages/Diagnostics.jsx';
 
 const DOCK = [
   ['command', 'Center', '◉'],
+  ['projects', 'Projects', '▦'],
   ['connect', 'Connect', '⌁'],
   ['agent', 'Agent', '⌘'],
   ['analyze', 'Analyze', '◈'],
@@ -34,6 +40,7 @@ const DOCK = [
 
 const MODULES = {
   command: CommandCenter,
+  projects: Projects,
   connect: Connect,
   agent: Agent,
   analyze: Analysis,
@@ -42,9 +49,12 @@ const MODULES = {
   reports: Reports,
   settings: Settings,
   plans: TestPlans,
+  scenarios: Scenarios,
+  configEditor: ConfigEditor,
   team: Team,
   billing: Billing,
-  account: Account
+  account: Account,
+  diagnostics: Diagnostics
 };
 
 const PROFILE_MENU = [
@@ -70,6 +80,7 @@ const PROFILE_MENU = [
   ['menu.system', [
     ['menu.integrations', Plug, 'account', 'integrations'],
     ['menu.privacy', EyeOff, 'settings', 'Privacy'],
+    ['menu.diagnostics', Activity, 'diagnostics', null],
     ['menu.support', LifeBuoy, 'account', 'support']
   ]]
 ];
@@ -86,7 +97,9 @@ function ProfileMenu() {
       <div className="pmenu-veil" onClick={() => setProfileMenuOpen(false)} />
       <div className="pmenu" onClick={(e) => e.stopPropagation()}>
         <div className="pmenu-head">
-          <div className="avatar" style={{ width: 40, height: 40, fontSize: 15, background: color }}>{initials}</div>
+          <div className="avatar" style={{ width: 40, height: 40, fontSize: 15, background: color }}>
+            {user?.avatarData ? <img src={user.avatarData} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initials}
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="name">{name}</div>
             <div className="email" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>
@@ -114,6 +127,66 @@ function ProfileMenu() {
   );
 }
 
+const NOTIF_ICON = {
+  'scan-completed': ScanLine,
+  'critical-bug': AlertTriangle,
+  'report-generated': FileText,
+  'payment-succeeded': CreditCard,
+  'subscription-expired': CalendarX,
+  'project-disconnected': Unplug,
+  'backend-error': ServerCrash,
+  'update-available': DownloadCloud,
+  'teammate-invited': UserPlus,
+  'import-failed': FileWarning
+};
+
+function NotificationBell() {
+  const { notifications, notificationsOpen, setNotificationsOpen, markNotificationRead, markAllNotificationsRead, backendHealth } = useApp();
+  const unread = notifications.filter((n) => !n.read).length;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button className="kbtn" style={{ position: 'relative', padding: '8px 10px' }} onClick={() => setNotificationsOpen((o) => !o)} title="Notifications">
+        <Bell size={15} />
+        {unread > 0 && <span className="notif-dot">{unread > 9 ? '9+' : unread}</span>}
+      </button>
+      {notificationsOpen && (
+        <>
+          <div className="pmenu-veil" onClick={() => setNotificationsOpen(false)} />
+          <div className="pmenu" style={{ width: 340 }} onClick={(e) => e.stopPropagation()}>
+            <div className="pmenu-head" style={{ justifyContent: 'space-between' }}>
+              <div className="name">Notifications</div>
+              {unread > 0 && <button className="auth-link" style={{ fontSize: 11 }} onClick={markAllNotificationsRead}>Mark all read</button>}
+            </div>
+            <div className="pmenu-body" style={{ maxHeight: 380 }}>
+              {!backendHealth?.ok && (
+                <div className="sub" style={{ padding: '10px 8px' }}>Backend offline — notifications need the backend to persist.</div>
+              )}
+              {backendHealth?.ok && notifications.length === 0 && (
+                <div className="sub" style={{ padding: '10px 8px' }}>No notifications yet. Scans, reports, critical bugs and payments will appear here.</div>
+              )}
+              {notifications.map((n) => {
+                const Icon = NOTIF_ICON[n.type] ?? Bell;
+                return (
+                  <button key={n.id} className="pmenu-item" style={{ alignItems: 'flex-start', opacity: n.read ? 0.55 : 1 }} onClick={() => markNotificationRead(n.id)}>
+                    <span className="pm-ic" style={{ marginTop: 2 }}><Icon size={15} /></span>
+                    <span style={{ flex: 1, textAlign: 'left' }}>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>{n.title}</div>
+                      {n.body && <div style={{ fontSize: 10.5, color: 'var(--ink-faint)', marginTop: 2 }}>{n.body}</div>}
+                      <div style={{ fontSize: 9.5, color: 'var(--ink-ghost)', marginTop: 3, fontFamily: 'var(--font-mono)' }}>{new Date(n.createdAt).toLocaleString()}</div>
+                    </span>
+                    {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flex: 'none', marginTop: 5 }} />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 const MODE_PILL = {
   real: ['Real project', 'var(--ok)', 'rgba(52,211,153,.07)', 'rgba(52,211,153,.22)'],
   none: ['Not connected', 'rgba(244,244,245,.35)', 'rgba(255,255,255,.04)', 'rgba(255,255,255,.1)']
@@ -128,6 +201,8 @@ function Palette({ onClose }) {
     const nav = [
       ...DOCK.map(([id, label, icon]) => ({ label: `Go to ${label}`, icon, kind: 'nav', go: () => setModule(id) })),
       { label: 'Go to Test Plans', icon: '▣', kind: 'nav', go: () => setModule('plans') },
+      { label: 'Go to Scenario Recorder', icon: '⌗', kind: 'nav', go: () => setModule('scenarios') },
+      { label: 'Go to Config Editor', icon: '{ }', kind: 'nav', go: () => setModule('configEditor') },
       { label: 'Go to Team & Share', icon: '◫', kind: 'nav', go: () => setModule('team') },
       { label: 'Go to Billing', icon: '◇', kind: 'nav', go: () => setModule('billing') },
       { label: settings.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme', icon: '◐', kind: 'mode', go: () => saveSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' }) }
@@ -196,7 +271,10 @@ function Shell() {
         <button className="kbtn" onClick={() => setPaletteOpen(true)}>
           ⌘K <span style={{ fontFamily: 'var(--font-body)' }}>Command palette</span>
         </button>
-        <div className="avatar" style={{ background: avColor }} title={avName} onClick={() => setProfileMenuOpen((o) => !o)}>{avInitials}</div>
+        <NotificationBell />
+        <div className="avatar" style={{ background: avColor }} title={avName} onClick={() => setProfileMenuOpen((o) => !o)}>
+          {user?.avatarData ? <img src={user.avatarData} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : avInitials}
+        </div>
       </div>
 
       {profileMenuOpen && <ProfileMenu />}

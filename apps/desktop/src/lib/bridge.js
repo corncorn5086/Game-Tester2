@@ -35,6 +35,8 @@ const browserBridge = {
     // No native dialog in the browser; caller falls back to a typed path input.
     return null;
   },
+  selectImage: async () => ({ error: BROWSER_MSG }),
+  systemInfo: async () => ({ appVersion: null, electronVersion: null, nodeVersion: null, platform: navigator.platform, cliInstalled: false, browserPreview: true }),
   openPath: async () => ({ error: BROWSER_MSG }),
   openExternal: async (url) => {
     window.open(url, '_blank', 'noreferrer');
@@ -47,11 +49,13 @@ const browserBridge = {
     logs: unavailable,
     run: unavailable,
     report: unavailable,
+    reportPdf: unavailable,
     doctor: unavailable,
     listReports: async () => [],
     aiStatus: async () => ({ enabled: false, configured: [], provider: null, reason: BROWSER_MSG }),
     aiExplainBug: unavailable,
     aiSummarizeReport: unavailable,
+    aiTriageBug: unavailable,
     onRunStep: () => () => {}
   },
   file: {
@@ -89,13 +93,18 @@ export function apiClient(baseUrl, token) {
   return {
     base,
     health: () => call('GET', '/health'),
+    cloudHealth: () => call('GET', '/cloud/health'),
     usage: () => call('GET', '/usage'),
     projects: () => call('GET', '/projects'),
     notifications: () => call('GET', '/notifications'),
+    notify: (type, title, body) => call('POST', '/notifications', { type, title, body }),
+    markNotificationRead: (id) => call('POST', `/notifications/${id}/read`),
+    markAllNotificationsRead: () => call('POST', '/notifications/read-all'),
     plans: () => call('GET', '/billing/plans'),
     subscription: () => call('GET', '/billing/subscription'),
     team: () => call('GET', '/team'),
     invite: (email, role) => call('POST', '/team/invite', { email, role }),
+    removeTeamMember: (id) => call('DELETE', `/team/${id}`),
     pushReport: (projectId, report) => call('POST', '/agent/report', { projectId, report }),
     // auth
     signup: (payload) => call('POST', '/auth/signup', payload),
@@ -111,6 +120,10 @@ export function apiClient(baseUrl, token) {
     startPhoneVerify: () => call('POST', '/auth/verify-phone/start'),
     confirmPhoneVerify: (code) => call('POST', '/auth/verify-phone/confirm', { code }),
     revokeOtherSessions: () => call('POST', '/auth/sessions/revoke-others'),
+    sessions: () => call('GET', '/auth/sessions'),
+    revokeSession: (id) => call('DELETE', `/auth/sessions/${id}`),
+    exportData: () => call('GET', '/auth/export'),
+    deactivateAccount: (password) => call('POST', '/auth/deactivate', { password }),
     checkout: (planId, provider = 'paypal') => call('POST', '/billing/checkout', { planId, provider }),
     paymentProviders: () => call('GET', '/billing/providers'),
     paypalCapture: (orderId) => call('POST', '/billing/paypal/capture', { orderId }),

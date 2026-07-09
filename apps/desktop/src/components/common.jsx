@@ -68,6 +68,24 @@ export function SettingRow({ name, desc, children }) {
   );
 }
 
+/** Reusable confirm dialog for destructive/irreversible actions. */
+export function ConfirmDialog({ title, body, confirmLabel = 'Confirm', danger = true, busy, onConfirm, onCancel }) {
+  return (
+    <div className="overlay" onClick={onCancel} style={{ alignItems: 'center', paddingTop: 0 }}>
+      <div className="auth-card anim-scale" style={{ width: 380 }} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>{title}</h3>
+        <p style={{ fontSize: 12.5, color: 'var(--ink-dim)', lineHeight: 1.55, marginBottom: 20 }}>{body}</p>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn btn-ghost" style={{ flex: 1 }} onClick={onCancel} disabled={busy}>Cancel</button>
+          <button className={`btn ${danger ? 'btn-danger' : 'btn-fire'}`} style={{ flex: 1 }} onClick={onConfirm} disabled={busy}>
+            {busy ? 'Working…' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Gate for modules that need a connected project. */
 export function useProjectGate() {
   const { project, mode, setModule } = useApp();

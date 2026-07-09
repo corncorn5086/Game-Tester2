@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { User, Pencil, Lock, ShieldCheck, Plug, LifeBuoy, Check, Mail, Phone, LogOut, Monitor } from 'lucide-react';
+import { User, Pencil, Lock, ShieldCheck, Plug, LifeBuoy, Check, Mail, Phone, LogOut, Monitor, Camera, Download, AlertTriangle, X } from 'lucide-react';
 import { useApp } from '../lib/store.jsx';
 import { bridge } from '../lib/bridge.js';
 
@@ -46,10 +46,10 @@ export default function Account() {
 
         <div>
           {!user && <div className="acct-panel">Sign in to manage your account.</div>}
-          {user && section === 'profile' && <ProfileView user={user} initials={initials} />}
+          {user && section === 'profile' && <ProfileView user={user} initials={initials} refreshUser={refreshUser} api={api} toast={toast} />}
           {user && section === 'edit' && <EditInfo user={user} api={api} refreshUser={refreshUser} toast={toast} />}
           {user && section === 'password' && <ChangePassword api={api} toast={toast} />}
-          {user && section === 'security' && <Security user={user} api={api} refreshUser={refreshUser} toast={toast} />}
+          {user && section === 'security' && <Security user={user} api={api} refreshUser={refreshUser} toast={toast} logout={logout} />}
           {user && section === 'integrations' && <Integrations api={api} backendHealth={backendHealth} />}
           {user && section === 'support' && <Support />}
         </div>
@@ -67,19 +67,54 @@ function Row({ label, value }) {
   );
 }
 
-function ProfileView({ user, initials }) {
+function ProfileView({ user, initials, refreshUser, api, toast }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  const changePhoto = async () => {
+    setErr('');
+    const res = await bridge.selectImage();
+    if (!res || res.error) { if (res?.error) setErr(res.error); return; }
+    setBusy(true);
+    try {
+      await api.updateProfile({ avatar: res.dataUrl });
+      await refreshUser();
+      toast('Profile photo updated');
+    } catch (e) { setErr(e.data?.error ?? e.message); }
+    finally { setBusy(false); }
+  };
+
+  const removePhoto = async () => {
+    setBusy(true);
+    try { await api.updateProfile({ avatar: null }); await refreshUser(); toast('Profile photo removed'); }
+    catch (e) { setErr(e.data?.error ?? e.message); }
+    finally { setBusy(false); }
+  };
+
   return (
     <div className="acct-panel">
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-        <div className="avatar" style={{ width: 54, height: 54, fontSize: 19, background: user.avatarColor || '#ff4d00' }}>{initials}</div>
-        <div>
+        <div style={{ position: 'relative', flex: 'none' }}>
+          <div className="avatar" style={{ width: 64, height: 64, fontSize: 21, background: user.avatarColor || '#ff4d00' }}>
+            {user.avatarData ? <img src={user.avatarData} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initials}
+          </div>
+          <button className="avatar-edit-btn" title="Change photo" disabled={busy} onClick={changePhoto}>
+            <Camera size={12} />
+          </button>
+        </div>
+        <div style={{ flex: 1 }}>
           <div style={{ fontSize: 17, fontWeight: 600 }}>{user.name || user.username || user.email}</div>
           <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>@{user.username ?? '—'} · joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}</div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+            <span className="auth-link" style={{ fontSize: 11 }} onClick={changePhoto}>{busy ? 'Uploading…' : 'Change photo'}</span>
+            {user.avatarData && <span className="auth-link" style={{ fontSize: 11, color: 'var(--ink-faint)' }} onClick={removePhoto}>Remove</span>}
+          </div>
         </div>
         {user.emailVerified
-          ? <span className="chip ok" style={{ marginLeft: 'auto' }}>verified</span>
-          : <span className="chip dim" style={{ marginLeft: 'auto' }}>unverified</span>}
+          ? <span className="chip ok">verified</span>
+          : <span className="chip dim">unverified</span>}
       </div>
+      {err && <div className="auth-err" style={{ marginBottom: 16 }}>{err}</div>}
       <Row label="Full name" value={user.name} />
       <Row label="Username" value={user.username ? `@${user.username}` : null} />
       <Row label="Email" value={user.email} />
@@ -188,11 +223,18 @@ function ChangePassword({ api, toast }) {
   );
 }
 
-function Security({ user, api, refreshUser, toast }) {
+function Security({ user, api, refreshUser, toast, logout }) {
   const [busy, setBusy] = useState('');
   const [emailCode, setEmailCode] = useState('');
   const [devCode, setDevCode] = useState(null);
   const [err, setErr] = useState('');
+  const [sessions, setSessions] = useState(null);
+  const [showDeactivate, setShowDeactivate] = useState(false);
+  const [deactivatePw, setDeactivatePw] = useState('');
+  const [deactivateErr, setDeactivateErr] = useState('');
+
+  const loadSessions = () => api.sessions().then(setSessions).catch(() => setSessions([]));
+  useEffect(() => { loadSessions(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sendEmail = async () => {
     setErr(''); setBusy('email');
@@ -206,14 +248,41 @@ function Security({ user, api, refreshUser, toast }) {
   };
   const revoke = async () => {
     setBusy('revoke');
-    try { await api.revokeOtherSessions(); toast('Signed out of all other devices'); }
+    try { await api.revokeOtherSessions(); toast('Signed out of all other devices'); await loadSessions(); }
     catch (e) { setErr(e.data?.error ?? e.message); } finally { setBusy(''); }
+  };
+  const revokeOne = async (id) => {
+    setBusy(`revoke-${id}`);
+    try { await api.revokeSession(id); await loadSessions(); toast('Session signed out'); }
+    catch (e) { setErr(e.data?.error ?? e.message); } finally { setBusy(''); }
+  };
+
+  const exportData = async () => {
+    setBusy('export'); setErr('');
+    try {
+      const data = await api.exportData();
+      const f = await bridge.file.saveAs({ title: 'Export my data', defaultPath: 'ember-my-data.json', content: JSON.stringify(data, null, 2) });
+      if (f) toast(`Exported ${f}`);
+    } catch (e) { setErr(e.data?.error ?? e.message); }
+    finally { setBusy(''); }
+  };
+
+  const deactivate = async () => {
+    setDeactivateErr('');
+    if (!deactivatePw) return setDeactivateErr('Enter your password to confirm.');
+    setBusy('deactivate');
+    try {
+      await api.deactivateAccount(deactivatePw);
+      toast('Account deactivated');
+      logout();
+    } catch (e) { setDeactivateErr(e.data?.error ?? e.message); }
+    finally { setBusy(''); }
   };
 
   return (
     <div className="acct-panel">
       <h3>Account security</h3>
-      <div className="sub">Verify your identity and control active sessions.</div>
+      <div className="sub">Verify your identity, control active sessions and manage your data.</div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '13px 0', borderBottom: '1px solid var(--line)' }}>
         <Mail size={16} color="var(--accent-soft)" />
@@ -246,16 +315,61 @@ function Security({ user, api, refreshUser, toast }) {
         {user.phoneVerified ? <span className="chip ok">verified</span> : <span className="chip dim">optional</span>}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '13px 0' }}>
-        <Monitor size={16} color="var(--accent-soft)" />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 500 }}>Active sessions</div>
-          <div style={{ fontSize: 11.5, color: 'var(--ink-faint)' }}>Sign out everywhere except this device.</div>
+      <div style={{ padding: '13px 0', borderBottom: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: sessions?.length ? 10 : 0 }}>
+          <Monitor size={16} color="var(--accent-soft)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 500 }}>Active sessions</div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink-faint)' }}>{sessions ? `${sessions.length} active` : 'Loading…'}</div>
+          </div>
+          {sessions?.length > 1 && (
+            <button className="btn btn-ghost btn-sm" disabled={busy === 'revoke'} onClick={revoke}>{busy === 'revoke' ? 'Working…' : 'Sign out others'}</button>
+          )}
         </div>
-        <button className="btn btn-ghost btn-sm" disabled={busy === 'revoke'} onClick={revoke}>{busy === 'revoke' ? 'Working…' : 'Sign out others'}</button>
+        {sessions?.map((s) => (
+          <div className="session-row" key={s.id}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.current ? 'var(--ok)' : 'rgba(255,255,255,.2)', flex: 'none' }} />
+            <div style={{ flex: 1, fontSize: 11.5, color: 'var(--ink-dim)' }}>
+              {s.current ? 'This device' : 'Other device'} · signed in {new Date(s.createdAt).toLocaleString()}
+            </div>
+            {!s.current && (
+              <button className="btn btn-ghost btn-xs" disabled={busy === `revoke-${s.id}`} onClick={() => revokeOne(s.id)}>Sign out</button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '13px 0' }}>
+        <Download size={16} color="var(--accent-soft)" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 500 }}>Export my data</div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-faint)' }}>Download your profile, workspace and subscription as JSON.</div>
+        </div>
+        <button className="btn btn-ghost btn-sm" disabled={busy === 'export'} onClick={exportData}>{busy === 'export' ? 'Exporting…' : 'Export'}</button>
       </div>
 
       {err && <div className="auth-err" style={{ marginTop: 14 }}>{err}</div>}
+
+      <div className="danger-zone">
+        <h4><AlertTriangle size={14} /> Danger zone</h4>
+        <div style={{ fontSize: 11.5, color: 'var(--ink-faint)', marginBottom: 12 }}>
+          Deactivating disables sign-in immediately. Your workspace history stays intact for teammates.
+        </div>
+        {!showDeactivate ? (
+          <button className="btn btn-danger btn-sm" onClick={() => setShowDeactivate(true)}>Deactivate account</button>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 340 }}>
+            <div className="field"><label>Confirm your password</label>
+              <input className="input" type="password" value={deactivatePw} onChange={(e) => setDeactivatePw(e.target.value)} />
+            </div>
+            {deactivateErr && <div className="auth-err">{deactivateErr}</div>}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-danger btn-sm" disabled={busy === 'deactivate'} onClick={deactivate}>{busy === 'deactivate' ? 'Deactivating…' : 'Confirm deactivation'}</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setShowDeactivate(false); setDeactivateErr(''); setDeactivatePw(''); }}><X size={13} /> Cancel</button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

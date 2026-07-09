@@ -76,6 +76,7 @@ export function generateConfig(dir = process.cwd(), { engine: forcedEngine, proj
       full: { description: 'Everything, including configured build & test commands', checks: ['scan', 'analyze', 'logs', 'build', 'test'], commands: [] }
     },
     customRules: [],
+    scenarios: [],
     backend: { url: '', projectId: '' }
   };
 

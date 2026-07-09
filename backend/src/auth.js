@@ -25,7 +25,9 @@ export function verifyPassword(password, stored) {
 
 export function createSession(userId) {
   const token = randomBytes(32).toString('hex');
-  run('INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)', [
+  const id = makeId('ses');
+  run('INSERT INTO sessions (id, token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)', [
+    id,
     token,
     userId,
     now(),
@@ -43,7 +45,8 @@ export function userForToken(token) {
   const session = get('SELECT * FROM sessions WHERE token = ?', [token]);
   if (!session || session.expires_at < now()) return null;
   const user = get('SELECT * FROM users WHERE id = ?', [session.user_id]);
-  return user ?? null;
+  if (!user || user.deleted_at) return null;
+  return user;
 }
 
 /** Attach req.user if a valid Bearer token is present; never blocks. */
@@ -78,6 +81,7 @@ export function publicUser(user) {
     language: user.language ?? 'en',
     country: user.country ?? null,
     avatarColor: user.avatar_color ?? null,
+    avatarData: user.avatar_data ?? null,
     emailVerified: !!user.email_verified,
     phoneVerified: !!user.phone_verified,
     tosAccepted: !!user.tos_accepted,

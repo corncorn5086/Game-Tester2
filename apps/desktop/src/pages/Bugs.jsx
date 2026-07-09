@@ -7,17 +7,26 @@ import { useProjectGate } from '../components/common.jsx';
  * Bug Reports (v2): 3-column triage board + right-side detail drawer.
  * Bugs come from real reports, real scans and real log signals.
  */
+const PRIORITY_TONE = {
+  'P0 - Blocker': 'err', 'P1 - Critical': 'err', 'P2 - High': 'warn', 'P3 - Normal': 'dim', 'P4 - Low': 'dim'
+};
+
 export function BugDrawer({ bug, onClose }) {
   const { updateBug, toast, settings } = useApp();
-  const [ai, setAi] = useState(null);
-  const [aiBusy, setAiBusy] = useState(false);
+  const [triage, setTriage] = useState(null);
+  const [triageBusy, setTriageBusy] = useState(false);
 
-  const explainWithAi = async () => {
-    setAiBusy(true);
-    const res = await bridge.agent.aiExplainBug(bug, settings.aiProvider);
-    setAiBusy(false);
-    if (res?.ok) setAi(res);
-    else toast(res?.error || 'AI explanation unavailable');
+  const triageWithAi = async () => {
+    setTriageBusy(true);
+    const res = await bridge.agent.aiTriageBug(bug, settings.aiProvider);
+    setTriageBusy(false);
+    if (res?.ok) setTriage(res);
+    else toast(res?.error || 'AI triage unavailable');
+  };
+
+  const copyDevMessage = () => {
+    if (!triage?.devMessage) return;
+    navigator.clipboard?.writeText(triage.devMessage).then(() => toast('Dev message copied'), () => toast('Clipboard unavailable'));
   };
 
   const copy = () => {
@@ -62,11 +71,49 @@ export function BugDrawer({ bug, onClose }) {
             </div>
           ))}
           <div>
-            <div className="f-label">AI explanation{ai ? ` (${ai.provider === 'openai' ? 'OpenAI' : 'Claude Fable 5'})` : ''}</div>
-            {ai ? (
-              <div className="f-value" style={{ whiteSpace: 'pre-wrap' }}>{ai.text}</div>
-            ) : (
-              <button className="btn btn-ghost btn-sm" disabled={aiBusy} onClick={explainWithAi}>{aiBusy ? 'Asking AI…' : 'Explain with AI'}</button>
+            <div className="f-label">AI triage{triage ? ` (${triage.provider === 'openai' ? 'OpenAI' : 'Claude Fable 5'})` : ''}</div>
+            {!triage && (
+              <button className="btn btn-ghost btn-sm" disabled={triageBusy} onClick={triageWithAi}>{triageBusy ? 'Analyzing…' : 'Triage with AI'}</button>
+            )}
+            {triage?.insufficientInfo && (
+              <div className="f-value" style={{ color: 'var(--warn)' }}>
+                Insufficient information to triage confidently{triage.insufficientReason ? `: ${triage.insufficientReason}` : '.'}
+              </div>
+            )}
+            {triage && !triage.insufficientInfo && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
+                {triage.priorityLabel && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className={`chip ${PRIORITY_TONE[triage.priorityLabel] ?? 'dim'}`} style={{ fontSize: 9 }}>{triage.priorityLabel}</span>
+                    {typeof triage.priorityScore === 'number' && <span className="micro-mono">{triage.priorityScore}/100</span>}
+                  </div>
+                )}
+                {triage.rootCause && (
+                  <div>
+                    <div className="f-label">Root cause</div>
+                    <div className="f-value">{triage.rootCause}</div>
+                  </div>
+                )}
+                {triage.fix && (
+                  <div>
+                    <div className="f-label">Suggested fix</div>
+                    <div className="f-value">{triage.fix}</div>
+                  </div>
+                )}
+                {triage.reproSteps?.length > 0 && (
+                  <div>
+                    <div className="f-label">Reproduction steps</div>
+                    <div className="f-value">{triage.reproSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}</div>
+                  </div>
+                )}
+                {triage.devMessage && (
+                  <div>
+                    <div className="f-label">Message for developer</div>
+                    <div className="f-value" style={{ whiteSpace: 'pre-wrap' }}>{triage.devMessage}</div>
+                    <button className="btn btn-ghost btn-sm" style={{ marginTop: 8 }} onClick={copyDevMessage}>Copy dev message</button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

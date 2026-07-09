@@ -152,6 +152,78 @@ ${(bug.stepsToReproduce ?? []).map((s, i) => `${i + 1}. ${s}`).join('\n') || 'no
   return callAI(prompt, { maxTokens: 512, effort: 'medium', provider });
 }
 
+function stripCodeFence(text) {
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  return (m ? m[1] : text).trim();
+}
+
+/** Parse a strict-JSON model response defensively — never guess at malformed output. */
+function parseJsonResponse(text) {
+  const cleaned = stripCodeFence(text);
+  try {
+    return { ok: true, data: JSON.parse(cleaned) };
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try { return { ok: true, data: JSON.parse(match[0]) }; } catch { /* fall through */ }
+    }
+    return { ok: false };
+  }
+}
+
+/**
+ * Full bug triage: root cause, fix, reproduction steps, a ready-to-send
+ * message for a developer, and a priority score — all grounded strictly in
+ * the bug's real evidence. If the evidence is too thin, the model is
+ * instructed to say so explicitly (insufficientInfo) rather than invent
+ * anything; a malformed AI response is reported as an error, never patched
+ * over with guessed values.
+ */
+export async function triageBug(bug, { provider } = {}) {
+  const prompt = `You are a senior QA triage assistant for a game studio. Using ONLY the evidence below, produce a structured triage. If the evidence is too thin to confidently determine the root cause or reproduction steps, set "insufficientInfo": true and explain what's missing in "insufficientReason" — never invent details that aren't supported by the evidence.
+
+Respond with STRICT JSON only — no markdown fences, no prose outside the JSON — matching exactly this shape:
+{
+  "insufficientInfo": boolean,
+  "insufficientReason": string or null,
+  "rootCause": string,
+  "fix": string,
+  "reproSteps": string[],
+  "priorityScore": number (0-100, higher = more urgent),
+  "priorityLabel": "P0 - Blocker" | "P1 - Critical" | "P2 - High" | "P3 - Normal" | "P4 - Low",
+  "devMessage": string (a short, ready-to-paste message for a developer — professional tone, references the file/line and evidence)
+}
+
+Bug: ${bug.title}
+Severity: ${bug.severity} · Category: ${bug.category} · Source: ${bug.source}
+Files: ${(bug.filesInvolved ?? []).join(', ') || 'none'}${bug.line ? ` (line ${bug.line})` : ''}
+Evidence: ${bug.evidence}
+Existing steps to reproduce: ${(bug.stepsToReproduce ?? []).join(' / ') || 'none recorded'}
+Regression risk: ${bug.regressionRisk ?? 'unknown'} · Reproducibility confidence: ${bug.reproducibilityConfidence ?? 'unknown'}`;
+
+  const res = await callAI(prompt, { maxTokens: 700, effort: 'medium', provider });
+  if (!res.ok) return res;
+
+  const parsed = parseJsonResponse(res.text);
+  if (!parsed.ok) {
+    return { ok: false, error: 'AI response was not valid structured data — try again.', provider: res.provider, model: res.model };
+  }
+  const d = parsed.data;
+  return {
+    ok: true,
+    provider: res.provider,
+    model: res.model,
+    insufficientInfo: !!d.insufficientInfo,
+    insufficientReason: d.insufficientReason ?? null,
+    rootCause: d.rootCause ?? null,
+    fix: d.fix ?? null,
+    reproSteps: Array.isArray(d.reproSteps) ? d.reproSteps : [],
+    priorityScore: typeof d.priorityScore === 'number' ? d.priorityScore : null,
+    priorityLabel: d.priorityLabel ?? null,
+    devMessage: d.devMessage ?? null
+  };
+}
+
 /** Write a short executive summary for a QA report, grounded strictly in its metrics. */
 export function summarizeReport(report, { provider } = {}) {
   const m = report.metrics;
