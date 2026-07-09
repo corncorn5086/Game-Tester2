@@ -647,66 +647,25 @@ h1, h2, h3, .page-title, .auth-card h1, .auth-card h2 { font-family: var(--font-
 .page-title { font-size: 28px; font-weight: 650; letter-spacing: -.035em; margin: 4px 0 6px; }
 .page-sub { font-size: 14px; line-height: 1.6; color: var(--ink-faint); margin-bottom: 26px; }
 
-.app-shell {
-  position: absolute; inset: 0; display: grid; grid-template-columns: 228px minmax(0, 1fr);
-  background: linear-gradient(135deg, rgba(255,255,255,.012), transparent 42%);
+.shell-dock {
+  position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0;
+  background:
+    radial-gradient(760px 460px at 50% 105%, rgba(255,122,26,.075), transparent 68%),
+    linear-gradient(135deg, rgba(255,255,255,.012), transparent 42%);
 }
-.sidebar {
-  position: relative; z-index: 20; display: flex; flex-direction: column; min-width: 0;
-  padding: 28px 14px 18px; border-right: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(12,10,13,.96), rgba(8,7,10,.91));
-  box-shadow: 28px 0 80px rgba(0,0,0,.2);
+.shell-dock::after {
+  content: ''; position: absolute; inset: auto 0 0; height: 190px; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(8,7,10,.88));
+  z-index: 25;
 }
-.sidebar::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(260px 260px at 0 12%, rgba(255,122,26,.07), transparent 72%);
-}
-.sidebar-brand {
-  position: relative; z-index: 1; display: flex; align-items: center; gap: 13px;
-  padding: 4px 15px 28px; font-family: var(--font-display); font-weight: 700;
-  letter-spacing: .28em; font-size: 14px;
-}
-.sidebar-brand .logo { width: 28px; filter: drop-shadow(0 0 12px rgba(255,122,26,.55)); }
-.sidebar-nav { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 6px; }
-.sidebar-nav button, .sidebar-connect {
-  position: relative; width: 100%; display: flex; align-items: center; gap: 13px;
-  padding: 12px 14px; border: 1px solid transparent; border-radius: 14px;
-  background: transparent; color: var(--ink-faint); cursor: pointer; font-size: 13px;
-  font-weight: 600; text-align: left; transition: .22s ease;
-}
-.sidebar-nav button::before {
-  content: ''; position: absolute; left: -15px; top: 9px; bottom: 9px; width: 3px;
-  border-radius: 0 5px 5px 0; background: transparent;
-}
-.sidebar-nav button:hover, .sidebar-connect:hover {
-  color: var(--ink); background: rgba(255,255,255,.045); border-color: var(--line);
-}
-.sidebar-nav button.on {
-  color: var(--ink); background: linear-gradient(105deg, rgba(255,122,26,.13), rgba(255,255,255,.045));
-  border-color: rgba(255,167,84,.14); box-shadow: inset 0 1px rgba(255,255,255,.04), 0 16px 36px rgba(0,0,0,.2);
-}
-.sidebar-nav button.on::before { background: linear-gradient(var(--accent-gold), var(--accent)); box-shadow: 0 0 14px rgba(255,122,26,.8); }
-.sidebar-nav button.on svg { color: var(--accent-soft); }
-.sidebar-spacer { flex: 1; }
-.sidebar-connect { z-index: 1; color: var(--ink-dim); border-color: var(--line); margin-bottom: 12px; }
-.sidebar-status {
-  position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; padding: 14px;
-  border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.025);
-}
-.sidebar-status .status-ring {
-  width: 10px; height: 10px; border-radius: 50%; background: currentColor;
-  box-shadow: 0 0 14px currentColor; flex: none;
-}
-.sidebar-status div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.sidebar-status strong { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-soft); }
-.sidebar-status span:last-child { font-size: 10.5px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.main-shell { min-width: 0; height: 100vh; display: flex; flex-direction: column; position: relative; }
 .topbar {
   height: 76px; flex: none; display: flex; align-items: center; gap: 12px; padding: 14px 26px;
   border-bottom: 1px solid var(--line); background: rgba(8,7,10,.72); backdrop-filter: blur(18px);
+  position: relative; z-index: 30;
 }
-.topbar .page-context { font-family: var(--font-display); font-size: 16px; font-weight: 650; color: var(--ink); }
+.topbar .logo { width: 27px; filter: drop-shadow(0 0 12px rgba(255,122,26,.55)); }
+.topbar .name { font-family: var(--font-display); font-size: 15px; font-weight: 720; letter-spacing: -.015em; }
+.topbar .sep { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.1); }
 .topbar .proj { max-width: 440px; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-ghost); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .health-pill {
   display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 999px;
@@ -716,8 +675,53 @@ h1, h2, h3, .page-title, .auth-card h1, .auth-card h2 { font-family: var(--font-
 .health-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 9px rgba(251,191,36,.5); }
 .health-pill.ok .dot { background: var(--ok); box-shadow: 0 0 9px rgba(52,211,153,.5); }
 .health-pill.ok { color: rgba(180,255,220,.7); }
-.module { flex: 1; min-height: 0; overflow: auto; padding: 28px 30px 44px; }
+.mode-pill {
+  background: rgba(255,255,255,.025); border-color: var(--line-2) !important;
+  border-radius: 999px; padding: 7px 12px;
+}
+.module { flex: 1; min-height: 0; overflow: auto; padding: 28px 30px 128px; position: relative; z-index: 1; }
 .module > div { max-width: 1500px; margin: 0 auto; }
+.dock {
+  position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%);
+  display: flex; gap: 6px; max-width: calc(100vw - 40px); padding: 8px;
+  background:
+    linear-gradient(145deg, rgba(18,15,16,.9), rgba(10,9,11,.78)),
+    radial-gradient(240px 120px at 50% 0, rgba(255,122,26,.09), transparent 70%);
+  border: 1px solid rgba(255,177,94,.16); border-radius: 26px;
+  backdrop-filter: blur(28px); box-shadow: 0 26px 80px rgba(0,0,0,.62), 0 0 48px rgba(255,122,26,.08), inset 0 1px rgba(255,255,255,.055);
+  z-index: 40; overflow-x: auto; scrollbar-width: none;
+}
+.dock::-webkit-scrollbar { display: none; }
+.dock button {
+  min-width: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; padding: 9px 13px 8px; border: 1px solid transparent; border-radius: 20px;
+  background: transparent; color: var(--ink-faint); cursor: pointer;
+  transition: transform .22s ease, background .22s ease, color .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.dock button:hover {
+  transform: translateY(-3px); color: var(--ink); background: rgba(255,255,255,.045);
+  border-color: rgba(255,255,255,.075);
+}
+.dock button.on {
+  color: var(--ink); background: linear-gradient(145deg, rgba(255,122,26,.16), rgba(255,255,255,.055));
+  border-color: rgba(255,177,94,.2); box-shadow: inset 0 1px rgba(255,255,255,.04), 0 14px 34px rgba(0,0,0,.26);
+}
+.dock .d-icon { width: 22px; height: 20px; display: grid; place-items: center; color: currentColor; }
+.dock .d-icon svg { display: block; }
+.dock button.on .d-icon { color: var(--accent-soft); filter: drop-shadow(0 0 10px rgba(255,122,26,.52)); }
+.dock .d-label {
+  font-size: 8.7px; font-weight: 760; letter-spacing: .08em; text-transform: uppercase;
+  line-height: 1; white-space: nowrap;
+}
+.dock .d-dot {
+  width: 4px; height: 4px; border-radius: 999px; background: transparent;
+  box-shadow: none; transition: background .2s, box-shadow .2s;
+}
+.dock button.on .d-dot { background: var(--accent); box-shadow: 0 0 10px rgba(255,122,26,.75); }
+:root[data-density="compact"] .module { padding: 18px 22px 106px; }
+:root[data-density="compact"] .topbar { height: 64px; padding: 10px 20px; gap: 10px; }
+:root[data-density="compact"] .dock { bottom: 14px; padding: 6px; gap: 4px; border-radius: 22px; }
+:root[data-density="compact"] .dock button { min-width: 63px; padding: 7px 10px 6px; border-radius: 17px; }
 
 .btn {
   min-height: 40px; border-radius: 999px; padding: 10px 20px; font-size: 13px;
@@ -801,15 +805,10 @@ h1, h2, h3, .page-title, .auth-card h1, .auth-card h2 { font-family: var(--font-
 .connector-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 13px; color: var(--accent-soft); background: rgba(255,122,26,.08); border: 1px solid rgba(255,158,76,.13); }
 
 @media (max-width: 980px) {
-  .app-shell { grid-template-columns: 76px minmax(0,1fr); }
-  .sidebar { padding-inline: 10px; }
-  .sidebar-brand span, .sidebar-nav button span, .sidebar-connect { font-size: 0; }
-  .sidebar-brand { justify-content: center; padding-inline: 0; }
-  .sidebar-nav button { justify-content: center; padding-inline: 0; }
-  .sidebar-status div { display: none; }
-  .sidebar-status { justify-content: center; padding: 14px 0; }
-  .sidebar-connect { justify-content: center; padding-inline: 0; }
-  .sidebar-connect svg { width: 18px; height: 18px; }
+  .topbar { padding-inline: 18px; }
+  .topbar .proj { max-width: 260px; }
+  .dock { width: calc(100vw - 20px); bottom: 14px; justify-content: flex-start; border-radius: 22px; }
+  .dock button { min-width: 66px; }
   .command-empty-layout { grid-template-columns: 1fr; }
   .system-status { width: 100%; }
 }

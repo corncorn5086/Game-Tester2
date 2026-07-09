@@ -3,7 +3,7 @@ import {
   User, Pencil, Lock, ShieldCheck, SlidersHorizontal, Palette as PaletteIcon, Globe, Bell,
   CreditCard, Plug, EyeOff, LifeBuoy, LogOut, Activity,
   ScanLine, AlertTriangle, FileText, CalendarX, Unplug, ServerCrash, DownloadCloud, UserPlus, FileWarning,
-  LayoutDashboard, FolderKanban, SearchCode, Play, Bug, Settings as SettingsIcon, FolderOpen
+  LayoutDashboard, FolderKanban, SearchCode, Play, Bug, Settings as SettingsIcon
 } from 'lucide-react';
 import { useApp } from './lib/store.jsx';
 import logo from './assets/ember-logo.png';
@@ -27,9 +27,11 @@ import Billing from './pages/Billing.jsx';
 import Account from './pages/Account.jsx';
 import Diagnostics from './pages/Diagnostics.jsx';
 
-const NAV = [
+const DOCK = [
   ['command', 'Center', LayoutDashboard],
   ['projects', 'Projects', FolderKanban],
+  ['connect', 'Connect', Plug],
+  ['agent', 'Agent', Activity],
   ['analyze', 'Analyze', SearchCode],
   ['run', 'Run', Play],
   ['bugs', 'Bugs', Bug],
@@ -211,16 +213,16 @@ function Palette({ onClose }) {
   const [sel, setSel] = useState(0);
 
   const allItems = useMemo(() => [
-    ...NAV.map(([id, label, Icon], i) => ({ label: `Go to ${label}`, icon: Icon, kind: 'nav', shortcut: `⌘${i + 1}`, go: () => setModule(id) })),
-    { label: 'Go to Test Plans', icon: '▣', kind: 'nav', go: () => setModule('plans') },
-    { label: 'Go to Scenario Recorder', icon: '⌗', kind: 'nav', go: () => setModule('scenarios') },
+    ...DOCK.map(([id, label, Icon], i) => ({ label: `Go to ${label}`, icon: Icon, kind: 'nav', shortcut: `Ctrl+${i + 1}`, go: () => setModule(id) })),
+    { label: 'Go to Test Plans', icon: 'Plans', kind: 'nav', go: () => setModule('plans') },
+    { label: 'Go to Scenario Recorder', icon: 'Rec', kind: 'nav', go: () => setModule('scenarios') },
     { label: 'Go to Config Editor', icon: '{ }', kind: 'nav', go: () => setModule('configEditor') },
-    { label: 'Go to Team & Share', icon: '◫', kind: 'nav', go: () => setModule('team') },
-    { label: 'Go to Billing', icon: '◇', kind: 'nav', go: () => setModule('billing') },
-    { label: 'Go to Account', icon: '◔', kind: 'nav', go: () => setModule('account') },
-    { label: 'Go to Diagnostics', icon: '◑', kind: 'nav', go: () => setModule('diagnostics') },
-    { label: 'Show keyboard shortcuts', icon: '⌨', kind: 'help', shortcut: '⌘/', go: () => openModule('settings', 'Keyboard shortcuts') },
-    { label: settings.density === 'compact' ? 'Switch to comfortable density' : 'Switch to compact density', icon: '▤', kind: 'mode', go: () => saveSettings({ density: settings.density === 'compact' ? 'comfortable' : 'compact' }) }
+    { label: 'Go to Team & Share', icon: 'Team', kind: 'nav', go: () => setModule('team') },
+    { label: 'Go to Billing', icon: 'Bill', kind: 'nav', go: () => setModule('billing') },
+    { label: 'Go to Account', icon: 'User', kind: 'nav', go: () => setModule('account') },
+    { label: 'Go to Diagnostics', icon: 'Diag', kind: 'nav', go: () => setModule('diagnostics') },
+    { label: 'Show keyboard shortcuts', icon: 'Keys', kind: 'help', shortcut: 'Ctrl+/', go: () => openModule('settings', 'Keyboard shortcuts') },
+    { label: settings.density === 'compact' ? 'Switch to comfortable density' : 'Switch to compact density', icon: 'UI', kind: 'mode', go: () => saveSettings({ density: settings.density === 'compact' ? 'comfortable' : 'compact' }) }
   ], [setModule, saveSettings, settings.density, openModule]);
 
   const items = useMemo(() => {
@@ -239,7 +241,7 @@ function Palette({ onClose }) {
       <div className="palette" onClick={(e) => e.stopPropagation()}>
         <input
           autoFocus
-          placeholder="Type a command…"
+          placeholder="Type a command..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => {
@@ -268,7 +270,7 @@ function Palette({ onClose }) {
 function Shell() {
   const { module, setModule, mode, project, settings, user, paletteOpen, setPaletteOpen, selectedBug, setSelectedBug, toastMsg, backendHealth, profileMenuOpen, setProfileMenuOpen, t } = useApp();
   const Module = MODULES[module] ?? CommandCenter;
-  const [label, color] = MODE_PILL[mode] ?? MODE_PILL.none;
+  const [label, color, bg, border] = MODE_PILL[mode] ?? MODE_PILL.none;
 
   const projectLabel = project ? `${project.config.projectName} — ${project.root}` : 'No project connected';
   const avName = user?.name || settings.session?.name || settings.authEmail || 'Account';
@@ -276,58 +278,44 @@ function Shell() {
   const avColor = user?.avatarColor || '#ff4d00';
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="sidebar-brand">
-          <img className="logo" src={logo} alt="Ember" />
-          <span>EMBER</span>
+    <div className="shell-dock">
+      <div className="topbar">
+        <img className="logo" src={logo} alt="Ember" />
+        <div className="name">Ember</div>
+        <div className="sep" />
+        <div className="proj">{projectLabel}</div>
+        <div style={{ flex: 1 }} />
+        <span className={`health-pill ${backendHealth?.ok ? 'ok' : ''}`}>
+          <span className="dot" /> {backendHealth?.ok ? `Backend v${backendHealth.version}` : 'Backend offline'}
+        </span>
+        <div className="mode-pill" style={{ background: bg, borderColor: border }}>
+          <span className="dot" style={{ background: color }} />
+          <span className="txt" style={{ color }}>{label}</span>
         </div>
-        <nav className="sidebar-nav" aria-label="Primary navigation">
-          {NAV.map(([id, navLabel, Icon]) => (
-            <button key={id} className={module === id ? 'on' : ''} onClick={() => setModule(id)}>
-              <Icon size={18} strokeWidth={1.8} />
-              <span>{t(`nav.${id}`) || navLabel}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-spacer" />
-        <button className="sidebar-connect" onClick={() => setModule('connect')}>
-          <FolderOpen size={17} /> {project ? 'Project connection' : 'Connect project'}
+        <button className="kbtn" onClick={() => setPaletteOpen(true)} title="Open command palette">
+          Ctrl+K <span>Commands</span>
         </button>
-        <div className="sidebar-status">
-          <span className="status-ring" style={{ color }} />
-          <div>
-            <strong>{label}</strong>
-            <span>{project ? project.config.projectName : 'No project connected'}</span>
-          </div>
-        </div>
-      </aside>
+        <NotificationBell />
+        <button type="button" className="avatar" style={{ background: avColor }} title={avName} aria-label="Open profile menu" onClick={() => setProfileMenuOpen((o) => !o)}>
+          {user?.avatarData ? <img src={user.avatarData} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : avInitials}
+        </button>
+      </div>
 
-      <main className="main-shell">
-        <div className="topbar">
-          <div>
-            <div className="page-context">{NAV.find(([id]) => id === module)?.[1] ?? 'Ember'}</div>
-            <div className="proj">{projectLabel}</div>
-          </div>
-          <div style={{ flex: 1 }} />
-          <span className={`health-pill ${backendHealth?.ok ? 'ok' : ''}`}>
-            <span className="dot" /> {backendHealth?.ok ? `Backend v${backendHealth.version}` : 'Backend offline'}
-          </span>
-          <button className="kbtn" onClick={() => setPaletteOpen(true)} title="Open command palette">
-            ⌘K <span>Commands</span>
+      {profileMenuOpen && <ProfileMenu />}
+
+      <div key={module} className="module">
+        <Module />
+      </div>
+
+      <nav className="dock" aria-label="Primary navigation">
+        {DOCK.map(([id, navLabel, Icon]) => (
+          <button key={id} className={module === id ? 'on' : ''} title={t(`nav.${id}`) || navLabel} onClick={() => setModule(id)}>
+            <span className="d-icon"><Icon size={16} strokeWidth={1.9} /></span>
+            <span className="d-label">{t(`nav.${id}`) || navLabel}</span>
+            <span className="d-dot" />
           </button>
-          <NotificationBell />
-          <button type="button" className="avatar" style={{ background: avColor }} title={avName} aria-label="Open profile menu" onClick={() => setProfileMenuOpen((o) => !o)}>
-            {user?.avatarData ? <img src={user.avatarData} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : avInitials}
-          </button>
-        </div>
-
-        {profileMenuOpen && <ProfileMenu />}
-
-        <div key={module} className="module">
-          <Module />
-        </div>
-      </main>
+        ))}
+      </nav>
 
       {paletteOpen && <Palette onClose={() => setPaletteOpen(false)} />}
       {selectedBug && <BugDrawer bug={selectedBug} onClose={() => setSelectedBug(null)} />}
@@ -361,7 +349,7 @@ export default function App() {
         return;
       }
       if ((e.metaKey || e.ctrlKey) && /^[1-9]$/.test(e.key)) {
-        const target = NAV[Number(e.key) - 1];
+        const target = DOCK[Number(e.key) - 1];
         if (target) {
           e.preventDefault();
           setModule(target[0]);
