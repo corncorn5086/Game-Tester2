@@ -15,6 +15,7 @@ directories:
 files:
   - electron/**/*
   - dist/**/*
+  - standalone/**/*
   - package.json
   - "!**/*.map"
 

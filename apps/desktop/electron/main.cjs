@@ -44,9 +44,14 @@ function createWindow() {
     }
   });
 
+  // Which UI to show:
+  //   EMBER_UI=react      → the functional React app (Vite dev server or built dist)
+  //   EMBER_UI=standalone → the self-contained v3 design mockup (default)
+  const ui = process.env.EMBER_UI || 'standalone';
   const devServer = process.env.EMBER_DEV_SERVER;
-  if (devServer) win.loadURL(devServer);
-  else win.loadFile(join(__dirname, '..', 'dist', 'index.html'));
+  if (ui === 'react' && devServer) win.loadURL(devServer);
+  else if (ui === 'react') win.loadFile(join(__dirname, '..', 'dist', 'index.html'));
+  else win.loadFile(join(__dirname, '..', 'standalone', 'index.html'));
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);

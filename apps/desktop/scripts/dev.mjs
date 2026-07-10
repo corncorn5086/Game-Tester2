@@ -28,7 +28,7 @@ if (!up) {
 const electron = spawn('npx', ['electron', '.'], {
   stdio: 'inherit',
   shell: process.platform === 'win32',
-  env: { ...process.env, EMBER_DEV_SERVER: 'http://localhost:4312' }
+  env: { ...process.env, EMBER_UI: 'react', EMBER_DEV_SERVER: 'http://localhost:4312' }
 });
 electron.on('error', () => {
   console.warn('[ember-desktop] Electron binary not available — renderer keeps running at http://localhost:4312 (browser mode: local project access requires the desktop shell).');

@@ -15,6 +15,7 @@
   "scripts": {
     "dev:web": "npm run dev --workspace @ember/web",
     "dev:desktop": "npm run dev --workspace @ember/desktop",
+    "dev:desktop:react": "npm run dev:react --workspace @ember/desktop",
     "dev:desktop:renderer": "npm run dev:renderer --workspace @ember/desktop",
     "dev:backend": "npm run dev --workspace @ember/backend",
     "dev:agent": "node apps/agent/bin/ember.js",
