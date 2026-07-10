@@ -1,13 +1,24 @@
 import { useState } from 'react';
-import { Clapperboard, Plus, Trash2, Pencil, Save, X } from 'lucide-react';
+import { Clapperboard, Plus, PlayCircle, Trash2, Pencil, Save, X, Lock } from 'lucide-react';
 import { useApp } from '../lib/store.jsx';
 import { bridge } from '../lib/bridge.js';
 import { Empty, useProjectGate } from '../components/common.jsx';
 
 /**
  * Scenario Recorder: define named playtest scenarios (steps + expected
- * result), stored for real in ember.config.json.
+ * result), stored for real in ember.config.json. Replay requires an
+ * input-injection driver Ember doesn't have yet for any engine, so every
+ * scenario is honestly reported as "Requires SDK" instead of faking a run.
  */
+const EXAMPLE_SCENARIOS = [
+  ['Login flow', ['Launch the game', 'Enter valid credentials', 'Submit the login form'], 'Player reaches the main menu with their profile loaded.'],
+  ['Main menu navigation', ['Open the main menu', 'Visit every top-level menu entry', 'Return to the main menu from each'], 'Every menu screen opens and returns without a dead end or crash.'],
+  ['Start new game', ['From the main menu, choose New Game', 'Complete any intro/character setup', 'Reach the first playable state'], 'Player gains control in the first level with default state.'],
+  ['Save / load cycle', ['Play until a save point', 'Save the game', 'Reload that save'], 'Reloaded state matches the state at the moment of saving.'],
+  ['Inventory management', ['Open inventory', 'Add, stack and drop a few items', 'Close and reopen inventory'], 'Item counts and positions persist correctly with no duplication or loss.'],
+  ['Combat loop', ['Enter combat with a basic enemy', 'Attack, take damage, use one ability', 'Win or lose the encounter'], 'Combat resolves cleanly with correct health/state transitions.'],
+  ['Controller input', ['Connect a gamepad', 'Navigate menus and move the player with it', 'Trigger every mapped action'], 'Every gamepad input registers with no missed or double inputs.']
+];
 
 function StepEditor({ steps, setSteps }) {
   const update = (i, v) => setSteps(steps.map((s, idx) => (idx === i ? v : s)));
@@ -92,6 +103,12 @@ export default function Scenarios() {
     if (await persist(scenarios.filter((x) => x.id !== id))) toast(`Scenario "${s?.name}" removed`);
   };
 
+  const addExample = async ([name, steps, expectedResult]) => {
+    if (scenarios.some((s) => s.name === name)) return toast(`"${name}" is already in this project`);
+    const entry = { id: `scn_${Date.now().toString(36)}`, name, steps, expectedResult, createdAt: new Date().toISOString() };
+    if (await persist([...scenarios, entry])) toast(`Added "${name}" — edit its steps to match your game`);
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '6px 0 6px' }}>
@@ -102,10 +119,11 @@ export default function Scenarios() {
       </div>
       <p style={{ fontSize: 12, color: 'var(--ink-faint)', maxWidth: 640, margin: '0 0 18px' }}>
         Define named playtest scenarios — steps and an expected result — stored in this project's <code style={{ fontSize: 11.5 }}>ember.config.json</code>.
+        Replay requires a scripted-input driver Ember doesn't have for any engine yet, so it's honestly marked <b>Requires SDK</b> rather than faked.
       </p>
 
       {scenarios.length === 0 && editing === null && (
-        <Empty icon={Clapperboard} title="No scenarios recorded yet" body="Create a scenario with the exact steps and expected result for your game.">
+        <Empty icon={Clapperboard} title="No scenarios recorded yet" body="Create one from scratch, or start from a common example below.">
           <button className="btn btn-white" onClick={() => setEditing('new')}>New scenario</button>
         </Empty>
       )}
@@ -120,6 +138,10 @@ export default function Scenarios() {
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{s.name}</div>
                   <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}>{s.steps.length} step(s)</div>
                 </div>
+                <span className="chip warn"><Lock size={9} /> Requires SDK</span>
+                <button className="btn btn-ghost btn-sm" title="Replay requires an input-injection SDK — coming soon" disabled>
+                  <PlayCircle size={13} /> Replay
+                </button>
                 <button className="btn btn-ghost btn-sm" onClick={() => setEditing(s.id)}><Pencil size={12} /></button>
                 <button className="btn btn-danger btn-sm" onClick={() => removeScenario(s.id)}><Trash2 size={12} /></button>
               </div>
@@ -136,6 +158,16 @@ export default function Scenarios() {
 
       {editing === 'new' && <ScenarioBuilder onSave={saveScenario} onCancel={() => setEditing(null)} />}
 
+      <div style={{ marginTop: 28 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-faint)', marginBottom: 10 }}>Quick-start examples</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 8 }}>
+          {EXAMPLE_SCENARIOS.map((ex) => (
+            <button key={ex[0]} className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }} onClick={() => addExample(ex)}>
+              <Plus size={12} /> {ex[0]}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { SettingRow, Toggle } from '../components/common.jsx';
 import LanguageSelect from '../components/LanguageSelect.jsx';
 import { DEFAULT_SETTINGS } from '../lib/store.jsx';
 
+const ACCENTS = ['#ff4d00', '#ff8a50', '#ffd27a', '#34d399', '#93c5fd', '#c58bff'];
+
 /** Settings (v2): collapsible sections, all values persisted for real. */
 export default function Settings() {
   const { settings, saveSettings, toast, setPhase, setModule, api, backendHealth, moduleParam, t } = useApp();
@@ -88,8 +90,18 @@ export default function Settings() {
         </Section>
 
         <Section name="Appearance" icon="◐">
-          <SettingRow name="Theme" desc="Ember uses one consistent dark product theme.">
-            <span className="chip fire">Ember Dark</span>
+          <SettingRow name="Theme" desc="Ember Graphite (dark) is the default.">
+            <select className="input" value={S.theme} onChange={(e) => saveSettings({ theme: e.target.value })}>
+              <option value="dark">Ember Graphite</option>
+              <option value="light">Light</option>
+            </select>
+          </SettingRow>
+          <SettingRow name="Accent color" desc="Used across active states.">
+            <div style={{ display: 'flex', gap: 7 }}>
+              {ACCENTS.map((c) => (
+                <button key={c} onClick={() => saveSettings({ accentColor: c })} style={{ width: 22, height: 22, borderRadius: '50%', background: c, cursor: 'pointer', border: S.accentColor === c ? '2px solid #fff' : '2px solid transparent' }} />
+              ))}
+            </div>
           </SettingRow>
           <SettingRow name="Animation intensity" desc="Reduce for low-power machines.">
             <select className="input" value={S.animationIntensity} onChange={(e) => saveSettings({ animationIntensity: e.target.value })}>
@@ -108,7 +120,7 @@ export default function Settings() {
         <Section name="Keyboard shortcuts" icon="⌨">
           {[
             ['⌘K / Ctrl K', 'Open the command palette'],
-              ['⌘1–7 / Ctrl 1–7', 'Jump to a primary navigation section'],
+            ['⌘1–9 / Ctrl 1–9', 'Jump to a dock section (Center, Projects, Connect…)'],
             ['⌘/ / Ctrl /', 'Show this shortcuts list'],
             ['Esc', 'Close the palette, a drawer, notifications or the profile menu']
           ].map(([keys, desc]) => (
@@ -171,7 +183,7 @@ export default function Settings() {
           <SettingRow name="Session" desc={S.session ? `${S.session.name} · ${S.session.ws} (${S.session.kind})` : 'No session'}>
             <button className="btn btn-ghost btn-sm" onClick={logout}>Sign out</button>
           </SettingRow>
-          <SettingRow name="Team & billing" desc="Manage workspace access and configured payment providers.">
+          <SettingRow name="Team & billing" desc="Workspace members, roles, plans and Stripe placeholders.">
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn btn-ghost btn-sm" onClick={() => setModule('team')}>Team</button>
               <button className="btn btn-ghost btn-sm" onClick={() => setModule('billing')}>Billing</button>
@@ -216,6 +228,7 @@ export default function Settings() {
               <option value="json+md">JSON + Markdown</option>
               <option value="json">JSON</option>
               <option value="md">Markdown</option>
+              <option value="pdf" disabled>PDF (planned)</option>
             </select>
           </SettingRow>
           <SettingRow name="Include parsed logs" desc="Attach log excerpts to exports.">

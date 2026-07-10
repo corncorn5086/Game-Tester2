@@ -109,7 +109,7 @@ export default function Analysis() {
           {findings.length === 0 && !busy && (
             <div className="empty-hero">
               <div className="e-title">No scan yet</div>
-              <div className="e-sub">Run a scan to detect risky patterns, missing error handling, task markers and oversized files — with file:line evidence.</div>
+              <div className="e-sub">Run a scan to detect risky patterns, missing error handling, TODO/FIXME markers and oversized files — with file:line evidence.</div>
               <button className="btn btn-white" onClick={startScan}>Start scan</button>
             </div>
           )}

@@ -1,6 +1,5 @@
 import { useApp } from '../lib/store.jsx';
 import logo from '../assets/ember-logo.png';
-import { Cpu, FolderOpen, Server, Settings } from 'lucide-react';
 
 /**
  * Command Center (v2): not-connected hero, or connected mission control with
@@ -8,41 +7,23 @@ import { Cpu, FolderOpen, Server, Settings } from 'lucide-react';
  * quick actions. Every number comes from real state — scans, runs and logs.
  */
 export default function CommandCenter() {
-  const { mode, project, setModule, reports, bugs, lastRun, activity, backendHealth } = useApp();
+  const { mode, project, setModule, setPhase, reports, bugs, lastRun, activity } = useApp();
 
   if (mode !== 'real') {
     return (
-      <div className="command-empty-layout">
-        <section className="command-empty card">
-          <div className="command-mark">
-            <span className="command-orbit" />
-            <img src={logo} alt="" />
-          </div>
-          <h1>Connect your first project</h1>
-          <p>Choose a local game folder to let Ember inspect real files, logs and configured test commands.</p>
-          <button className="btn btn-fire btn-lg" onClick={() => setModule('connect')}>
-            <FolderOpen size={18} /> Connect a project
-          </button>
-          <button className="btn btn-ghost btn-lg" onClick={() => setModule('settings')}>
-            <Settings size={17} /> Open settings
-          </button>
-        </section>
-
-        <aside className="system-status card">
-          <h2>System status</h2>
-          <div className="status-row">
-            <span className="status-icon ok"><Cpu size={19} /></span>
-            <div><strong>Local agent ready</strong><span>Ember desktop shell is running</span></div>
-          </div>
-          <div className="status-row">
-            <span className={`status-icon ${backendHealth?.ok ? 'ok' : 'warn'}`}><Server size={19} /></span>
-            <div><strong>Backend</strong><span>{backendHealth?.ok ? `Connected · v${backendHealth.version}` : 'Offline · local tools still available'}</span></div>
-          </div>
-          <div className="status-row">
-            <span className="status-icon"><FolderOpen size={19} /></span>
-            <div><strong>Project not connected</strong><span>Connect a project to begin</span></div>
-          </div>
-        </aside>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '70px 0 40px', textAlign: 'center' }}>
+        <div style={{ position: 'relative', width: 150, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ position: 'absolute', width: 170, height: 170, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,77,0,.12), transparent 65%)', animation: 'glowPulse 3s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', border: '1px dashed rgba(255,255,255,.12)', animation: 'ringSpin 16s linear infinite' }} />
+          <img src={logo} alt="" style={{ width: 84, opacity: 0.8 }} />
+        </div>
+        <h2 style={{ fontSize: 26, fontWeight: 600, margin: '0 0 10px', letterSpacing: '-.02em' }}>Connect your first game project</h2>
+        <p style={{ fontSize: 13, color: 'rgba(244,244,245,.45)', maxWidth: 420, lineHeight: 1.65, margin: '0 0 26px' }}>
+          Ember is idle. Point it at a project folder to start scanning code, parsing logs and hunting bugs.
+        </p>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn btn-white" onClick={() => setPhase('onboarding')}>Connect Game Project</button>
+        </div>
       </div>
     );
   }

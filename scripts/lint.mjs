@@ -7,9 +7,8 @@
 import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT = new URL('..', import.meta.url).pathname;
 const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'release', 'design', 'data']);
 
 function walk(dir, acc = []) {

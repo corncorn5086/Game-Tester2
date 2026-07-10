@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../lib/store.jsx';
 import { bridge, isDesktop } from '../lib/bridge.js';
-import { Braces, Cloud, FolderOpen, Package, ScrollText, SquareTerminal } from 'lucide-react';
 
 /**
- * Connect only exposes integrations that have a working action today.
+ * Connect (v2 connectors grid): 5 working connectors + honest coming-soon
+ * placeholders. Working ones call the real bridge.
  */
 export default function Connect() {
   const { project, connectProject, disconnectProject, setModule, setPhase, toast, settings, saveSettings, setProject, logsRes, setLogsRes, api, backendHealth } = useApp();
@@ -54,18 +54,28 @@ export default function Connect() {
   const cloudConnected = cloud?.enabled && cloud?.auth && !String(cloud.auth).startsWith('anon');
 
   const CONNECTORS = [
-    { name: 'Local Project', icon: FolderOpen, desc: 'Scan a project folder — files, engine detection and markers.', status: project ? 'Connected' : 'Available', action: () => (project ? pickProject() : pickProject()), btn: project ? 'Choose another folder' : 'Connect' },
-    { name: 'Build Folder', icon: Package, desc: 'Configure the packaged build command used by launch checks.', status: project?.config?.launchCommand ? 'Connected' : 'Needs setup', action: () => (project ? setModule('configEditor') : pickProject()), btn: 'Configure' },
-    { name: 'Logs Folder', icon: ScrollText, desc: 'Parse .log, .txt and .json files for errors and crashes.', status: project?.config?.logsPath ? 'Connected' : 'Available', action: connectLogs, btn: project?.config?.logsPath ? 'Choose another folder' : 'Connect' },
-    { name: 'Ember Config', icon: Braces, desc: 'Edit and validate ember.config.json with structured fields.', status: project ? 'Connected' : 'Available', action: () => (project ? setModule('configEditor') : pickProject()), btn: project ? 'Open editor' : 'Connect' },
-    { name: 'Ember CLI', icon: SquareTerminal, desc: 'Run doctor, scan, analyze and report from the local agent.', status: isDesktop ? 'Connected' : 'Desktop only', action: () => setModule('agent'), btn: 'Open agent' },
+    { name: 'Local Project', icon: '◈', desc: 'Scan a project folder — files, engine detection, markers.', status: project ? 'Connected' : 'Available', action: () => (project ? toast('Project already connected') : pickProject()), btn: project ? 'Reconnect' : 'Connect' },
+    { name: 'Build Folder', icon: '▣', desc: 'Attach a packaged build for launch checks (set launchCommand).', status: project?.config?.launchCommand ? 'Connected' : 'Needs setup', action: () => (project ? setModule('settings') : pickProject()), btn: 'Configure' },
+    { name: 'Logs Folder', icon: '≡', desc: 'Parse .log / .txt / .json for errors, crashes, warnings.', status: project?.config?.logsPath ? 'Connected' : 'Available', action: connectLogs, btn: project?.config?.logsPath ? 'Re-pick folder' : 'Connect' },
+    { name: 'Ember Config', icon: '{ }', desc: 'Edit, validate and preview ember.config.json — every field, no raw JSON editing required.', status: project ? 'Connected' : 'Available', action: () => (project ? setModule('configEditor') : pickProject()), btn: project ? 'Open editor' : 'Connect' },
+    { name: 'Ember CLI', icon: '⌘', desc: 'Local agent: doctor, scan, analyze, report.', status: isDesktop ? 'Connected' : 'Desktop only', action: () => setModule('agent'), btn: 'Open Agent' },
     {
-      name: 'Cloud workspace', icon: Cloud,
+      name: 'Supabase', icon: '▤',
       desc: 'Cloud sync for projects, reports and team — works alongside the local backend.',
       status: !cloud ? (backendHealth?.ok ? 'Checking…' : 'Backend offline') : cloudConnected ? 'Connected' : cloud.enabled ? 'Needs service key' : 'Not configured',
       lastSync: cloud?.lastSyncAt ? new Date(cloud.lastSyncAt).toLocaleString() : null,
       action: () => setModule('diagnostics'), btn: 'View status'
-    }
+    },
+    { name: 'GitHub', icon: '⎇', desc: 'Sync issues + PR checks from your repo.', status: 'Coming soon' },
+    { name: 'GitLab', icon: '⎇', desc: 'Pipeline hooks and issue sync.', status: 'Coming soon' },
+    { name: 'Jira', icon: '◫', desc: 'Push Ember bugs into your Jira backlog.', status: 'Coming soon' },
+    { name: 'Linear', icon: '◫', desc: 'One-click bug export to Linear.', status: 'Coming soon' },
+    { name: 'Slack', icon: '◇', desc: 'Report digests + critical alerts in channels.', status: 'Coming soon' },
+    { name: 'Discord', icon: '◇', desc: 'Alerts for your team server.', status: 'Coming soon' },
+    { name: 'Unity Plugin', icon: '▲', desc: 'In-editor hooks: play-mode checks, live capture.', status: 'Coming soon' },
+    { name: 'Unreal Plugin', icon: '▲', desc: 'In-editor hooks: PIE checks, Blueprint capture.', status: 'Coming soon' },
+    { name: 'Godot Plugin', icon: '▲', desc: 'In-editor hooks: scene checks, live capture.', status: 'Coming soon' },
+    { name: 'Web / Playwright', icon: '◎', desc: 'Scripted browser input driver for web games — powers scenario replay.', status: 'Coming soon' }
   ];
 
   const runInit = async () => {
@@ -97,8 +107,8 @@ export default function Connect() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(250px,1fr))', gap: 12 }}>
         {CONNECTORS.map((c, i) => {
+          const soon = c.status === 'Coming soon';
           const conn = c.status === 'Connected';
-          const Icon = c.icon;
           return (
             <div key={c.name} className="anim-up" style={{
               padding: 18, borderRadius: 14, background: 'rgba(255,255,255,.025)',
@@ -106,19 +116,19 @@ export default function Connect() {
               transition: 'all .22s', animationDelay: `${i * 0.04}s`
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span className="connector-icon"><Icon size={17} /></span>
-                <span className={`chip ${conn ? 'ok' : 'fire'}`} style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '.06em' }}>{c.status}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 15, color: 'var(--accent-mid)' }}>{c.icon}</span>
+                <span className={`chip ${conn ? 'ok' : soon ? 'dim' : 'fire'}`} style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '.06em' }}>{c.status}</span>
               </div>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>{c.name}</div>
               <div style={{ fontSize: 11, lineHeight: 1.55, color: 'rgba(244,244,245,.45)', marginBottom: c.lastSync ? 6 : 14, minHeight: 34 }}>{c.desc}</div>
               {c.lastSync && <div className="micro-mono" style={{ fontSize: 9.5, color: 'var(--ink-faint)', marginBottom: 10 }}>Last sync: {c.lastSync}</div>}
               <button
                 className="btn btn-ghost btn-sm"
-                style={{ width: '100%' }}
-                onClick={c.action}
+                style={{ width: '100%', opacity: soon ? 0.55 : 1 }}
+                onClick={c.action ?? (() => toast(`${c.name} — coming soon. It will ${c.desc.toLowerCase()}`))}
                 disabled={busy}
               >
-                {c.btn}
+                {soon ? 'Coming soon' : c.btn}
               </button>
             </div>
           );

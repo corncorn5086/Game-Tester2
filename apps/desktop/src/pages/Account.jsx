@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { User, Pencil, Lock, ShieldCheck, LifeBuoy, Check, Mail, Phone, LogOut, Monitor, Camera, Download, AlertTriangle, X } from 'lucide-react';
+import { User, Pencil, Lock, ShieldCheck, Plug, LifeBuoy, Check, Mail, Phone, LogOut, Monitor, Camera, Download, AlertTriangle, X } from 'lucide-react';
 import { useApp } from '../lib/store.jsx';
 import { bridge } from '../lib/bridge.js';
 
@@ -8,13 +8,14 @@ const SECTIONS = [
   ['edit', 'Edit my info', Pencil],
   ['password', 'Change password', Lock],
   ['security', 'Account security', ShieldCheck],
+  ['integrations', 'Integrations', Plug],
   ['support', 'Support', LifeBuoy]
 ];
 
 const ROLES = ['Solo developer', 'Studio / team lead', 'QA engineer', 'Producer', 'Publisher', 'Hobbyist', 'Other'];
 
 export default function Account() {
-  const { user, refreshUser, api, toast, logout, moduleParam } = useApp();
+  const { user, refreshUser, api, toast, logout, moduleParam, backendHealth } = useApp();
   const [section, setSection] = useState('profile');
 
   useEffect(() => { if (moduleParam && SECTIONS.some((s) => s[0] === moduleParam)) setSection(moduleParam); }, [moduleParam]);
@@ -49,6 +50,7 @@ export default function Account() {
           {user && section === 'edit' && <EditInfo user={user} api={api} refreshUser={refreshUser} toast={toast} />}
           {user && section === 'password' && <ChangePassword api={api} toast={toast} />}
           {user && section === 'security' && <Security user={user} api={api} refreshUser={refreshUser} toast={toast} logout={logout} />}
+          {user && section === 'integrations' && <Integrations api={api} backendHealth={backendHealth} />}
           {user && section === 'support' && <Support />}
         </div>
       </div>
@@ -104,8 +106,8 @@ function ProfileView({ user, initials, refreshUser, api, toast }) {
           <div style={{ fontSize: 17, fontWeight: 600 }}>{user.name || user.username || user.email}</div>
           <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>@{user.username ?? '—'} · joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-            <button type="button" className="auth-link" style={{ fontSize: 11 }} onClick={changePhoto}>{busy ? 'Uploading…' : 'Change photo'}</button>
-            {user.avatarData && <button type="button" className="auth-link" style={{ fontSize: 11, color: 'var(--ink-faint)' }} onClick={removePhoto}>Remove</button>}
+            <span className="auth-link" style={{ fontSize: 11 }} onClick={changePhoto}>{busy ? 'Uploading…' : 'Change photo'}</span>
+            {user.avatarData && <span className="auth-link" style={{ fontSize: 11, color: 'var(--ink-faint)' }} onClick={removePhoto}>Remove</span>}
           </div>
         </div>
         {user.emailVerified
@@ -368,6 +370,42 @@ function Security({ user, api, refreshUser, toast, logout }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function Integrations({ api, backendHealth }) {
+  const [status, setStatus] = useState({});
+  useEffect(() => {
+    (async () => {
+      const out = {};
+      try { out.ai = await bridge.agent.aiStatus(); } catch { /* ignore */ }
+      try { out.providers = await api.paymentProviders(); } catch { /* ignore */ }
+      try { out.cloud = await api.health(); } catch { /* ignore */ }
+      setStatus(out);
+    })();
+  }, [api]);
+
+  const item = (name, on, detail) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '13px 0', borderBottom: '1px solid var(--line)' }}>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 13, fontWeight: 500 }}>{name}</div>
+        <div style={{ fontSize: 11.5, color: 'var(--ink-faint)' }}>{detail}</div>
+      </div>
+      <span className={`chip ${on ? 'ok' : 'dim'}`}>{on ? 'connected' : 'not connected'}</span>
+    </div>
+  );
+
+  return (
+    <div className="acct-panel">
+      <h3>Connected integrations</h3>
+      <div className="sub">Services Ember talks to. Keys live in .env, never in the app.</div>
+      {item('Ember Backend', !!backendHealth?.ok, backendHealth?.ok ? `Healthy · v${backendHealth.version}` : 'Offline — start it with npm run dev:backend')}
+      {item('Ember Cloud (Supabase)', !!status.cloud?.ok, status.cloud?.ok ? 'Cloud sync healthy' : 'Add SUPABASE_SERVICE_ROLE_KEY to enable')}
+      {item('AI provider', !!status.ai?.enabled, status.ai?.enabled ? `${status.ai.label} (${status.ai.model})` : 'Add ANTHROPIC_API_KEY or OPENAI_API_KEY')}
+      {(status.providers ?? []).map((p) => (
+        <div key={p.id}>{item(p.label, p.available, p.note)}</div>
+      ))}
     </div>
   );
 }

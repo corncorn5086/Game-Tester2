@@ -1,6 +1,4 @@
 import express from 'express';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DEFAULT_BACKEND_URL } from '@ember/shared/constants';
 import { optionalAuth } from './auth.js';
 import { cloudHealth, cloudStatus } from './supabase.js';
@@ -49,7 +47,7 @@ export function createApp() {
   return app;
 }
 
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
 if (isMain) {
   const port = Number(process.env.PORT ?? new URL(process.env.API_URL ?? DEFAULT_BACKEND_URL).port ?? 4310);
   createApp().listen(port, () => {

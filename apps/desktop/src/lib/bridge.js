@@ -3,7 +3,7 @@
  * - Desktop shell (Electron): window.ember exposes the real agent (preload.cjs).
  * - Browser preview (vite dev / tests): no filesystem access — every agent call
  *   returns an explicit `unavailable` result so the UI shows honest states
- *   instead of fabricated results. Settings fall back to localStorage.
+ *   instead of fake data. Settings fall back to localStorage.
  */
 
 export const isDesktop = typeof window !== 'undefined' && !!window.ember?.desktop;
