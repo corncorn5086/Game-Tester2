@@ -1,11 +1,20 @@
 /**
  * Ember Desktop — Electron shell.
- * Opens the Ember Desktop v3 design (standalone/index.html) in a native window.
+ * Serves the Ember Desktop v3 design (standalone/) over http://127.0.0.1 and
+ * opens it in a native window. HTTP (not file://) is required because the
+ * design's runtime does `fetch(location.href)` to resolve its own resources.
  */
 const { app, BrowserWindow, shell } = require('electron');
 const { join } = require('node:path');
+const { startStaticServer } = require('./static-server.cjs');
 
-function createWindow() {
+let staticServer = null;
+
+async function createWindow() {
+  if (!staticServer) {
+    staticServer = await startStaticServer(join(__dirname, '..', 'standalone'));
+  }
+
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -20,7 +29,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile(join(__dirname, '..', 'standalone', 'index.html'));
+  win.loadURL(`http://127.0.0.1:${staticServer.port}/`);
 
   // Open any external link in the user's real browser, not inside the app.
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -39,5 +48,6 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  if (staticServer) staticServer.close();
   if (process.platform !== 'darwin') app.quit();
 });
