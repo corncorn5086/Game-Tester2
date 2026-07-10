@@ -14,8 +14,6 @@ const COUNTRIES = ['Canada', 'United States', 'France', 'United Kingdom', 'Germa
   'China', 'Japan', 'South Korea', 'Australia', 'Netherlands', 'Sweden', 'Poland', 'Other'];
 const USER_TYPES = [['solo', 'ut.solo'], ['team', 'ut.team'], ['company', 'ut.company'], ['developer', 'ut.developer'], ['designer', 'ut.designer'], ['creator', 'ut.creator'], ['other', 'ut.other']];
 const GOALS = [['goal.bugs'], ['goal.regression'], ['goal.crashes'], ['goal.stability'], ['goal.evaluate']];
-const OAUTH = [['Google', '#fff', '#1a73e8', 'G'], ['Apple', '#fff', '#000', ''], ['Microsoft', '#fff', '#00a4ef', '⊞']];
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_RE = /^[a-zA-Z0-9_.]{3,32}$/;
 const strongPw = (p) => p.length >= 8 && /[a-z]/.test(p) && /[A-Z]/.test(p) && /[0-9]/.test(p);
@@ -27,7 +25,6 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [fieldErr, setFieldErr] = useState({});
-  const [verifyState, setVerifyState] = useState(null);
 
   const [f, setF] = useState({
     name: '', email: '', pass: '', pass2: '',
@@ -106,8 +103,11 @@ export default function Auth() {
         authToken: res.token, authEmail: f.email, language: f.prefLang, staySignedIn: f.stay,
         session: { name: res.user?.name ?? f.name, email: f.email, ws: res.workspace?.name ?? 'My Workspace', kind: 'account' }
       });
-      setVerifyState({ code: res.verifyCode });
-      setView('verify');
+      if (res.verifyCode) {
+        await afterAuth(res);
+      } else {
+        setView('verify');
+      }
     } catch (e) {
       const d = e.data;
       if (d?.field) {
@@ -146,7 +146,7 @@ export default function Auth() {
     setBusy(true);
     try {
       const res = await api.forgotPassword(f.email);
-      setErr(res.resetToken ? `Reset issued. Dev token: ${res.resetToken.slice(0, 12)}… (email delivery ships with SMTP).` : (res.message ?? 'Reset link issued.'));
+      setErr(res.message ?? 'If this account exists, password reset instructions have been issued.');
     } catch (e) { setErr(e.data?.error ?? e.message); }
     finally { setBusy(false); }
   };
@@ -192,35 +192,20 @@ export default function Auth() {
               {fld({ label: t('f.email'), k: 'email', placeholder: 'you@studio.com', autoFocus: true, onEnter: doLogin })}
               {fld({ label: t('f.password'), k: 'pass', type: 'password', placeholder: '••••••••', onEnter: doLogin })}
               <div style={{ display: 'flex', alignItems: 'center', marginTop: -2 }}>
-                <label className="check-row" style={{ fontSize: 11.5 }} onClick={() => setF((s) => ({ ...s, stay: !s.stay }))}>
+                <button type="button" className="check-row" aria-pressed={f.stay} style={{ fontSize: 11.5 }} onClick={() => setF((s) => ({ ...s, stay: !s.stay }))}>
                   <span className={`check-box ${f.stay ? 'on' : ''}`} style={{ width: 16, height: 16 }}>{f.stay && <Check size={11} />}</span>
                   {t('login.stay')}
-                </label>
+                </button>
                 <div style={{ flex: 1 }} />
-                <span className="auth-link" style={{ fontSize: 11.5 }} onClick={() => goto('forgot')}>{t('login.forgot')}</span>
+                <button type="button" className="auth-link" style={{ fontSize: 11.5 }} onClick={() => goto('forgot')}>{t('login.forgot')}</button>
               </div>
               {err && <div className="auth-err">{err}</div>}
               <button className="btn btn-fire" style={{ width: '100%', marginTop: 2 }} disabled={busy} onClick={doLogin}>
                 {busy ? t('login.loading') : t('login.submit')}
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0' }}>
-                <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-                <span style={{ fontSize: 10.5, color: 'var(--ink-ghost)' }}>{t('login.or')}</span>
-                <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {OAUTH.map(([name, fg, bg, mark]) => (
-                  <button key={name} className="btn btn-ghost" style={{ flex: 1, padding: '10px 8px' }}
-                    onClick={() => toast(`${name} sign-in ships once OAuth is configured`)}>
-                    <span style={{ width: 18, height: 18, borderRadius: 5, background: bg, color: fg, display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700 }}>{mark}</span>
-                    <span style={{ fontSize: 11.5 }}>{name}</span>
-                  </button>
-                ))}
-              </div>
-
               <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--ink-faint)', marginTop: 4 }}>
-                {t('login.noAccount')} <span className="auth-link" onClick={() => goto('signup')}>{t('login.createOne')}</span>
+                {t('login.noAccount')} <button type="button" className="auth-link" onClick={() => goto('signup')}>{t('login.createOne')}</button>
               </div>
             </div>
           </>
@@ -236,7 +221,7 @@ export default function Auth() {
                 {busy ? '…' : t('forgot.submit')}
               </button>
               <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--ink-faint)' }}>
-                {t('forgot.remembered')} <span className="auth-link" onClick={() => goto('login')}>{t('login.title')}</span>
+                {t('forgot.remembered')} <button type="button" className="auth-link" onClick={() => goto('login')}>{t('login.title')}</button>
               </div>
             </div>
           </>
@@ -296,18 +281,18 @@ export default function Auth() {
                   <Mail size={17} color="var(--accent-soft)" style={{ flex: 'none', marginTop: 1 }} />
                   <div style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--ink-dim)' }}>{t('signup.emailNote', { email: f.email || '…' })}</div>
                 </div>
-                <label className="check-row" onClick={() => setF((s) => ({ ...s, wantPhone: !s.wantPhone }))}>
+                <button type="button" className="check-row" aria-pressed={f.wantPhone} onClick={() => setF((s) => ({ ...s, wantPhone: !s.wantPhone }))}>
                   <span className={`check-box ${f.wantPhone ? 'on' : ''}`}>{f.wantPhone && <Check size={12} />}</span>
                   <span><Phone size={12} style={{ verticalAlign: '-1px', marginInlineEnd: 4 }} />{t('signup.verifyPhone')}</span>
-                </label>
-                <label className="check-row" onClick={() => setF((s) => ({ ...s, tos: !s.tos }))}>
+                </button>
+                <button type="button" className="check-row" aria-pressed={f.tos} onClick={() => setF((s) => ({ ...s, tos: !s.tos }))}>
                   <span className={`check-box ${f.tos ? 'on' : ''}`} style={fieldErr.tos ? { borderColor: 'var(--err)' } : undefined}>{f.tos && <Check size={12} />}</span>
                   <span>{t('signup.acceptTos')}</span>
-                </label>
-                <label className="check-row" onClick={() => setF((s) => ({ ...s, privacy: !s.privacy }))}>
+                </button>
+                <button type="button" className="check-row" aria-pressed={f.privacy} onClick={() => setF((s) => ({ ...s, privacy: !s.privacy }))}>
                   <span className={`check-box ${f.privacy ? 'on' : ''}`} style={fieldErr.tos ? { borderColor: 'var(--err)' } : undefined}>{f.privacy && <Check size={12} />}</span>
                   <span>{t('signup.acceptPrivacy')}</span>
-                </label>
+                </button>
                 {fieldErr.tos && <span className="field-err">⚠ {fieldErr.tos}</span>}
               </>}
 
@@ -327,11 +312,6 @@ export default function Auth() {
           <>
             {hdr(t('verify.title'), t('verify.subtitle', { email: f.email }))}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-              {verifyState?.code && (
-                <div style={{ fontSize: 10.5, color: 'var(--ink-ghost)', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
-                  dev (no email transport yet): code {verifyState.code}
-                </div>
-              )}
               {fld({ label: t('verify.title'), k: 'code', placeholder: '123456', autoFocus: true, onEnter: finishVerify })}
               <button className="btn btn-fire" style={{ width: '100%' }} disabled={busy} onClick={finishVerify}>
                 <ShieldCheck size={15} /> {busy ? '…' : t('verify.submit')}

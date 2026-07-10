@@ -100,10 +100,10 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark';
-    document.documentElement.style.setProperty('--accent', settings.accentColor || '#ff4d00');
+    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.style.setProperty('--accent', '#ff7a1a');
     document.documentElement.dataset.density = settings.density === 'compact' ? 'compact' : 'comfortable';
-  }, [settings.theme, settings.accentColor, settings.density]);
+  }, [settings.theme, settings.density]);
 
   // Apply language + text direction (RTL for Arabic) across the whole app.
   const lang = settings.language || 'en';

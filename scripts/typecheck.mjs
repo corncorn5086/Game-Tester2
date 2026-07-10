@@ -6,16 +6,17 @@
  * When workspaces migrate to TypeScript, swap this for `tsc --noEmit`.
  */
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = new URL('..', import.meta.url);
 
 // 1. Syntax pass (same as lint)
-execFileSync(process.execPath, [`${ROOT}scripts/lint.mjs`], { stdio: 'inherit' });
+execFileSync(process.execPath, [fileURLToPath(new URL('scripts/lint.mjs', ROOT))], { stdio: 'inherit' });
 
 // 2. Semantic pass on shared schemas
-const { validateConfig, SAMPLE_CONFIG } = await import(`${ROOT}shared/src/config-schema.js`);
-const { ENGINES } = await import(`${ROOT}shared/src/engines.js`);
-const { PLANS } = await import(`${ROOT}shared/src/plans.js`);
+const { validateConfig, SAMPLE_CONFIG } = await import(new URL('shared/src/config-schema.js', ROOT));
+const { ENGINES } = await import(new URL('shared/src/engines.js', ROOT));
+const { PLANS } = await import(new URL('shared/src/plans.js', ROOT));
 
 const res = validateConfig(SAMPLE_CONFIG);
 if (!res.valid) {

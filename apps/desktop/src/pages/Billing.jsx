@@ -8,8 +8,7 @@ import { Blocked } from '../components/common.jsx';
 /**
  * Billing (v2): plans + payment methods with Ember's own checkout UI.
  * PayPal is the primary processor (real Orders API when keys are set);
- * Google Pay / Apple Pay / direct card ship with the Braintree layer and
- * are shown with honest availability states — never a fake charge.
+ * Only payment providers reported ready by the backend are displayed.
  */
 const METHOD_META = {
   paypal: { mark: 'P', markBg: '#003087', desc: 'Pay with your PayPal balance, bank or card. Only the approval window is external — everything else stays in Ember.' },
@@ -116,7 +115,7 @@ function CheckoutModal({ plan, providers, onClose }) {
                           {p.available ? meta.desc : p.note}
                         </span>
                       </span>
-                      {p.available ? (on && <Check size={15} color="var(--accent-soft)" />) : <span className="chip dim" style={{ fontSize: 8.5 }}>soon</span>}
+                      {on && <Check size={15} color="var(--accent-soft)" />}
                     </button>
                   );
                 })}
@@ -196,6 +195,7 @@ export default function Billing() {
   }, [api, online]);
 
   const currentPlan = subscription?.plan?.id ?? 'free';
+  const availableProviders = providers.filter((provider) => provider.available);
 
   return (
     <div>
@@ -221,8 +221,9 @@ export default function Billing() {
       {/* payment methods */}
       <div className="card" style={{ marginTop: 14 }}>
         <div className="panel-label">Payment methods</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 10 }}>
-          {(providers.length ? providers : [{ id: 'paypal', label: 'PayPal', available: false, note: 'Backend offline — providers appear when connected.' }]).map((p) => {
+        {availableProviders.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 10 }}>
+          {availableProviders.map((p) => {
             const meta = METHOD_META[p.id] ?? {};
             return (
               <div key={p.id} style={{ display: 'flex', gap: 11, alignItems: 'flex-start', padding: '13px 14px', borderRadius: 11, border: '1px solid var(--line)', background: 'var(--panel-2)' }}>
@@ -230,17 +231,21 @@ export default function Billing() {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 12.5, fontWeight: 600 }}>{p.label}</span>
-                    <span className={`chip ${p.available ? 'ok' : 'dim'}`} style={{ fontSize: 8.5 }}>{p.available ? 'ready' : 'soon'}</span>
+                    <span className="chip ok" style={{ fontSize: 8.5 }}>ready</span>
                   </div>
-                  <div style={{ fontSize: 10.5, color: 'var(--ink-faint)', marginTop: 3, lineHeight: 1.45 }}>{p.available ? meta.desc : p.note}</div>
+                  <div style={{ fontSize: 10.5, color: 'var(--ink-faint)', marginTop: 3, lineHeight: 1.45 }}>{meta.desc}</div>
                 </div>
               </div>
             );
           })}
-        </div>
-        <div className="micro-mono" style={{ marginTop: 12, fontSize: 10 }}>
-          Checkout runs in Ember's own UI. PayPal is the primary processor; Google Pay, Apple Pay and cards run through Braintree. No Stripe by design.
-        </div>
+          </div>
+        ) : (
+          <div className="empty" style={{ padding: '30px 20px' }}>
+            <div className="icon"><CreditCard size={22} /></div>
+            <h3>No payment method configured</h3>
+            <p>Configure a supported provider on the Ember backend before offering checkout.</p>
+          </div>
+        )}
       </div>
 
       {/* plans */}
@@ -280,16 +285,7 @@ export default function Billing() {
         })}
       </div>
 
-      <div className="card" style={{ marginTop: 16 }}>
-        <h3>Billing history & invoices</h3>
-        <p style={{ marginTop: 10, fontSize: 12, color: 'var(--ink-faint)', lineHeight: 1.6 }}>
-          Captured payments are recorded in usage events (backend) with the PayPal capture ID as receipt. PDF invoices
-          and email receipts land with the SMTP integration. Subscriptions renew manually until PayPal subscription
-          agreements ship with Braintree.
-        </p>
-      </div>
-
-      {checkoutPlan && <CheckoutModal plan={checkoutPlan} providers={providers} onClose={() => setCheckoutPlan(null)} />}
+      {checkoutPlan && <CheckoutModal plan={checkoutPlan} providers={availableProviders} onClose={() => setCheckoutPlan(null)} />}
     </div>
   );
 }
