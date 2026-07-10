@@ -2,34 +2,21 @@
   "name": "@ember/desktop",
   "version": "0.2.0",
   "private": true,
-  "description": "Ember Desktop — premium command center for the Ember QA agent (Electron + React).",
+  "description": "Ember Desktop — the v3 design as a native Electron app.",
   "author": "Ember <hello@ember.dev>",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "node scripts/dev-standalone.mjs",
-    "dev:react": "node scripts/dev.mjs",
-    "dev:renderer": "vite --port 4312",
-    "build": "vite build",
     "start": "electron .",
-    "preview": "vite preview --port 4312",
-    "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win",
-    "dist:mac": "npm run build && electron-builder --mac",
-    "dist:linux": "npm run build && electron-builder --linux"
-  },
-  "dependencies": {
-    "@ember/agent": "*",
-    "@ember/shared": "*",
-    "lucide-react": "^0.469.0",
-    "pdfkit": "^0.19.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "build": "node -e \"console.log('@ember/desktop: nothing to build (static standalone UI)')\"",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "electron": "^43.1.0",
-    "electron-builder": "^26.15.3",
-    "vite": "^6.0.7"
+    "electron-builder": "^26.15.3"
   }
 }

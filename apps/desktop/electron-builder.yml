@@ -3,26 +3,20 @@ productName: Ember
 copyright: Copyright © 2026 Ember
 # Pinned so packaging works in hoisted npm-workspace layouts without relying on
 # electron-version auto-detection. Keep in sync with the electron devDependency.
-electronVersion: 33.4.11
+electronVersion: 43.1.0
 
-# The renderer is built by `vite build` (npm run build) into dist/ before packaging.
 directories:
   output: release
   buildResources: build-resources
 
-# What ships inside the app. Workspace deps (@ember/agent, @ember/shared) are
-# symlinked by npm workspaces; electron-builder dereferences and bundles them.
+# What ships inside the app: the Electron shell + the static v3 design.
 files:
   - electron/**/*
-  - dist/**/*
   - standalone/**/*
   - package.json
   - "!**/*.map"
 
 asar: true
-
-# The agent core runs inside the main process; nothing needs to stay unpacked
-# unless you later add native modules (node:sqlite is built into Node/Electron).
 
 win:
   target:
