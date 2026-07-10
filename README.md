@@ -12,7 +12,7 @@ yet is reported as **blocked** with the exact missing piece.
 
 ```
 apps/web        Ember marketing site (Vite + React) — presents & distributes the product
-apps/desktop    Ember Desktop (Electron + Vite + React) — the SaaS command center
+apps/desktop    Ember Desktop (Electron) — ships the v3 desktop design as a native app
 apps/agent      Ember Agent — real, offline-first CLI (`ember`), zero external deps
 backend         Ember API (Express + SQLite via node:sqlite) — projects, bugs, reports, auth, billing, team
 shared          Schemas, engine profiles, plans, constants shared by everything
@@ -34,10 +34,13 @@ npm install
 |---|---|---|
 | Web site | `npm run dev:web` | http://localhost:4311 |
 | Desktop app (Electron) | `npm run dev:desktop` | native window |
-| Desktop renderer only | `npm run dev:desktop:renderer` | http://localhost:4312 |
 | Backend API | `npm run dev:backend` | http://localhost:4310 |
-| Everything | `npm run dev:all` | all of the above |
+| Web + backend together | `npm run dev:all` | 4311 + 4310 |
 | Agent CLI | `npm run agent -- --help` | — |
+
+The desktop app is a native Electron window that serves the bundled **v3 design**
+(`apps/desktop/standalone/`, with React/Babel vendored locally so it runs offline).
+Launch it separately with `npm run dev:desktop`.
 
 Other scripts: `build:web` / `build:desktop` / `build:backend` / `build:agent`,
 `lint`, `typecheck`, `test:agent`, and `npm test --workspace @ember/backend`.
@@ -93,7 +96,7 @@ Full reference: [docs/config.md](docs/config.md) · CLI reference: [docs/cli.md]
 - **Bug records** — severity, category, source, evidence, repro steps, reproducibility confidence, regression risk, status.
 - **QA reports** — executive summary + professional metrics (bugs found, crash risk, failed checks, severity breakdown, build health, logs analyzed, files scanned, commands executed…), JSON & Markdown export, run-over-run regression diff (fixed / still present / new).
 - **Backend** — full REST API with SQLite storage, real auth (scrypt + session tokens), report ingestion into a shared triage board, notifications, usage metrics counted from the database.
-- **Desktop app (v2 design)** — animated splash with real startup checks, auth (backend login/signup + local-only + demo), 8-step onboarding wizard (real folder pick, engine detection, config generation, ember doctor, first scan), bottom command dock, Command Center, Connectors, Agent terminal (runs the real CLI core), Code Analysis with Logs viewer, Live Run with steps tracker, 3-column bug triage board with detail drawer, white report document viewer with JSON/Markdown export, collapsible Settings; Test Plans / Team / Billing via the ⌘K palette; explicit **Real / Demo / Local-only / Not connected** modes (demo data is a labeled real agent run on a bundled sample project). Visual spec: `design/desktop-v2/`.
+- **Desktop app (v3 design)** — the Ember Desktop v3 design running as a native Electron app: onboarding/auth screens, Command Center, Projects, Connect, Agent, Analyze, Run, Bugs, Reports and Settings, with the animated molten-core orb. It is served over a local HTTP loopback with React/ReactDOM/Babel and the 3D runtime **vendored locally** (`apps/desktop/standalone/vendor/`), so it renders offline with no CDN dependency. This is a visual/interactive design build; the real agent core (scans, reports) is exposed through the CLI and backend.
 
 ## Data modes — no fake results
 
