@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Starts backend + web together for local development.
- * The desktop app is a native Electron window — launch it separately with
- * `npm run dev:desktop`. Ctrl-C stops everything here.
+ * Starts backend + web + desktop renderer together for local development.
+ * Ctrl-C stops everything.
  */
 import { spawn } from 'node:child_process';
 
 const procs = [
   ['backend', 'npm', ['run', 'dev:backend']],
-  ['web', 'npm', ['run', 'dev:web']]
+  ['web', 'npm', ['run', 'dev:web']],
+  ['desktop', 'npm', ['run', 'dev:desktop:renderer']]
 ].map(([name, cmd, args]) => {
   const p = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' });
   const tag = `[${name}]`.padEnd(10);
