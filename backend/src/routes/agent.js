@@ -6,6 +6,7 @@
 import { Router } from 'express';
 import { makeId } from '@ember/shared/constants';
 import { all, get, run, now, j } from '../db.js';
+import { requireAuth } from '../auth.js';
 import { mirrorEvent, mirrorReport } from '../supabase.js';
 
 export const agentRouter = Router();
@@ -24,7 +25,7 @@ function notify(type, title, body) {
   ]);
 }
 
-agentRouter.post('/agent/scan', (req, res) => {
+agentRouter.post('/agent/scan', requireAuth, (req, res) => {
   const { projectId = null, scan } = req.body ?? {};
   if (!scan) return res.status(400).json({ error: 'scan payload is required' });
   recordEvent(projectId, 'scan', {
@@ -34,7 +35,7 @@ agentRouter.post('/agent/scan', (req, res) => {
   res.status(201).json({ ok: true });
 });
 
-agentRouter.post('/agent/analyze', (req, res) => {
+agentRouter.post('/agent/analyze', requireAuth, (req, res) => {
   const { projectId = null, analysis } = req.body ?? {};
   if (!analysis) return res.status(400).json({ error: 'analysis payload is required' });
   recordEvent(projectId, 'analyze', {
@@ -43,7 +44,7 @@ agentRouter.post('/agent/analyze', (req, res) => {
   res.status(201).json({ ok: true });
 });
 
-agentRouter.post('/agent/report', (req, res) => {
+agentRouter.post('/agent/report', requireAuth, (req, res) => {
   const { projectId = null, report } = req.body ?? {};
   if (!report) return res.status(400).json({ error: 'report payload is required' });
   const id = report.id ?? makeId('rpt');
@@ -78,7 +79,7 @@ agentRouter.post('/agent/report', (req, res) => {
   res.status(201).json({ ok: true, reportId: id, bugsIngested: (report.bugs ?? []).length });
 });
 
-agentRouter.get('/agent/events', (req, res) => {
+agentRouter.get('/agent/events', requireAuth, (req, res) => {
   const rows = req.query.projectId
     ? all('SELECT * FROM agent_events WHERE project_id = ? ORDER BY created_at DESC LIMIT 100', [req.query.projectId])
     : all('SELECT * FROM agent_events ORDER BY created_at DESC LIMIT 100');

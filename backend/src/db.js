@@ -147,6 +147,19 @@ db.exec(`
   );
 `);
 
+// Payment intents: created server-side for an authenticated user before any
+// checkout window opens. The hosted payment pages authorize with the intent
+// id (unguessable, single-use, expiring) — the workspace and plan are always
+// read from this row, never from the client.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS payment_intents (
+    id TEXT PRIMARY KEY, workspace_id TEXT REFERENCES workspaces(id), user_id TEXT REFERENCES users(id),
+    plan_id TEXT NOT NULL, provider TEXT NOT NULL, order_id TEXT, status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL, expires_at TEXT NOT NULL, completed_at TEXT, meta_json TEXT DEFAULT '{}'
+  );
+  CREATE INDEX IF NOT EXISTS idx_payment_intents_order ON payment_intents(order_id);
+`);
+
 // Give sessions a stable short id for listing/revoking individually (existing
 // rows are backfilled; SQLite's randomblob/hex generate a safe unique value).
 addColumn('sessions', 'id', 'TEXT');

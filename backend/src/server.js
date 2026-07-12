@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_BACKEND_URL } from '@ember/shared/constants';
 import { optionalAuth } from './auth.js';
+import { corsAllowlist, securityHeaders } from './middleware.js';
 import { cloudHealth, cloudStatus } from './supabase.js';
 import { authRouter } from './routes/auth.js';
 import { coreRouter } from './routes/core.js';
@@ -16,14 +17,10 @@ export function createApp() {
   app.disable('x-powered-by');
   app.use(express.json({ limit: '25mb' }));
 
-  // permissive CORS for local development (web site + desktop renderer)
-  app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') return res.sendStatus(204);
-    next();
-  });
+  // CORS allowlist: loopback origins (web site, desktop renderer, Electron
+  // static server) plus CORS_ORIGINS from .env — never `*`.
+  app.use(corsAllowlist);
+  app.use(securityHeaders);
 
   app.use(optionalAuth);
 

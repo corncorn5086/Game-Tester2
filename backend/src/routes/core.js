@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { makeId, SEVERITIES, BUG_CATEGORIES, BUG_STATUSES } from '@ember/shared/constants';
 import { CHECK_TYPES } from '@ember/shared/checks';
 import { all, get, run, now, j } from '../db.js';
+import { ensureDefaultWorkspace, requireAuth } from '../auth.js';
 import { mirrorBugPatch, mirrorProject } from '../supabase.js';
 
 export const coreRouter = Router();
@@ -16,13 +17,15 @@ const projectShape = (p) => p && ({
 });
 
 // ---------- projects ----------
-coreRouter.get('/projects', (_req, res) => {
+coreRouter.get('/projects', requireAuth, (_req, res) => {
   res.json(all('SELECT * FROM projects WHERE archived = 0 ORDER BY updated_at DESC').map(projectShape));
 });
 
-coreRouter.post('/projects', (req, res) => {
-  const { name, engine = 'custom', path = null, config = {}, workspaceId = null } = req.body ?? {};
+coreRouter.post('/projects', requireAuth, (req, res) => {
+  const { name, engine = 'custom', path = null, config = {} } = req.body ?? {};
   if (!name) return res.status(400).json({ error: 'name is required' });
+  // The workspace is always the authenticated user's — never client-supplied.
+  const workspaceId = ensureDefaultWorkspace(req.user.id).id;
   const id = makeId('prj');
   run('INSERT INTO projects (id, workspace_id, name, engine, path, created_at, updated_at, config_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
     id, workspaceId, name, engine, path, now(), now(), JSON.stringify(config)
@@ -31,7 +34,7 @@ coreRouter.post('/projects', (req, res) => {
   res.status(201).json(projectShape(get('SELECT * FROM projects WHERE id = ?', [id])));
 });
 
-coreRouter.get('/projects/:id', (req, res) => {
+coreRouter.get('/projects/:id', requireAuth, (req, res) => {
   const project = get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
   if (!project) return res.status(404).json({ error: 'project not found' });
   const sources = all('SELECT * FROM connected_sources WHERE project_id = ?', [req.params.id]);
@@ -46,7 +49,7 @@ coreRouter.get('/projects/:id', (req, res) => {
   });
 });
 
-coreRouter.patch('/projects/:id', (req, res) => {
+coreRouter.patch('/projects/:id', requireAuth, (req, res) => {
   const project = get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
   if (!project) return res.status(404).json({ error: 'project not found' });
   const { name, engine, path, config, archived } = req.body ?? {};
@@ -62,7 +65,7 @@ coreRouter.patch('/projects/:id', (req, res) => {
   res.json(projectShape(get('SELECT * FROM projects WHERE id = ?', [req.params.id])));
 });
 
-coreRouter.post('/projects/:id/sources', (req, res) => {
+coreRouter.post('/projects/:id/sources', requireAuth, (req, res) => {
   const { kind, location, meta = {} } = req.body ?? {};
   if (!kind || !location) return res.status(400).json({ error: 'kind and location are required' });
   const id = makeId('src');
@@ -73,7 +76,7 @@ coreRouter.post('/projects/:id/sources', (req, res) => {
 });
 
 // ---------- test plans ----------
-coreRouter.get('/test-plans', (req, res) => {
+coreRouter.get('/test-plans', requireAuth, (req, res) => {
   const rows = req.query.projectId
     ? all('SELECT * FROM test_plans WHERE project_id = ? ORDER BY updated_at DESC', [req.query.projectId])
     : all('SELECT * FROM test_plans ORDER BY updated_at DESC');
@@ -83,7 +86,7 @@ coreRouter.get('/test-plans', (req, res) => {
   })));
 });
 
-coreRouter.post('/test-plans', (req, res) => {
+coreRouter.post('/test-plans', requireAuth, (req, res) => {
   const { projectId = null, name, description = '', checks = [], commands = [] } = req.body ?? {};
   if (!name) return res.status(400).json({ error: 'name is required' });
   const validIds = new Set(CHECK_TYPES.map((chk) => chk.id));
@@ -103,14 +106,14 @@ const runShape = (r) => r && ({
   summary: j(r.summary_json, {}), steps: j(r.steps_json, [])
 });
 
-coreRouter.get('/test-runs', (req, res) => {
+coreRouter.get('/test-runs', requireAuth, (req, res) => {
   const rows = req.query.projectId
     ? all('SELECT * FROM test_runs WHERE project_id = ? ORDER BY created_at DESC LIMIT 100', [req.query.projectId])
     : all('SELECT * FROM test_runs ORDER BY created_at DESC LIMIT 100');
   res.json(rows.map(runShape));
 });
 
-coreRouter.post('/test-runs', (req, res) => {
+coreRouter.post('/test-runs', requireAuth, (req, res) => {
   const { projectId = null, testPlanId = null, profile = null } = req.body ?? {};
   const id = makeId('run');
   run('INSERT INTO test_runs (id, project_id, test_plan_id, profile, status, created_at) VALUES (?, ?, ?, ?, ?, ?)', [
@@ -119,14 +122,14 @@ coreRouter.post('/test-runs', (req, res) => {
   res.status(201).json(runShape(get('SELECT * FROM test_runs WHERE id = ?', [id])));
 });
 
-coreRouter.post('/test-runs/:id/start', (req, res) => {
+coreRouter.post('/test-runs/:id/start', requireAuth, (req, res) => {
   const row = get('SELECT * FROM test_runs WHERE id = ?', [req.params.id]);
   if (!row) return res.status(404).json({ error: 'test run not found' });
   run('UPDATE test_runs SET status = ?, started_at = ? WHERE id = ?', ['running', now(), req.params.id]);
   res.json(runShape(get('SELECT * FROM test_runs WHERE id = ?', [req.params.id])));
 });
 
-coreRouter.post('/test-runs/:id/complete', (req, res) => {
+coreRouter.post('/test-runs/:id/complete', requireAuth, (req, res) => {
   const row = get('SELECT * FROM test_runs WHERE id = ?', [req.params.id]);
   if (!row) return res.status(404).json({ error: 'test run not found' });
   const { status = 'completed', summary = {}, steps = [] } = req.body ?? {};
@@ -144,7 +147,7 @@ const bugShape = (b) => b && ({
   createdAt: b.created_at, updatedAt: b.updated_at, ...j(b.detail_json, {})
 });
 
-coreRouter.get('/bugs', (req, res) => {
+coreRouter.get('/bugs', requireAuth, (req, res) => {
   const clauses = [];
   const params = [];
   for (const [field, column] of [['projectId', 'project_id'], ['severity', 'severity'], ['category', 'category'], ['status', 'status'], ['source', 'source']]) {
@@ -157,7 +160,7 @@ coreRouter.get('/bugs', (req, res) => {
   res.json(all(`SELECT * FROM bugs ${where} ORDER BY created_at DESC LIMIT 500`, params).map(bugShape));
 });
 
-coreRouter.post('/bugs', (req, res) => {
+coreRouter.post('/bugs', requireAuth, (req, res) => {
   const b = req.body ?? {};
   if (!b.title) return res.status(400).json({ error: 'title is required' });
   if (b.severity && !SEVERITIES.includes(b.severity)) return res.status(400).json({ error: `severity must be one of ${SEVERITIES.join(', ')}` });
@@ -178,7 +181,7 @@ coreRouter.post('/bugs', (req, res) => {
   res.status(201).json(bugShape(get('SELECT * FROM bugs WHERE id = ?', [id])));
 });
 
-coreRouter.patch('/bugs/:id', (req, res) => {
+coreRouter.patch('/bugs/:id', requireAuth, (req, res) => {
   const bug = get('SELECT * FROM bugs WHERE id = ?', [req.params.id]);
   if (!bug) return res.status(404).json({ error: 'bug not found' });
   const { status, severity, suggestedFix, description } = req.body ?? {};
@@ -194,14 +197,14 @@ coreRouter.patch('/bugs/:id', (req, res) => {
 });
 
 // ---------- reports ----------
-coreRouter.get('/reports', (req, res) => {
+coreRouter.get('/reports', requireAuth, (req, res) => {
   const rows = req.query.projectId
     ? all('SELECT id, project_id, test_run_id, generated_at, summary, metrics_json FROM reports WHERE project_id = ? ORDER BY generated_at DESC', [req.query.projectId])
     : all('SELECT id, project_id, test_run_id, generated_at, summary, metrics_json FROM reports ORDER BY generated_at DESC LIMIT 100');
   res.json(rows.map((r) => ({ id: r.id, projectId: r.project_id, testRunId: r.test_run_id, generatedAt: r.generated_at, summary: r.summary, metrics: j(r.metrics_json, {}) })));
 });
 
-coreRouter.post('/reports', (req, res) => {
+coreRouter.post('/reports', requireAuth, (req, res) => {
   const { projectId = null, testRunId = null, report } = req.body ?? {};
   if (!report) return res.status(400).json({ error: 'report payload is required' });
   const id = report.id ?? makeId('rpt');
@@ -212,7 +215,7 @@ coreRouter.post('/reports', (req, res) => {
   res.status(201).json({ id });
 });
 
-coreRouter.get('/reports/:id', (req, res) => {
+coreRouter.get('/reports/:id', requireAuth, (req, res) => {
   const row = get('SELECT * FROM reports WHERE id = ?', [req.params.id]);
   if (!row) return res.status(404).json({ error: 'report not found' });
   res.json(j(row.report_json, {}));
