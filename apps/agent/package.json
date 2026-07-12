@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "node -e \"console.log('@ember/agent: nothing to build (plain ESM, run bin/ember.js directly)')\"",
-    "test": "node test/agent.test.js"
+    "test": "node test/agent.test.js && node test/validator.test.js"
   },
   "dependencies": {
     "@ember/shared": "*"

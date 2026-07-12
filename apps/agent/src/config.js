@@ -3,6 +3,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { CONFIG_FILENAME } from '@ember/shared/constants';
 import { CONFIG_VERSION, validateConfig } from '@ember/shared/config-schema';
 import { ENGINES } from '@ember/shared/engines';
+import { validateProjectRoot } from '@ember/shared/project-validator';
 import { detectEngine } from './detect.js';
 
 export { validateConfig };
@@ -49,8 +50,34 @@ export function loadConfig(dir = process.cwd()) {
  * Generate a config for a project directory, using engine detection
  * and per-engine defaults. Does not write unless `write` is true.
  */
-export function generateConfig(dir = process.cwd(), { engine: forcedEngine, projectName, write = false, force = false } = {}) {
+export function generateConfig(dir = process.cwd(), { engine: forcedEngine, projectName, write = false, force = false, confirmedCustom = false } = {}) {
   const root = resolve(dir);
+
+  // Never write a config into a folder that is not a real project
+  // (system roots, empty/media folders, node_modules…). --force overwrites
+  // an existing config; it does NOT bypass validation.
+  const validation = validateProjectRoot(root, { confirmedCustom: confirmedCustom || Boolean(forcedEngine) });
+  if (!validation.valid) {
+    return {
+      config: null,
+      detection: { engine: 'custom', confidence: 'none', evidence: validation.evidence },
+      validation,
+      path: join(root, CONFIG_FILENAME),
+      written: false,
+      error: `This folder does not appear to contain a supported game or code project.\n  ${validation.errors.join('\n  ')}`
+    };
+  }
+  if (validation.requiresConfirmation) {
+    return {
+      config: null,
+      detection: { engine: validation.engine, confidence: validation.confidence, evidence: validation.evidence },
+      validation,
+      path: join(root, CONFIG_FILENAME),
+      written: false,
+      error: 'Weakly recognized project — confirm it is a code project by re-running with an explicit --engine (e.g. --engine custom).'
+    };
+  }
+
   const detection = detectEngine(root);
   const engineKey = forcedEngine ?? detection.engine;
   const profile = ENGINES[engineKey] ?? ENGINES.custom;
@@ -89,5 +116,5 @@ export function generateConfig(dir = process.cwd(), { engine: forcedEngine, proj
     writeFileSync(target, JSON.stringify(config, null, 2) + '\n');
     written = true;
   }
-  return { config, detection, path: target, written, error: null };
+  return { config, detection, validation, path: target, written, error: null };
 }
