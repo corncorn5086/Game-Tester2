@@ -9,15 +9,18 @@
  */
 const { ipcMain, dialog, BrowserWindow } = require('electron');
 const { join } = require('node:path');
+const { pathToFileURL } = require('node:url');
 
 const REPO_ROOT = join(__dirname, '..', '..', '..');
 const grantedRoots = new Set();
 
+// file:// URLs are required for dynamic ESM imports of absolute paths
+// (a bare `C:\…` path is rejected by the loader on Windows).
 async function agentCore() {
-  return import(join(REPO_ROOT, 'apps', 'agent', 'src', 'index.js'));
+  return import(pathToFileURL(join(REPO_ROOT, 'apps', 'agent', 'src', 'index.js')).href);
 }
 async function validator() {
-  return import(join(REPO_ROOT, 'shared', 'src', 'project-validator.js'));
+  return import(pathToFileURL(join(REPO_ROOT, 'shared', 'src', 'project-validator.js')).href);
 }
 
 function registerAgentBridge() {

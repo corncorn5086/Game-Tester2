@@ -8,6 +8,7 @@ const { app, BrowserWindow, shell } = require('electron');
 const { join } = require('node:path');
 const { startStaticServer } = require('./static-server.cjs');
 const { registerAgentBridge } = require('./agent-bridge.cjs');
+const { ensureBackend } = require('./backend-launcher.cjs');
 
 let staticServer = null;
 
@@ -43,6 +44,7 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
+  ensureBackend(); // starts the local API if nothing is listening yet
   registerAgentBridge();
   createWindow();
   app.on('activate', () => {

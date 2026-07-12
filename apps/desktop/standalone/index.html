@@ -2843,17 +2843,27 @@ class Component extends DCLogic {
     }
   }
 
-  // Real startup checks — nothing here is scripted output.
+  // Real startup checks — nothing here is scripted output. Inside the
+  // desktop shell the backend auto-starts with the app, so we wait for it
+  // briefly instead of telling customers to run terminal commands.
+  async waitForBackend(tries = 5, delayMs = 1200) {
+    for (let i = 0; i < tries; i++) {
+      if (await this.checkBackend()) return true;
+      await new Promise(r => setTimeout(r, delayMs));
+    }
+    return false;
+  }
   async runSplash() {
     const push = (t, c) => this.setState(s => ({ splash: [...s.splash, { t, c }] }));
-    push('› checking agent bridge…', '#8b857f');
+    push('› checking agent…', '#8b857f');
     await new Promise(r => setTimeout(r, 350));
-    if (this.hasBridge()) push('✓ agent bridge ready (Electron)', '#2f9e6b');
+    if (this.hasBridge()) push('✓ agent ready', '#2f9e6b');
     else push('· browser preview — folder picking & runs need Ember Desktop', '#d4870a');
-    push('› checking backend ' + this.API + '…', '#8b857f');
-    const up = await this.checkBackend();
-    if (up) push('✓ backend online — v' + this.state.backendVersion, '#2f9e6b');
-    else push('✗ backend offline — start it with: npm run dev:backend', '#d4520a');
+    push('› starting local services…', '#8b857f');
+    const up = await this.waitForBackend(this.hasBridge() ? 5 : 1);
+    if (up) push('✓ services online — v' + this.state.backendVersion, '#2f9e6b');
+    else if (this.hasBridge()) push('! services still starting — sign-in will retry automatically', '#d4870a');
+    else push('! services offline (dev preview: npm run dev:backend)', '#d4870a');
     push('✓ ready', '#2f9e6b');
     this.after(700, () => this.setState({ phase: 'welcome' }));
   }
@@ -2873,7 +2883,9 @@ class Component extends DCLogic {
       swapQ1: 'No account yet?', swapA1: 'Create one', swapQ2: 'Already have an account?', swapA2: 'Sign in',
       forgot: 'Forgot?',
       errName: 'Tell us your name.', errEmail: 'That email doesn’t look right.', errPass: 'Password needs at least 8 characters, one uppercase letter and a number.',
-      errTos: 'You must accept the Terms and Privacy Policy to create an account.'
+      errTos: 'You must accept the Terms and Privacy Policy to create an account.',
+      errService: 'We can’t reach Ember’s local service right now. Please wait a few seconds and try again — if it keeps happening, restart Ember Desktop.',
+      errServiceDev: '(Dev preview: run `npm run dev:backend`.)'
     };
     const fr = {
       wKicker: 'EMBER DESKTOP — PREMIER ALLUMAGE',
@@ -2888,7 +2900,9 @@ class Component extends DCLogic {
       swapQ1: 'Pas encore de compte ?', swapA1: 'Créez-en un', swapQ2: 'Déjà un compte ?', swapA2: 'Connectez-vous',
       forgot: 'Oublié ?',
       errName: 'Dites-nous votre nom.', errEmail: 'Ce courriel ne semble pas valide.', errPass: 'Au moins 8 caractères, une majuscule et un chiffre.',
-      errTos: 'Vous devez accepter les Conditions et la Politique de confidentialité.'
+      errTos: 'Vous devez accepter les Conditions et la Politique de confidentialité.',
+      errService: 'Impossible de joindre le service local d’Ember pour le moment. Patientez quelques secondes puis réessayez — si ça persiste, redémarrez Ember Desktop.',
+      errServiceDev: '(Aperçu dev : lancez `npm run dev:backend`.)'
     };
     return this.curLang() === 'fr' ? fr : en;
   }
@@ -2909,9 +2923,14 @@ class Component extends DCLogic {
     if (this.state.authBusy) return;
     this.setState({ authBusy: true, authErr: '' });
 
-    const up = await this.checkBackend();
+    // The desktop shell starts local services itself — give them a moment
+    // before showing an error, and keep the error customer-readable.
+    const up = await this.waitForBackend(this.hasBridge() ? 4 : 1);
     if (!up) {
-      return this.setState({ authBusy: false, authErr: 'Backend unreachable at ' + this.API + ' — start it with `npm run dev:backend`, then try again. Ember never fakes a sign-in.' });
+      return this.setState({
+        authBusy: false,
+        authErr: this.hasBridge() ? L.errService : L.errService + ' ' + L.errServiceDev
+      });
     }
     try {
       const payload = authMode === 'signup'
@@ -3182,7 +3201,7 @@ class Component extends DCLogic {
       {
         n: '01', name: 'Backend API', desc: 'Sync projects, reports, notifications and team to the Ember API.',
         status: backendStatus, stColor: S.backendUp ? '#2f9e6b' : '#c8330f', stBorder: S.backendUp ? 'rgba(47,158,107,.35)' : 'rgba(200,51,15,.35)',
-        hasAction: true, actLabel: 'Re-check connection', act: async () => { const up = await this.checkBackend(); this.toast(up ? 'Backend online' : 'Backend offline — start localhost:4310'); }
+        hasAction: true, actLabel: 'Re-check connection', act: async () => { const up = await this.checkBackend(); this.toast(up ? 'Services online' : (this.hasBridge() ? 'Local service not responding — restart Ember Desktop if this persists' : 'Services offline (dev preview: npm run dev:backend)')); }
       },
       {
         n: '02', name: 'Ember Agent', desc: 'The local agent core. Runs scans, analysis and commands on this machine.',
