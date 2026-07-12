@@ -54,15 +54,31 @@ export const PLANS = [
     limits: { projects: -1, reportsPerMonth: -1, teamMembers: 15, cloudSync: true }
   },
   {
+    id: 'annual',
+    name: 'Annual',
+    price: 500,
+    period: 'per year',
+    interval: 'year',
+    tagline: 'A full year of Ember — save vs paying monthly',
+    stripePriceId: null,
+    features: [
+      'Everything in Studio, all year',
+      'Most capable AI model & longest history',
+      'Advanced integrations & early access',
+      'Priority support'
+    ],
+    limits: { projects: -1, reportsPerMonth: -1, teamMembers: 15, cloudSync: true }
+  },
+  {
     id: 'lifetime',
     name: 'Lifetime',
-    price: 499,
+    price: 2500,
     period: 'one-time',
     oneTime: true,
     tagline: 'Own Ember forever — pay once, no subscription',
     stripePriceId: null,
     features: [
-      'Everything in Studio, forever',
+      'Everything in Annual, forever',
       'One-time payment — no monthly fees, ever',
       'All future updates included',
       'Unlimited projects, reports & exports',

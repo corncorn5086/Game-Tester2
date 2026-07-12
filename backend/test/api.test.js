@@ -130,7 +130,9 @@ assert.ok(notifications.body.some((n) => n.type === 'critical-bug-found'));
 
 // billing
 const plans = await api('GET', '/billing/plans');
-assert.equal(plans.body.length, 5);
+assert.equal(plans.body.length, 6);
+assert.equal(plans.body.find((p) => p.id === 'annual').price, 500);
+assert.equal(plans.body.find((p) => p.id === 'lifetime').price, 2500);
 const providers = await api('GET', '/billing/providers');
 assert.ok(providers.body.some((p) => p.id === 'paypal'));
 const checkout = await api('POST', '/billing/checkout', { planId: 'pro', provider: 'paypal' }, token);
