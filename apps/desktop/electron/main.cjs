@@ -7,6 +7,7 @@
 const { app, BrowserWindow, shell } = require('electron');
 const { join } = require('node:path');
 const { startStaticServer } = require('./static-server.cjs');
+const { registerAgentBridge } = require('./agent-bridge.cjs');
 
 let staticServer = null;
 
@@ -25,7 +26,8 @@ async function createWindow() {
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     webPreferences: {
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      preload: join(__dirname, 'preload.cjs')
     }
   });
 
@@ -41,6 +43,7 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
+  registerAgentBridge();
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
