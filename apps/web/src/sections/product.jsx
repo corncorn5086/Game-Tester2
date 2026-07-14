@@ -271,8 +271,8 @@ export function Enterprise() {
               For studios that can't ship surprises.
             </h2>
             <p style={{ marginTop: 18, color: 'var(--ink-dim)', lineHeight: 1.65, maxWidth: 460 }}>
-              Private deployment, security controls and custom engine integrations — with a local-only mode that
-              guarantees your code never leaves your infrastructure.
+              Private deployment, security controls and custom engine integrations — with on-premise
+              deployment so your code never leaves your infrastructure.
             </p>
             <a href="mailto:hello@ember.dev" className="btn btn-primary btn-sm" style={{ marginTop: 26 }}>
               Contact the team
@@ -280,7 +280,7 @@ export function Enterprise() {
           </div>
           <ul>
             <li>Private / on-prem deployment of the Ember backend</li>
-            <li>Local-only mode: scans and reports never leave your machines</li>
+            <li>On-device analysis: the agent reads your code on your machines</li>
             <li>Secret masking in every log and report Ember touches</li>
             <li>Role-based permissions: Owner, Admin, Developer, QA, Viewer</li>
             <li>Custom engine profiles and analysis rules built with you</li>

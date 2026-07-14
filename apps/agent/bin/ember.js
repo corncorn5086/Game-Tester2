@@ -19,6 +19,7 @@ import {
   backendFromConfig, LocalStore,
   aiConfigured, aiStatus, summarizeReport
 } from '../src/index.js';
+import { validateProjectRoot } from '@ember/shared/project-validator';
 import { c, log, sevColor, humanBytes } from '../src/util.js';
 
 const argv = process.argv.slice(2);
@@ -39,6 +40,18 @@ function requireConfig() {
     process.exit(1);
   }
   for (const w of loaded.warnings) log(`${c.yellow('!')} ${w}`);
+
+  // A failed validation means NO scan, NO analysis, NO report — ever.
+  // An existing ember.config.json counts as the user's explicit confirmation
+  // for weakly-recognized custom projects.
+  const validation = validateProjectRoot(loaded.root, { confirmedCustom: true });
+  if (!validation.valid) {
+    log(`${c.red('✗')} This folder does not appear to contain a supported game or code project.`);
+    for (const e of validation.errors) log(`  ${c.red('·')} ${e}`);
+    log(`  ${c.gray('Fix the project path in ember.config.json (gamePath) or re-run `ember init` in the real project root.')}`);
+    process.exit(1);
+  }
+  loaded.validation = validation;
   return loaded;
 }
 

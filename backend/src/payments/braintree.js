@@ -103,8 +103,9 @@ export function braintreeStatus() {
 }
 
 /** Server-rendered Braintree Drop-in checkout page (opened like the PayPal approval window). */
-export function checkoutPage(plan, apiBase) {
+export function checkoutPage(plan, apiBase, intentId = '') {
   const safePlan = { id: String(plan.id), name: String(plan.name), price: Number(plan.price) };
+  const safeIntent = String(intentId).replace(/[^a-f0-9]/gi, '');
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ember — ${safePlan.name} checkout</title>
 <style>
@@ -137,11 +138,12 @@ export function checkoutPage(plan, apiBase) {
   <script>
     const API = ${JSON.stringify(apiBase)};
     const PLAN = ${JSON.stringify(safePlan)};
+    const INTENT = ${JSON.stringify(safeIntent)};
     const statusEl = document.getElementById('status');
     const payBtn = document.getElementById('pay');
     function setStatus(msg, cls){ statusEl.textContent = msg; statusEl.className = 'status ' + (cls||''); }
     async function boot(){
-      const r = await fetch(API + '/billing/braintree/client-token');
+      const r = await fetch(API + '/billing/braintree/client-token?intent=' + INTENT);
       const d = await r.json();
       if(!d.clientToken){ setStatus(d.error || 'Cannot start checkout', 'err'); return; }
       braintree.dropin.create({
@@ -160,7 +162,7 @@ export function checkoutPage(plan, apiBase) {
             if(e){ setStatus(e.message,'err'); payBtn.disabled=false; return; }
             fetch(API + '/billing/braintree/transaction', {
               method:'POST', headers:{'content-type':'application/json'},
-              body: JSON.stringify({ planId: PLAN.id, nonce: payload.nonce, deviceData: payload.deviceData })
+              body: JSON.stringify({ intent: INTENT, nonce: payload.nonce, deviceData: payload.deviceData })
             }).then(x=>x.json()).then(res => {
               if(res.captured){ setStatus('✓ Payment complete — return to Ember Desktop.','ok'); payBtn.style.display='none'; }
               else { setStatus(res.error || 'Payment declined','err'); payBtn.disabled=false; }

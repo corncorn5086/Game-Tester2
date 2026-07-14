@@ -7,10 +7,16 @@ import { randomBytes } from 'node:crypto';
 import { makeId, TEAM_ROLES } from '@ember/shared/constants';
 import { PLANS, getPlan } from '@ember/shared/plans';
 import { all, get, run, now, j } from '../db.js';
+import { ensureDefaultWorkspace, requireAuth } from '../auth.js';
 import { cloudTeam, mirrorInvite, supabaseEnabled } from '../supabase.js';
 import { captureOrder, listProviders, startCheckout, clientToken, sale, checkoutPage, braintreeConfigured } from '../payments/index.js';
 
 export const platformRouter = Router();
+
+/** The caller's workspace always comes from the authenticated session — never from the request body/query. */
+function userWorkspace(req) {
+  return ensureDefaultWorkspace(req.user.id);
+}
 
 /** Activate/renew a workspace subscription after a successful payment (any provider). */
 function activateSubscription({ planId, workspaceId, provider, payment }) {
@@ -40,12 +46,12 @@ function activateSubscription({ planId, workspaceId, provider, payment }) {
 }
 
 // ---------- settings (global/workspace key-value) ----------
-platformRouter.get('/settings', (_req, res) => {
+platformRouter.get('/settings', requireAuth, (_req, res) => {
   const rows = all('SELECT key, value_json FROM settings');
   res.json(Object.fromEntries(rows.map((r) => [r.key, j(r.value_json)])));
 });
 
-platformRouter.patch('/settings', (req, res) => {
+platformRouter.patch('/settings', requireAuth, (req, res) => {
   const entries = Object.entries(req.body ?? {});
   for (const [key, value] of entries) {
     run('INSERT INTO settings (key, value_json, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at', [
@@ -58,43 +64,68 @@ platformRouter.patch('/settings', (req, res) => {
 // ---------- billing ----------
 platformRouter.get('/billing/plans', (_req, res) => res.json(PLANS));
 
-platformRouter.get('/billing/subscription', (req, res) => {
-  const workspaceId = req.query.workspaceId ?? null;
-  const sub = workspaceId
-    ? get('SELECT * FROM subscriptions WHERE workspace_id = ?', [workspaceId])
-    : get('SELECT * FROM subscriptions ORDER BY created_at ASC LIMIT 1');
+platformRouter.get('/billing/subscription', requireAuth, (req, res) => {
+  const workspace = userWorkspace(req);
+  const sub = get('SELECT * FROM subscriptions WHERE workspace_id = ?', [workspace.id]);
   if (!sub) return res.json({ plan: getPlan('free'), status: 'active', note: 'No workspace subscription yet — defaulting to Free.' });
   res.json({ id: sub.id, workspaceId: sub.workspace_id, plan: getPlan(sub.plan_id) ?? getPlan('free'), status: sub.status, currentPeriodEnd: sub.current_period_end });
 });
 
 platformRouter.get('/billing/providers', (_req, res) => res.json(listProviders()));
 
-platformRouter.post('/billing/checkout', async (req, res) => {
+platformRouter.post('/billing/checkout', requireAuth, async (req, res) => {
   const { planId, provider = 'paypal' } = req.body ?? {};
   const plan = getPlan(planId);
   if (!plan) return res.status(400).json({ error: `unknown plan "${planId}"`, plans: PLANS.map((p) => p.id) });
   if (!plan.price) return res.status(400).json({ error: plan.id === 'enterprise' ? 'Enterprise is custom-quoted — contact us.' : 'The Free plan needs no checkout.' });
   try {
+    const workspace = userWorkspace(req);
     const apiBase = `${req.protocol}://${req.get('host')}`;
-    const result = await startCheckout(provider, plan, { apiBase });
+
+    // The intent binds workspace + plan server-side before any window opens;
+    // hosted pages authorize with this unguessable, expiring, single-use id.
+    const intentId = randomBytes(24).toString('hex');
+
+    const result = await startCheckout(provider, plan, { apiBase, intentId });
     if (result.error) return res.status(result.notConfigured ? 501 : 400).json({ ...result, plan: plan.id, provider });
-    run('INSERT INTO usage_events (id, kind, quantity, created_at, meta_json) VALUES (?, ?, ?, ?, ?)', [
-      makeId('use'), 'checkout-started', 1, now(), JSON.stringify({ plan: plan.id, provider, orderId: result.orderId })
+
+    run('INSERT INTO payment_intents (id, workspace_id, user_id, plan_id, provider, order_id, status, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+      intentId, workspace.id, req.user.id, plan.id, provider, result.orderId ?? null, 'pending',
+      now(), new Date(Date.now() + 2 * 3600 * 1000).toISOString()
     ]);
-    res.json({ ...result, plan: plan.id, provider });
+    run('INSERT INTO usage_events (id, workspace_id, kind, quantity, created_at, meta_json) VALUES (?, ?, ?, ?, ?, ?)', [
+      makeId('use'), workspace.id, 'checkout-started', 1, now(), JSON.stringify({ plan: plan.id, provider, orderId: result.orderId })
+    ]);
+    res.json({ ...result, plan: plan.id, provider, intent: intentId });
   } catch (e) {
     res.status(502).json({ error: `payment provider error: ${e.message}`, provider });
   }
 });
 
-platformRouter.post('/billing/paypal/capture', async (req, res) => {
-  const { orderId, workspaceId = null } = req.body ?? {};
+/** Load a live (pending, unexpired) intent or answer with the right error. */
+function liveIntent(res, intentId) {
+  const intent = intentId ? get('SELECT * FROM payment_intents WHERE id = ?', [intentId]) : null;
+  if (!intent) { res.status(400).json({ error: 'Unknown checkout session — restart the checkout from Ember.' }); return null; }
+  if (intent.status === 'completed') { res.status(409).json({ error: 'This payment was already processed.', alreadyProcessed: true }); return null; }
+  if (intent.expires_at < now()) { res.status(410).json({ error: 'This checkout session expired — restart the checkout from Ember.' }); return null; }
+  return intent;
+}
+
+platformRouter.post('/billing/paypal/capture', requireAuth, async (req, res) => {
+  const { orderId } = req.body ?? {};
   if (!orderId) return res.status(400).json({ error: 'orderId is required' });
+  const intent = get('SELECT * FROM payment_intents WHERE order_id = ? AND user_id = ?', [orderId, req.user.id]);
+  if (!intent) return res.status(404).json({ error: 'No checkout session found for this order.' });
+  if (intent.status === 'completed') return res.json({ captured: true, alreadyProcessed: true, planId: intent.plan_id });
   try {
     const result = await captureOrder(orderId);
     if (result.error) return res.status(501).json(result);
-    if (result.captured && result.planId) {
-      activateSubscription({ planId: result.planId, workspaceId, provider: 'paypal', payment: result });
+    if (result.captured) {
+      // Plan and workspace come from the stored intent, never from the client or the processor echo.
+      activateSubscription({ planId: intent.plan_id, workspaceId: intent.workspace_id, provider: 'paypal', payment: result });
+      run('UPDATE payment_intents SET status = ?, completed_at = ?, meta_json = ? WHERE id = ?', [
+        'completed', now(), JSON.stringify({ captureId: result.captureId }), intent.id
+      ]);
     }
     res.json(result);
   } catch (e) {
@@ -103,7 +134,11 @@ platformRouter.post('/billing/paypal/capture', async (req, res) => {
 });
 
 // ---------- Braintree (Google Pay / Apple Pay / card) ----------
-platformRouter.get('/billing/braintree/client-token', async (_req, res) => {
+// The hosted Drop-in page runs in an external browser with no session, so it
+// authorizes with the payment-intent id minted for the authenticated user at
+// checkout start. Plan and workspace always come from that stored intent.
+platformRouter.get('/billing/braintree/client-token', async (req, res) => {
+  if (!liveIntent(res, req.query.intent)) return;
   try {
     const result = await clientToken();
     if (result.error) return res.status(result.needsInstall ? 501 : (result.notConfigured ? 501 : 400)).json(result);
@@ -115,23 +150,32 @@ platformRouter.get('/billing/braintree/client-token', async (_req, res) => {
 
 // Hosted Drop-in checkout page (opened in the browser like the PayPal window)
 platformRouter.get('/billing/braintree/checkout', (req, res) => {
-  const plan = getPlan(req.query.plan);
+  const intent = req.query.intent ? get('SELECT * FROM payment_intents WHERE id = ?', [req.query.intent]) : null;
+  if (!intent || intent.status === 'completed' || intent.expires_at < now()) {
+    return res.status(410).send('This checkout session is invalid or expired — restart the checkout from Ember.');
+  }
+  const plan = getPlan(intent.plan_id);
   if (!plan || !plan.price) return res.status(400).send('Unknown or free plan');
   if (!braintreeConfigured) return res.status(501).send('Braintree is not configured on this server.');
   const apiBase = `${req.protocol}://${req.get('host')}`;
-  res.set('content-type', 'text/html; charset=utf-8').send(checkoutPage(plan, apiBase));
+  res.set('content-type', 'text/html; charset=utf-8').send(checkoutPage(plan, apiBase, intent.id));
 });
 
 platformRouter.post('/billing/braintree/transaction', async (req, res) => {
-  const { planId, nonce, deviceData, workspaceId = null } = req.body ?? {};
-  const plan = getPlan(planId);
-  if (!plan || !plan.price) return res.status(400).json({ error: `unknown or free plan "${planId}"` });
+  const { nonce, deviceData } = req.body ?? {};
+  const intent = liveIntent(res, req.body?.intent);
+  if (!intent) return;
+  const plan = getPlan(intent.plan_id);
+  if (!plan || !plan.price) return res.status(400).json({ error: `unknown or free plan "${intent.plan_id}"` });
   if (!nonce) return res.status(400).json({ error: 'payment nonce is required' });
   try {
     const result = await sale(plan, nonce, { deviceData });
     if (result.error) return res.status(result.needsInstall || result.notConfigured ? 501 : 402).json(result);
     if (result.captured) {
-      activateSubscription({ planId: plan.id, workspaceId, provider: `braintree:${result.method ?? 'card'}`, payment: result });
+      activateSubscription({ planId: plan.id, workspaceId: intent.workspace_id, provider: `braintree:${result.method ?? 'card'}`, payment: result });
+      run('UPDATE payment_intents SET status = ?, completed_at = ?, meta_json = ? WHERE id = ?', [
+        'completed', now(), JSON.stringify({ transactionId: result.transactionId }), intent.id
+      ]);
     }
     res.json(result);
   } catch (e) {
@@ -147,24 +191,22 @@ platformRouter.get('/billing/paypal/cancel', (_req, res) => {
   res.send('<body style="font-family:sans-serif;background:#08080a;color:#f4f4f5;display:grid;place-items:center;height:100vh"><div style="text-align:center"><h2>Payment cancelled</h2><p>No charge was made. You can close this window.</p></div></body>');
 });
 
-platformRouter.post('/billing/portal', (_req, res) => {
+platformRouter.post('/billing/portal', requireAuth, (_req, res) => {
   res.status(501).json({
     error: 'Self-serve portal pending',
     detail: 'Subscription management (change plan, cancel) happens in Ember Desktop → Billing; PayPal subscription agreements land with the Braintree integration.'
   });
 });
 
-platformRouter.get('/billing/history', (_req, res) => {
+platformRouter.get('/billing/history', requireAuth, (_req, res) => {
   // Invoices come from Stripe once configured; local usage events meanwhile.
   res.json({ invoices: [], note: 'Invoices appear here after Stripe is configured.' });
 });
 
 // ---------- team ----------
-platformRouter.get('/team', async (req, res) => {
-  const workspaceId = req.query.workspaceId ?? null;
-  const members = workspaceId
-    ? all('SELECT * FROM team_members WHERE workspace_id = ?', [workspaceId])
-    : all('SELECT * FROM team_members');
+platformRouter.get('/team', requireAuth, async (req, res) => {
+  const workspace = userWorkspace(req);
+  const members = all('SELECT * FROM team_members WHERE workspace_id = ?', [workspace.id]);
   let shaped = members.map((m) => ({ id: m.id, workspaceId: m.workspace_id, email: m.email, role: m.role, status: m.status, invitedAt: m.invited_at }));
 
   // merge cloud members (Supabase) — cloud workspace owners appear even on a fresh local DB
@@ -182,15 +224,11 @@ platformRouter.get('/team', async (req, res) => {
   res.json({ roles: TEAM_ROLES, members: shaped });
 });
 
-platformRouter.post('/team/invite', (req, res) => {
-  const { workspaceId = null, email, role = 'viewer' } = req.body ?? {};
+platformRouter.post('/team/invite', requireAuth, (req, res) => {
+  const { email, role = 'viewer' } = req.body ?? {};
   if (!email) return res.status(400).json({ error: 'email is required' });
   if (!TEAM_ROLES.includes(role)) return res.status(400).json({ error: `role must be one of ${TEAM_ROLES.join(', ')}` });
-  let wsId = workspaceId ?? get('SELECT id FROM workspaces ORDER BY created_at ASC LIMIT 1')?.id;
-  if (!wsId) {
-    wsId = makeId('ws');
-    run('INSERT INTO workspaces (id, name, created_at) VALUES (?, ?, ?)', [wsId, 'Local Workspace', now()]);
-  }
+  const wsId = userWorkspace(req).id;
   const id = makeId('tm');
   run('INSERT INTO team_members (id, workspace_id, email, role, status, invited_at) VALUES (?, ?, ?, ?, ?, ?)', [
     id, wsId, String(email).toLowerCase(), role, 'invited', now()
@@ -202,8 +240,8 @@ platformRouter.post('/team/invite', (req, res) => {
   res.status(201).json({ id, email, role, status: 'invited', note: 'Invite stored. Email delivery pending SMTP configuration (placeholder).' });
 });
 
-platformRouter.delete('/team/:id', (req, res) => {
-  const member = get('SELECT * FROM team_members WHERE id = ?', [req.params.id]);
+platformRouter.delete('/team/:id', requireAuth, (req, res) => {
+  const member = get('SELECT * FROM team_members WHERE id = ? AND workspace_id = ?', [req.params.id, userWorkspace(req).id]);
   if (!member) return res.status(404).json({ error: 'Team member not found (it may only exist in the cloud workspace).' });
   if (member.role === 'owner') return res.status(400).json({ error: 'The workspace owner cannot be removed.' });
   run('DELETE FROM team_members WHERE id = ?', [req.params.id]);
@@ -211,11 +249,11 @@ platformRouter.delete('/team/:id', (req, res) => {
 });
 
 // ---------- exports / imports ----------
-platformRouter.get('/exports', (_req, res) => {
+platformRouter.get('/exports', requireAuth, (_req, res) => {
   res.json(all('SELECT * FROM exports ORDER BY created_at DESC LIMIT 100').map((e) => ({ id: e.id, kind: e.kind, format: e.format, status: e.status, createdAt: e.created_at })));
 });
 
-platformRouter.post('/exports', (req, res) => {
+platformRouter.post('/exports', requireAuth, (req, res) => {
   const { kind = 'report', format = 'json', payload = {} } = req.body ?? {};
   if (format === 'pdf') {
     return res.status(501).json({ error: 'PDF export is planned — use json or markdown for now.' });
@@ -227,7 +265,7 @@ platformRouter.post('/exports', (req, res) => {
   res.status(201).json({ id, kind, format, status: 'completed' });
 });
 
-platformRouter.post('/imports', (req, res) => {
+platformRouter.post('/imports', requireAuth, (req, res) => {
   const { kind, payload } = req.body ?? {};
   const supported = ['ember-config', 'report', 'bug-list', 'test-plan', 'settings', 'logs'];
   if (!supported.includes(kind)) return res.status(400).json({ error: `kind must be one of ${supported.join(', ')}` });
@@ -284,7 +322,7 @@ platformRouter.post('/imports', (req, res) => {
 });
 
 // ---------- sharing ----------
-platformRouter.post('/reports/:id/share', (req, res) => {
+platformRouter.post('/reports/:id/share', requireAuth, (req, res) => {
   const report = get('SELECT id FROM reports WHERE id = ?', [req.params.id]);
   if (!report) return res.status(404).json({ error: 'report not found' });
   const { visibility = 'private' } = req.body ?? {};
@@ -304,7 +342,7 @@ platformRouter.get('/shared/:token', (req, res) => {
 });
 
 // ---------- notifications ----------
-platformRouter.get('/notifications', (_req, res) => {
+platformRouter.get('/notifications', requireAuth, (_req, res) => {
   res.json(all('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 100').map((n) => ({
     id: n.id, type: n.type, title: n.title, body: n.body, read: !!n.read, createdAt: n.created_at
   })));
@@ -314,7 +352,7 @@ platformRouter.get('/notifications', (_req, res) => {
 // desktop app's local agent, not on the server, so the client posts them
 // here to keep the Notification Center a real, persistent, cross-session feed).
 const NOTIFICATION_TYPES = ['scan-completed', 'critical-bug', 'report-generated', 'payment-succeeded', 'subscription-expired', 'project-disconnected', 'backend-error', 'update-available', 'teammate-invited', 'import-failed'];
-platformRouter.post('/notifications', (req, res) => {
+platformRouter.post('/notifications', requireAuth, (req, res) => {
   const { type, title, body = null } = req.body ?? {};
   if (!type || !NOTIFICATION_TYPES.includes(type)) return res.status(400).json({ error: `type must be one of ${NOTIFICATION_TYPES.join(', ')}` });
   if (!title) return res.status(400).json({ error: 'title is required' });
@@ -323,18 +361,18 @@ platformRouter.post('/notifications', (req, res) => {
   res.status(201).json({ id, type, title, body, read: false, createdAt: now() });
 });
 
-platformRouter.post('/notifications/:id/read', (req, res) => {
+platformRouter.post('/notifications/:id/read', requireAuth, (req, res) => {
   run('UPDATE notifications SET read = 1 WHERE id = ?', [req.params.id]);
   res.json({ ok: true });
 });
 
-platformRouter.post('/notifications/read-all', (_req, res) => {
+platformRouter.post('/notifications/read-all', requireAuth, (_req, res) => {
   run('UPDATE notifications SET read = 1 WHERE read = 0');
   res.json({ ok: true });
 });
 
 // ---------- usage metrics (real counts from the database) ----------
-platformRouter.get('/usage', (_req, res) => {
+platformRouter.get('/usage', requireAuth, (_req, res) => {
   const count = (sql, params = []) => get(sql, params)?.n ?? 0;
   res.json({
     projectsConnected: count('SELECT COUNT(*) AS n FROM projects WHERE archived = 0'),

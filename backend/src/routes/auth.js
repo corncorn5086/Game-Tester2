@@ -4,8 +4,22 @@ import { makeId } from '@ember/shared/constants';
 import { get, all, run, now, j } from '../db.js';
 import { createSession, destroySession, ensureDefaultWorkspace, hashPassword, publicUser, requireAuth, verifyPassword, pickAvatarColor } from '../auth.js';
 import { cloudUserByEmail, mirrorUser } from '../supabase.js';
+import { rateLimit } from '../middleware.js';
 
 export const authRouter = Router();
+
+/**
+ * Verification/reset codes are NEVER returned in API responses unless the
+ * operator explicitly opts in with EMBER_DEV_CODES=1 (local development
+ * without an email transport). Otherwise the code is printed to the server
+ * log only, and the response says where to find it.
+ */
+const DEV_CODES = process.env.EMBER_DEV_CODES === '1';
+function deliverCode(kind, user, code) {
+  if (DEV_CODES) return { [kind]: code, delivery: 'dev-response (EMBER_DEV_CODES=1)' };
+  console.log(`[ember-backend] ${kind} for ${user.email}: ${code} (email/SMS transport not configured — set EMBER_DEV_CODES=1 to return codes in dev responses)`);
+  return { delivery: 'server-log', note: 'No email/SMS transport is configured — the code was written to the backend server log.' };
+}
 
 const USERNAME_RE = /^[a-zA-Z0-9_.]{3,32}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,7 +32,7 @@ function validatePassword(pw) {
   return null;
 }
 
-authRouter.post('/auth/signup', (req, res) => {
+authRouter.post('/auth/signup', rateLimit('signup', 10), (req, res) => {
   const {
     email, password, name, username,
     dob, phone, address, role, userType, company, goal, tosAccepted,
@@ -51,16 +65,17 @@ authRouter.post('/auth/signup', (req, res) => {
   const user = get('SELECT * FROM users WHERE id = ?', [id]);
   mirrorUser(user);
 
-  // Issue an email verification code (returned here until email transport ships).
+  // Issue an email verification code. It is delivered via server log (or the
+  // response in explicit dev mode) — never silently returned in production.
   const code = String(Math.floor(100000 + Math.random() * 900000));
   run('INSERT INTO auth_tokens (token, user_id, kind, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)', [
     randomBytes(16).toString('hex'), id, 'email-verify', code, now(), new Date(Date.now() + 864e5).toISOString()
   ]);
 
-  res.status(201).json({ token, user: publicUser(user), workspace: { id: workspace.id, name: workspace.name }, verifyCode: code });
+  res.status(201).json({ token, user: publicUser(user), workspace: { id: workspace.id, name: workspace.name }, verification: deliverCode('verifyCode', user, code) });
 });
 
-authRouter.post('/auth/login', async (req, res) => {
+authRouter.post('/auth/login', rateLimit('login', 20), async (req, res) => {
   const { email, password } = req.body ?? {};
   const normalized = String(email ?? '').toLowerCase();
   let user = get('SELECT * FROM users WHERE email = ?', [normalized]);
@@ -151,23 +166,24 @@ authRouter.post('/auth/change-password', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// Forgot password: issue a reset token. Responds identically whether or not the
-// account exists (no user enumeration). The token is returned here until email
-// delivery is configured.
-authRouter.post('/auth/forgot-password', (req, res) => {
+// Forgot password: issue a reset token. Responds identically whether or not
+// the account exists (no user enumeration), and the token itself is only
+// delivered via server log (or the response in explicit dev mode).
+authRouter.post('/auth/forgot-password', rateLimit('forgot-password', 5), (req, res) => {
   const email = String(req.body?.email ?? '').toLowerCase();
   const user = get('SELECT * FROM users WHERE email = ?', [email]);
-  let resetToken;
+  let delivery;
   if (user) {
-    resetToken = randomBytes(24).toString('hex');
+    const resetToken = randomBytes(24).toString('hex');
     run('INSERT INTO auth_tokens (token, user_id, kind, created_at, expires_at) VALUES (?, ?, ?, ?, ?)', [
       resetToken, user.id, 'password-reset', now(), new Date(Date.now() + 36e5).toISOString()
     ]);
+    delivery = deliverCode('resetToken', user, resetToken);
   }
-  res.json({ ok: true, message: 'If this email has an account, a reset link has been issued.', resetToken });
+  res.json({ ok: true, message: 'If this email has an account, a reset link has been issued.', ...(DEV_CODES ? delivery : {}) });
 });
 
-authRouter.post('/auth/reset-password', (req, res) => {
+authRouter.post('/auth/reset-password', rateLimit('reset-password', 10), (req, res) => {
   const { token, newPassword } = req.body ?? {};
   const row = get('SELECT * FROM auth_tokens WHERE token = ? AND kind = ?', [token, 'password-reset']);
   if (!row || row.used || row.expires_at < now()) return res.status(400).json({ error: 'This reset link is invalid or has expired' });
@@ -181,7 +197,7 @@ authRouter.post('/auth/reset-password', (req, res) => {
 });
 
 // Email verification (code issued at signup).
-authRouter.post('/auth/verify-email', requireAuth, (req, res) => {
+authRouter.post('/auth/verify-email', requireAuth, rateLimit('verify-email', 10), (req, res) => {
   const { code } = req.body ?? {};
   const row = get('SELECT * FROM auth_tokens WHERE user_id = ? AND kind = ? AND used = 0 ORDER BY created_at DESC LIMIT 1', [req.user.id, 'email-verify']);
   if (!row || row.expires_at < now()) return res.status(400).json({ error: 'No pending verification — request a new code' });
@@ -192,21 +208,21 @@ authRouter.post('/auth/verify-email', requireAuth, (req, res) => {
   res.json({ ok: true, emailVerified: true });
 });
 
-authRouter.post('/auth/resend-email-code', requireAuth, (req, res) => {
+authRouter.post('/auth/resend-email-code', requireAuth, rateLimit('resend-email', 5), (req, res) => {
   const code = String(Math.floor(100000 + Math.random() * 900000));
   run('INSERT INTO auth_tokens (token, user_id, kind, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)', [
     randomBytes(16).toString('hex'), req.user.id, 'email-verify', code, now(), new Date(Date.now() + 864e5).toISOString()
   ]);
-  res.json({ ok: true, verifyCode: code });
+  res.json({ ok: true, verification: deliverCode('verifyCode', req.user, code) });
 });
 
 // Phone verification (optional): issue and confirm a code.
-authRouter.post('/auth/verify-phone/start', requireAuth, (req, res) => {
+authRouter.post('/auth/verify-phone/start', requireAuth, rateLimit('verify-phone', 5), (req, res) => {
   const code = String(Math.floor(100000 + Math.random() * 900000));
   run('INSERT INTO auth_tokens (token, user_id, kind, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)', [
     randomBytes(16).toString('hex'), req.user.id, 'phone-verify', code, now(), new Date(Date.now() + 6e5).toISOString()
   ]);
-  res.json({ ok: true, code }); // returned until SMS transport ships
+  res.json({ ok: true, verification: deliverCode('phoneCode', req.user, code) });
 });
 
 authRouter.post('/auth/verify-phone/confirm', requireAuth, (req, res) => {

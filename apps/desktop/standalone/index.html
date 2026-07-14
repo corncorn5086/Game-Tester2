@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>
+/* Ember Desktop: load React/ReactDOM/Babel from bundled local copies instead of
+   unpkg, and (by defining window.__resources) skip the runtime's fetch(location.href)
+   re-parse that blanked the screen. Makes the app work fully offline. */
+window.__resources = {
+  "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "/vendor/react.production.min.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "/vendor/react-dom.production.min.js",
+  "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js": "/vendor/babel.min.js"
+};
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
@@ -1904,6 +1914,7 @@ float snoise(vec3 v){
 })();
 
 </script>
+  <title>Ember Desktop</title>
 </head>
 <body>
 <x-dc>
@@ -2041,8 +2052,13 @@ float snoise(vec3 v){
               <div style="padding:12px 16px; border-radius:12px; background:rgba(200,51,15,.07); border:1px solid rgba(200,51,15,.25); color:#c8330f; font-size:13px; font-weight:500; animation:riseIn .3s both;">{{ authErr }}</div>
             </sc-if>
             <button onClick="{{ doAuth }}" style="width:100%; padding:15px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:15px; font-weight:600; transition:all .25s; margin-top:4px;" style-hover="transform:translateY(-2px); box-shadow:0 14px 34px rgba(232,84,16,.35); background:#f25c14;">{{ aSubmit }}</button>
+            <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+              <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:12.5px; line-height:1.5; color:rgba(26,21,18,.6);">
+                <button onClick="{{ flipTos }}" style="width:18px; height:18px; border-radius:5px; border:1.5px solid {{ tosBoxBd }}; background:{{ tosBoxBg }}; color:#fff; font-size:11px; line-height:1; cursor:pointer; flex:none; margin-top:1px; display:grid; place-items:center;">{{ tosMark }}</button>
+                <span>I accept the Terms of Service and the Privacy Policy. Required to create an account — not pre-checked on purpose.</span>
+              </label>
+            </sc-if>
             <div style="text-align:center; font-size:13.5px; color:rgba(26,21,18,.55);">{{ aSwapQ }} <button onClick="{{ toggleMode }}" style="border:none; background:none; cursor:pointer; color:#d4520a; font-weight:600; font-size:13.5px;">{{ aSwapA }}</button></div>
-            <button onClick="{{ localOnly }}" style="border:none; background:none; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:rgba(26,21,18,.4); padding-top:6px; transition:color .25s;" style-hover="color:#d4520a;">{{ aLocal }}</button>
           </div>
         </div>
       </div>
@@ -2076,9 +2092,6 @@ float snoise(vec3 v){
         <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.12em; color:{{ modeColor }}; display:flex; align-items:center; gap:8px; padding:7px 13px; border:1px solid rgba(26,21,18,.1); border-radius:100px;">
           <span style="width:6px; height:6px; border-radius:50%; background:{{ modeDot }};"></span>{{ modeLabel }}
         </div>
-        <button onClick="{{ openPalette }}" style="display:flex; align-items:center; gap:9px; padding:8px 13px; border-radius:100px; border:1px solid rgba(26,21,18,.12); background:#fff; cursor:pointer; font-size:12.5px; font-weight:500; color:rgba(26,21,18,.6); transition:all .25s;" style-hover="border-color:#e85410; color:#1a1512;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:2px 6px; border-radius:6px; background:rgba(26,21,18,.06); border:1px solid rgba(26,21,18,.08);">⌘K</span>{{ tCommands }}
-        </button>
         <button onClick="{{ toggleBell }}" style="position:relative; width:36px; height:36px; border-radius:50%; border:1px solid rgba(26,21,18,.12); background:#fff; cursor:pointer; display:grid; place-items:center; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
           <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
@@ -2095,7 +2108,7 @@ float snoise(vec3 v){
         <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
           <div data-screen-label="Home" style="max-width:1180px; margin:0 auto; padding:52px 44px 170px; animation:viewIn .55s both;">
             <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">00 — COMMAND CENTER</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">00 — OVERVIEW</div>
               <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:rgba(26,21,18,.4);">{{ dateStr }}</div>
             </div>
             <h1 style="margin-top:18px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(46px,5.6vw,84px); line-height:.95; letter-spacing:-.028em; max-width:900px;">
@@ -2157,9 +2170,9 @@ float snoise(vec3 v){
             <!-- Last aftermath band -->
             <sc-if value="{{ hasReports }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:20px; background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:24px; padding:26px 32px; display:flex; align-items:center; gap:30px; box-shadow:0 30px 70px rgba(26,21,18,.06); animation:riseIn .6s both;">
-                <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:44px; color:#e85410; line-height:1;">{{ lastStability }}</div>
+                <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:44px; color:#e85410; line-height:1;">{{ lastHeadline }}</div>
                 <div style="flex:1;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.45);">LAST AFTERMATH — STABILITY</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.45);">LAST REPORT — REAL FINDINGS</div>
                   <div style="margin-top:5px; font-size:14.5px; color:rgba(26,21,18,.65);">{{ lastMeta }}</div>
                 </div>
                 <button onClick="{{ openLastReport }}" style="padding:11px 22px; border-radius:100px; border:1px solid rgba(26,21,18,.16); background:transparent; cursor:pointer; font-size:13.5px; font-weight:600; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">{{ tOpenReport }} →</button>
@@ -2224,7 +2237,7 @@ float snoise(vec3 v){
                 <div style="width:14px; height:14px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffd9a8, #e85410 55%, #a02c08); margin:0 auto; animation:emberPulse 2s ease-in-out infinite;"></div>
                 <div style="margin-top:22px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em; color:rgba(26,21,18,.4);">NOTHING TO READ YET</div>
                 <h2 style="margin-top:12px; font-family:'Bricolage Grotesque'; font-weight:600; font-size:28px; letter-spacing:-.015em;">Run the agent — the aftermath lands here.</h2>
-                <p style="margin-top:12px; font-size:15px; line-height:1.6; color:rgba(26,21,18,.55); max-width:440px; margin-left:auto; margin-right:auto;">Every run produces a full report: findings with file &amp; line evidence, log issues, severity breakdown and a stability score.</p>
+                <p style="margin-top:12px; font-size:15px; line-height:1.6; color:rgba(26,21,18,.55); max-width:440px; margin-left:auto; margin-right:auto;">Every run produces a full report: findings with file &amp; line evidence, log issues, severity breakdown and honestly-blocked checks.</p>
                 <button onClick="{{ igniteSmoke }}" style="margin-top:28px; padding:14px 30px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:14px; font-weight:600; transition:all .25s;" style-hover="transform:translateY(-2px); box-shadow:0 14px 34px rgba(232,84,16,.35);">Ignite a run</button>
               </div>
             </sc-if>
@@ -2238,7 +2251,7 @@ float snoise(vec3 v){
                       <div style="margin-top:3px; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; color:rgba(26,21,18,.4);">{{ r.dateLabel }}</div>
                     </div>
                     <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(26,21,18,.55);">{{ r.meta }}</div>
-                    <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:22px; color:#e85410;">{{ r.stability }}</div>
+                    <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:22px; color:#e85410;">{{ r.sevLabel }}</div>
                     <div style="font-size:18px; color:rgba(26,21,18,.3);">›</div>
                   </button>
                 </sc-for>
@@ -2364,8 +2377,8 @@ float snoise(vec3 v){
                 <div style="border-radius:22px; padding:28px 26px; display:flex; flex-direction:column; background:{{ bp.bg }}; color:{{ bp.color }}; border:1px solid {{ bp.bd }}; box-shadow:{{ bp.shadow }}; transition:transform .3s; animation:riseIn .5s both;" style-hover="transform:translateY(-5px);">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:19px;">{{ bp.name }}</div>
-                    <sc-if value="{{ bp.hot }}" hint-placeholder-val="{{ false }}">
-                      <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; color:#ffd27a; border:1px solid rgba(255,210,122,.4); padding:4px 10px; border-radius:100px;">POPULAR</span>
+                    <sc-if value="{{ bp.badge }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; color:#ffd27a; border:1px solid rgba(255,210,122,.4); padding:4px 10px; border-radius:100px;">{{ bp.badge }}</span>
                     </sc-if>
                   </div>
                   <div style="margin-top:14px; display:flex; align-items:baseline; gap:6px;">
@@ -2415,8 +2428,6 @@ float snoise(vec3 v){
           <button onClick="{{ igniteSmoke }}" style="display:flex; align-items:center; gap:8px; padding:10px 20px; border-radius:100px; border:none; cursor:pointer; background:linear-gradient(135deg,#ffd27a,#ff7a1a); color:#1a0f06; font-size:13px; font-weight:700; transition:all .25s;" style-hover="transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,122,26,.45);">{{ dockRunLabel }}</button>
           <button onClick="{{ openConnect }}" style="padding:10px 16px; border-radius:100px; border:none; cursor:pointer; background:transparent; color:rgba(243,237,228,.75); font-size:13px; font-weight:600; transition:all .25s;" style-hover="background:rgba(243,237,228,.08); color:#f3ede4;">Connect</button>
           <button onClick="{{ goReports }}" style="padding:10px 16px; border-radius:100px; border:none; cursor:pointer; background:transparent; color:rgba(243,237,228,.75); font-size:13px; font-weight:600; transition:all .25s;" style-hover="background:rgba(243,237,228,.08); color:#f3ede4;">Reports</button>
-          <div style="width:1px; height:20px; background:rgba(243,237,228,.12);"></div>
-          <button onClick="{{ openPalette }}" style="padding:8px 12px; border-radius:100px; border:1px solid rgba(243,237,228,.15); cursor:pointer; background:transparent; color:rgba(243,237,228,.6); font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; transition:all .25s;" style-hover="border-color:#ff8a3c; color:#ff9d4d;">⌘K</button>
         </div>
       </sc-if>
 
@@ -2594,14 +2605,9 @@ float snoise(vec3 v){
 
             <sc-if value="{{ sheetIsPrivacy }}" hint-placeholder-val="{{ false }}">
               <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
-                  <div>
-                    <div style="font-size:14px; font-weight:600;">Local-only mode</div>
-                    <div style="margin-top:3px; font-size:12.5px; line-height:1.5; color:rgba(26,21,18,.5);">Nothing leaves this machine. Sync off.</div>
-                  </div>
-                  <button onClick="{{ flipLocal }}" style="width:42px; height:24px; border-radius:100px; border:1px solid rgba(26,21,18,.14); background:{{ localBg }}; display:flex; align-items:center; padding:2px; justify-content:{{ localJust }}; cursor:pointer; flex:none; transition:background .25s;">
-                    <span style="width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25);"></span>
-                  </button>
+                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
+                  <div style="font-size:14px; font-weight:600;">On-device analysis</div>
+                  <div style="margin-top:6px; font-size:12.5px; line-height:1.55; color:rgba(26,21,18,.5);">The agent reads your project on this machine. Results sync to your workspace backend only when you are signed in and it is reachable.</div>
                 </div>
                 <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
                   <div style="font-size:14px; font-weight:600;">Telemetry</div>
@@ -2636,59 +2642,37 @@ float snoise(vec3 v){
         </div>
       </sc-if>
 
-      <!-- COMMAND PALETTE -->
-      <sc-if value="{{ paletteOn }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closePalette }}" style="position:fixed; inset:0; z-index:70; background:rgba(26,21,18,.35); backdrop-filter:blur(5px); animation:fadeIn .25s both;"></div>
-        <div style="position:fixed; top:16%; left:50%; transform:translateX(-50%); z-index:71; width:580px; background:#fff; border-radius:20px; box-shadow:0 60px 140px rgba(26,21,18,.35); overflow:hidden; animation:popIn .3s cubic-bezier(.2,.8,.2,1) both;">
-          <div style="display:flex; align-items:center; gap:12px; padding:6px 20px; border-bottom:1px solid rgba(26,21,18,.08);">
-            <span style="width:8px; height:8px; border-radius:50%; background:#e85410; animation:blink 1.6s infinite;"></span>
-            <input autoFocus="{{ true }}" value="{{ palQ }}" onChange="{{ onPalQ }}" onKeyDown="{{ onPalKey }}" placeholder="{{ palPlaceholder }}" style="flex:1; padding:16px 0; border:none; outline:none; background:transparent; font-size:16px; color:#1a1512;">
-            <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.1em; color:rgba(26,21,18,.35);">ESC</span>
-          </div>
-          <div style="max-height:340px; overflow-y:auto; padding:8px;">
-            <sc-for list="{{ palItems }}" as="pi" hint-placeholder-count="6">
-              <button onClick="{{ pi.run }}" onMouseEnter="{{ pi.hover }}" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border:none; border-radius:12px; background:{{ pi.bg }}; cursor:pointer; text-align:left; transition:background .15s;">
-                <span style="font-size:14px; font-weight:500; color:#1a1512; flex:1;">{{ pi.label }}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.12em; color:rgba(26,21,18,.35);">{{ pi.kind }}</span>
-              </button>
-            </sc-for>
-            <sc-if value="{{ palEmpty }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:16px; font-size:13.5px; color:rgba(26,21,18,.45);">No matching command.</div>
-            </sc-if>
-          </div>
-        </div>
-      </sc-if>
-
       <!-- CONNECT MODAL -->
       <sc-if value="{{ connectOn }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeConnect }}" style="position:fixed; inset:0; z-index:70; background:rgba(26,21,18,.35); backdrop-filter:blur(5px); animation:fadeIn .25s both;"></div>
-        <div data-screen-label="Connect Project" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:71; width:540px; background:#fff; border-radius:24px; box-shadow:0 60px 140px rgba(26,21,18,.35); padding:38px 40px; animation:popIn .35s cubic-bezier(.2,.8,.2,1) both;">
+        <div data-screen-label="Connect Project" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:71; width:560px; background:#fff; border-radius:24px; box-shadow:0 60px 140px rgba(26,21,18,.35); padding:38px 40px; animation:popIn .35s cubic-bezier(.2,.8,.2,1) both;">
           <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em; color:#d4520a;">CONNECT A PROJECT</div>
           <h2 style="margin-top:10px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:26px; letter-spacing:-.015em;">Point Ember at your game.</h2>
           <div style="margin-top:24px; display:flex; flex-direction:column; gap:16px;">
-            <div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">PROJECT NAME</div>
-              <input value="{{ cName }}" onChange="{{ onCName }}" placeholder="My Game" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#f8f4ec; font-size:14px; outline:none; transition:all .25s;" style-focus="border-color:#e85410; background:#fff; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-            </div>
-            <div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">PROJECT FOLDER</div>
-              <input value="{{ cPath }}" onChange="{{ onCPath }}" placeholder="/Users/you/games/my-game" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#f8f4ec; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; transition:all .25s;" style-focus="border-color:#e85410; background:#fff; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-            </div>
-            <div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">ENGINE</div>
-              <div style="display:flex; gap:7px; flex-wrap:wrap;">
-                <sc-for list="{{ engineBtns }}" as="eb" hint-placeholder-count="5">
-                  <button onClick="{{ eb.go }}" style="padding:9px 17px; border-radius:100px; border:1px solid {{ eb.bd }}; background:{{ eb.bg }}; color:{{ eb.color }}; font-size:12.5px; font-weight:600; cursor:pointer; transition:all .2s;">{{ eb.label }}</button>
+            <button onClick="{{ pickFolder }}" style="width:100%; padding:16px; border-radius:14px; border:1.5px dashed rgba(232,84,16,.5); background:rgba(232,84,16,.04); cursor:pointer; font-size:14.5px; font-weight:600; color:#e85410; transition:all .25s;" style-hover="background:rgba(232,84,16,.08); border-color:#e85410;">{{ pickLabel }}</button>
+            <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">SELECTED FOLDER</div>
+                <div style="padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#f8f4ec; font-size:12.5px; font-family:'JetBrains Mono',monospace; color:#1a1512; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ cPicked }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasCVal }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:14px 16px; border-radius:12px; background:{{ cValBg }}; border:1px solid {{ cValBd }};">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; color:{{ cValColor }};">{{ cValTitle }}</div>
+                <sc-for list="{{ cValLines }}" as="vl" hint-placeholder-count="2">
+                  <div style="margin-top:6px; font-size:12.5px; line-height:1.5; color:rgba(26,21,18,.65);">{{ vl.t }}</div>
                 </sc-for>
               </div>
-            </div>
+            </sc-if>
             <sc-if value="{{ hasCErr }}" hint-placeholder-val="{{ false }}">
               <div style="padding:11px 15px; border-radius:12px; background:rgba(200,51,15,.07); border:1px solid rgba(200,51,15,.25); color:#c8330f; font-size:12.5px; font-weight:500;">{{ cErr }}</div>
             </sc-if>
-            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em; line-height:1.7; color:rgba(26,21,18,.4);">ember.config.json will be written at the project root — smoke &amp; full profiles included.</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em; line-height:1.7; color:rgba(26,21,18,.4);">Ember validates the folder is a real game or code project (engine markers, source files) before anything is written. ember.config.json lands at the validated root only.</div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px;">
               <button onClick="{{ closeConnect }}" style="padding:12px 22px; border-radius:100px; border:1px solid rgba(26,21,18,.14); background:transparent; cursor:pointer; font-size:13.5px; font-weight:600; color:rgba(26,21,18,.6); transition:all .2s;" style-hover="color:#1a1512; border-color:rgba(26,21,18,.3);">Cancel</button>
-              <button onClick="{{ doConnect }}" style="padding:12px 26px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:13.5px; font-weight:600; transition:all .25s;" style-hover="background:#f25c14; transform:translateY(-1px); box-shadow:0 12px 30px rgba(232,84,16,.35);">Connect →</button>
+              <sc-if value="{{ canConnect }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ doConnect }}" style="padding:12px 26px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:13.5px; font-weight:600; transition:all .25s;" style-hover="background:#f25c14; transform:translateY(-1px); box-shadow:0 12px 30px rgba(232,84,16,.35);">Connect →</button>
+              </sc-if>
             </div>
           </div>
         </div>
@@ -2789,59 +2773,99 @@ float snoise(vec3 v){
   </sc-if>
 </div>
 </x-dc>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{&quot;startPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;splash&quot;,&quot;welcome&quot;,&quot;auth&quot;,&quot;app&quot;],&quot;default&quot;:&quot;welcome&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;showDock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;startPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;splash&quot;,&quot;welcome&quot;,&quot;auth&quot;,&quot;app&quot;],&quot;default&quot;:&quot;welcome&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;showDock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
 class Component extends DCLogic {
   state = {
     phase: null, lang: null, splash: [],
-    authMode: 'signin', aName: '', aEmail: '', aPass: '', authErr: '',
-    user: null,
+    authMode: 'signin', aName: '', aEmail: '', aPass: '', authErr: '', tosOk: false, authBusy: false,
+    user: null, token: null,
     view: 'home',
-    project: null, configText: '',
+    project: null, configText: '', backendProjectId: null,
     reports: [], notifs: [], plans: [],
     running: false, runLines: [],
     sheetOpen: false, sheetPage: 'root',
-    paletteOpen: false, palQ: '', palSel: 0,
     bellOpen: false,
-    connectOpen: false, cName: '', cPath: '', cEngine: 'unity', cErr: '',
+    backendUp: null, backendVersion: '',
+    connectOpen: false, cPicked: '', cVal: null, cErr: '', connecting: false,
     planOpen: false, planName: '', planErr: '', planChecks: { scan: true, analyze: true, logs: true, build: false, test: false, launch: false, regression: false },
     reportView: null,
     pName: null, pEmail: null,
     pw1: '', pw2: '', pw3: '', pwErr: '',
-    prefs: { reduceMotion: false, notifRuns: true, notifCritical: true, notifBilling: false, compact: false, localOnly: true },
+    prefs: { reduceMotion: false, notifRuns: true, notifCritical: true, notifBilling: false, compact: false },
     toastMsg: ''
   };
 
   // ---------- infra ----------
+  API = window.EMBER_API_URL || 'http://localhost:4310';
+  hasBridge() { return typeof window !== 'undefined' && !!window.emberDesktop; }
+
   componentDidMount() {
     this._timers = [];
-    if (this.curPhase() === 'splash') this.runSplash();
+    if (this.curPhase() === 'splash') this.runSplash(); else this.checkBackend();
+    if (this.hasBridge()) {
+      this._unsubStep = window.emberDesktop.onRunStep((step) => {
+        if (step.type === 'output') return;
+        const colors = { start: '#ff9d4d', running: '#9a958f', done: '#2f9e6b', failed: '#ff6a4d', blocked: '#ffd27a', error: '#ff6a4d', finish: '#ff9d4d' };
+        const prefix = step.check ? '[' + step.check + '] ' : '';
+        this.setState(s => ({ runLines: [...s.runLines, { t: '› ' + prefix + step.message, c: colors[step.type] || '#9a958f' }].slice(-60) }));
+      });
+    }
     this._key = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        if (this.curPhase() === 'app') { e.preventDefault(); this.setState(s => ({ paletteOpen: !s.paletteOpen, palQ: '', palSel: 0 })); }
-        return;
-      }
-      if (e.key === 'Escape') this.setState({ paletteOpen: false, bellOpen: false, sheetOpen: false, connectOpen: false, planOpen: false, reportView: null });
+      if (e.key === 'Escape') this.setState({ bellOpen: false, sheetOpen: false, connectOpen: false, planOpen: false, reportView: null });
     };
     window.addEventListener('keydown', this._key);
   }
-  componentWillUnmount() { (this._timers || []).forEach(clearTimeout); clearTimeout(this._tt); window.removeEventListener('keydown', this._key); }
+  componentWillUnmount() { (this._timers || []).forEach(clearTimeout); clearTimeout(this._tt); window.removeEventListener('keydown', this._key); if (this._unsubStep) this._unsubStep(); }
   after(ms, fn) { this._timers.push(setTimeout(fn, ms)); }
   curPhase() { return this.state.phase ?? (this.props.startPhase ?? 'splash'); }
   curLang() { return this.state.lang ?? (this.props.defaultLang ?? 'en'); }
-  toast(msg) { this.setState({ toastMsg: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toastMsg: '' }), 2800); }
+  toast(msg) { this.setState({ toastMsg: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toastMsg: '' }), 3200); }
   notify(title, body) { this.setState(s => ({ notifs: [{ id: Date.now() + Math.random(), title, body, at: new Date(), read: false }, ...s.notifs] })); }
-  hashN(str, mod, base) { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return base + (h % mod); }
 
-  runSplash() {
-    const lines = [
-      ['› checking agent core…', '#8b857f'],
-      ['✓ agent core 0.2.0', '#2f9e6b'],
-      ['› checking backend…', '#8b857f'],
-      ['· backend offline — local-first mode', '#d4520a'],
-      ['✓ forge ready', '#2f9e6b']
-    ];
-    lines.forEach((l, i) => this.after(350 + i * 340, () => this.setState(s => ({ splash: [...s.splash, { t: l[0], c: l[1] }] }))));
-    this.after(350 + lines.length * 340 + 650, () => this.setState({ phase: 'welcome' }));
+  async api(method, path, body) {
+    const headers = { 'content-type': 'application/json' };
+    if (this.state.token) headers.authorization = 'Bearer ' + this.state.token;
+    const res = await fetch(this.API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) { const err = new Error((data && data.error) || (method + ' ' + path + ' → ' + res.status)); err.status = res.status; throw err; }
+    return data;
+  }
+
+  async checkBackend() {
+    try {
+      const res = await fetch(this.API + '/health', { signal: AbortSignal.timeout(4000) });
+      const data = await res.json();
+      this.setState({ backendUp: data.status === 'ok', backendVersion: data.version || '' });
+      return data.status === 'ok';
+    } catch (e) {
+      this.setState({ backendUp: false });
+      return false;
+    }
+  }
+
+  // Real startup checks — nothing here is scripted output. Inside the
+  // desktop shell the backend auto-starts with the app, so we wait for it
+  // briefly instead of telling customers to run terminal commands.
+  async waitForBackend(tries = 5, delayMs = 1200) {
+    for (let i = 0; i < tries; i++) {
+      if (await this.checkBackend()) return true;
+      await new Promise(r => setTimeout(r, delayMs));
+    }
+    return false;
+  }
+  async runSplash() {
+    const push = (t, c) => this.setState(s => ({ splash: [...s.splash, { t, c }] }));
+    push('› checking agent…', '#8b857f');
+    await new Promise(r => setTimeout(r, 350));
+    if (this.hasBridge()) push('✓ agent ready', '#2f9e6b');
+    else push('· browser preview — folder picking & runs need Ember Desktop', '#d4870a');
+    push('› starting local services…', '#8b857f');
+    const up = await this.waitForBackend(this.hasBridge() ? 5 : 1);
+    if (up) push('✓ services online — v' + this.state.backendVersion, '#2f9e6b');
+    else if (this.hasBridge()) push('! services still starting — sign-in will retry automatically', '#d4870a');
+    else push('! services offline (dev preview: npm run dev:backend)', '#d4870a');
+    push('✓ ready', '#2f9e6b');
+    this.after(700, () => this.setState({ phase: 'welcome' }));
   }
 
   // ---------- i18n (welcome + auth) ----------
@@ -2849,38 +2873,44 @@ class Component extends DCLogic {
     const en = {
       wKicker: 'EMBER DESKTOP — FIRST IGNITION',
       wWords: ['Welcome', 'to', 'the'], wOrange: 'forge.',
-      wSub: 'Ember scans your game, mines the logs, runs your commands — and writes the aftermath report. Local-first, with clear blocked states when a hook is missing.',
+      wSub: 'Ember scans your game, mines the logs, runs your commands — and writes the report. Real signals only, with clear blocked states when a hook is missing.',
       wCta: 'Create account', wCta2: 'Sign in',
       aKicker: '01 — ACCESS', hSignin: 'Back to the fire.', hSignup: 'Join the forge.',
-      aSub: 'One account for your projects, reports and team. Everything stays on your machine until you say otherwise.',
-      bullets: ['Local-first — your code never leaves', 'Clear blocked states', 'Free during the ignition beta'],
+      aSub: 'One account for your projects, reports and team. The agent reads your code on this machine; results sync to your workspace.',
+      bullets: ['On-device analysis — the agent runs on your machine', 'Clear blocked states, never fake results', 'Free during the ignition beta'],
       lName: 'FULL NAME', lEmail: 'EMAIL', lPass: 'PASSWORD', phName: 'Ada Lovelace',
       signin: 'Sign in', signup: 'Create account', formSignin: 'Sign in', formSignup: 'Create your account',
       swapQ1: 'No account yet?', swapA1: 'Create one', swapQ2: 'Already have an account?', swapA2: 'Sign in',
-      forgot: 'Forgot?', local: 'CONTINUE WITHOUT AN ACCOUNT — LOCAL-ONLY →',
-      errName: 'Tell us your name.', errEmail: 'That email doesn\u2019t look right.', errPass: 'Password needs at least 8 characters.',
-      forgotToast: 'Local-only accounts do not use email reset. Sign in locally or contact your workspace admin.'
+      forgot: 'Forgot?',
+      errName: 'Tell us your name.', errEmail: 'That email doesn’t look right.', errPass: 'Password needs at least 8 characters, one uppercase letter and a number.',
+      errTos: 'You must accept the Terms and Privacy Policy to create an account.',
+      errService: 'We can’t reach Ember’s local service right now. Please wait a few seconds and try again — if it keeps happening, restart Ember Desktop.',
+      errServiceDev: '(Dev preview: run `npm run dev:backend`.)'
     };
     const fr = {
       wKicker: 'EMBER DESKTOP — PREMIER ALLUMAGE',
       wWords: ['Bienvenue', 'dans', 'la'], wOrange: 'forge.',
-      wSub: 'Ember scanne votre jeu, fouille les logs, exécute vos commandes — puis rédige le rapport. Local d\u2019abord, avec des états bloqués clairs quand un hook manque.',
+      wSub: 'Ember scanne votre jeu, fouille les logs, exécute vos commandes — puis rédige le rapport. Signaux réels seulement, avec des états bloqués clairs quand un hook manque.',
       wCta: 'Créer un compte', wCta2: 'Se connecter',
       aKicker: '01 — ACCÈS', hSignin: 'Retour au feu.', hSignup: 'Rejoindre la forge.',
-      aSub: 'Un compte pour vos projets, rapports et votre équipe. Tout reste sur votre machine tant que vous ne décidez pas autrement.',
-      bullets: ['Local d\u2019abord — votre code ne sort jamais', 'États bloqués clairs', 'Gratuit pendant la bêta'],
+      aSub: 'Un compte pour vos projets, rapports et votre équipe. L’agent lit votre code sur cette machine ; les résultats se synchronisent à votre espace.',
+      bullets: ['Analyse sur votre machine', 'États bloqués clairs, jamais de faux résultats', 'Gratuit pendant la bêta'],
       lName: 'NOM COMPLET', lEmail: 'COURRIEL', lPass: 'MOT DE PASSE', phName: 'Ada Lovelace',
       signin: 'Se connecter', signup: 'Créer un compte', formSignin: 'Connexion', formSignup: 'Créer votre compte',
       swapQ1: 'Pas encore de compte ?', swapA1: 'Créez-en un', swapQ2: 'Déjà un compte ?', swapA2: 'Connectez-vous',
-      forgot: 'Oublié ?', local: 'CONTINUER SANS COMPTE — LOCAL SEULEMENT →',
-      errName: 'Dites-nous votre nom.', errEmail: 'Ce courriel ne semble pas valide.', errPass: 'Le mot de passe doit faire au moins 8 caractères.',
-      forgotToast: 'Les comptes locaux n\u2019utilisent pas la réinitialisation par courriel. Connectez-vous localement ou contactez votre admin.'
+      forgot: 'Oublié ?',
+      errName: 'Dites-nous votre nom.', errEmail: 'Ce courriel ne semble pas valide.', errPass: 'Au moins 8 caractères, une majuscule et un chiffre.',
+      errTos: 'Vous devez accepter les Conditions et la Politique de confidentialité.',
+      errService: 'Impossible de joindre le service local d’Ember pour le moment. Patientez quelques secondes puis réessayez — si ça persiste, redémarrez Ember Desktop.',
+      errServiceDev: '(Aperçu dev : lancez `npm run dev:backend`.)'
     };
     return this.curLang() === 'fr' ? fr : en;
   }
 
-  // ---------- auth ----------
-  doAuth = () => {
+  // ---------- auth (real backend accounts only) ----------
+  initialsOf(nm) { return nm.split(/[\s.\-_]+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || 'OP'; }
+
+  doAuth = async () => {
     const L = this.dict();
     const { authMode } = this.state;
     const name = (this.state.aName || '').trim();
@@ -2889,152 +2919,178 @@ class Component extends DCLogic {
     if (authMode === 'signup' && !name) return this.setState({ authErr: L.errName });
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return this.setState({ authErr: L.errEmail });
     if (pass.length < 8) return this.setState({ authErr: L.errPass });
-    const nm = name || email.split('@')[0];
-    const initials = nm.split(/[\s.\-_]+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
-    this.setState({ user: { name: nm, email, initials }, phase: 'app', authErr: '', view: 'home' });
-    this.notify('Welcome to the forge', 'Signed in as ' + email + ' — local-first mode');
-    this.toast('Signed in — local-first mode');
-  };
-  localOnly = () => {
-    this.setState({ user: { name: 'Local operator', email: 'local-only · no account', initials: 'LO', local: true }, phase: 'app', authErr: '', view: 'home' });
-    this.toast('Local-only mode — nothing leaves this machine');
+    if (authMode === 'signup' && !this.state.tosOk) return this.setState({ authErr: L.errTos });
+    if (this.state.authBusy) return;
+    this.setState({ authBusy: true, authErr: '' });
+
+    // The desktop shell starts local services itself — give them a moment
+    // before showing an error, and keep the error customer-readable.
+    const up = await this.waitForBackend(this.hasBridge() ? 4 : 1);
+    if (!up) {
+      return this.setState({
+        authBusy: false,
+        authErr: this.hasBridge() ? L.errService : L.errService + ' ' + L.errServiceDev
+      });
+    }
+    try {
+      const payload = authMode === 'signup'
+        ? await this.api('POST', '/auth/signup', { email, password: pass, name, tosAccepted: true, language: this.curLang() })
+        : await this.api('POST', '/auth/login', { email, password: pass });
+      const u = payload.user || {};
+      const nm = u.name || name || email.split('@')[0];
+      this.setState({
+        user: { name: nm, email: u.email || email, initials: this.initialsOf(nm) },
+        token: payload.token, phase: 'app', authErr: '', authBusy: false, view: 'home', aPass: ''
+      });
+      try { sessionStorage.setItem('ember.token', payload.token); } catch (e) { /* storage unavailable */ }
+      this.notify('Welcome to the forge', 'Signed in as ' + (u.email || email));
+      this.toast('Signed in');
+    } catch (e) {
+      this.setState({ authBusy: false, authErr: e.message });
+    }
   };
 
-  // ---------- project ----------
-  makeConfig(name, engine) {
-    const src = { unity: ['Assets/Scripts'], unreal: ['Source'], godot: ['scripts'], web: ['src'], custom: ['src'] }[engine] || ['src'];
-    return {
-      projectName: name, engine,
-      logsPath: 'Logs', crashReportsPath: 'CrashReports', sourcePaths: src,
-      buildCommand: '', testCommand: '',
-      testProfiles: { smoke: { checks: ['scan', 'analyze', 'logs'] }, full: { checks: ['scan', 'analyze', 'logs', 'build', 'test'] } },
-      customRules: [], backend: { url: 'http://localhost:4310' }
-    };
-  }
-  doConnect = () => {
-    const name = (this.state.cName || '').trim();
-    const path = (this.state.cPath || '').trim();
-    const engine = this.state.cEngine || 'unity';
-    if (!name) return this.setState({ cErr: 'Give the project a name.' });
-    if (!path) return this.setState({ cErr: 'Point at the project folder.' });
-    const cfg = this.makeConfig(name, engine);
-    this.setState({
-      project: { name, path, engine }, configText: JSON.stringify(cfg, null, 2),
-      connectOpen: false, cErr: '', cName: '', cPath: '',
-      runLines: [{ t: '✓ ember.config.json written — ' + name + ' (' + engine + ')', c: '#2f9e6b' }]
-    });
-    this.notify('Project connected', name + ' — ember.config.json written at ' + path);
-    this.toast(name + ' connected — the forge is warm');
+  forgot = async () => {
+    const email = (this.state.aEmail || '').trim();
+    if (!email) return this.toast('Enter your email above first.');
+    try {
+      await this.api('POST', '/auth/forgot-password', { email });
+      this.toast('If this email has an account, a reset link was issued (see the backend server log until email delivery ships).');
+    } catch (e) { this.toast(e.message); }
   };
+
+  signOut = () => {
+    if (this.state.token) { this.api('POST', '/auth/logout').catch(() => {}); }
+    try { sessionStorage.removeItem('ember.token'); } catch (e) { /* ignore */ }
+    this.setState({ user: null, token: null, phase: 'auth', authMode: 'signin', sheetOpen: false, sheetPage: 'root', bellOpen: false, aPass: '', pName: null, pEmail: null });
+    this.toast('Signed out');
+  };
+
+  // ---------- project connect (native picker + strict validation) ----------
+  pickFolder = async () => {
+    if (!this.hasBridge()) {
+      return this.setState({ cErr: 'Folder picking needs Ember Desktop (Electron). This browser preview cannot read your disk — run `npm run dev:desktop`.' });
+    }
+    const path = await window.emberDesktop.pickFolder();
+    if (!path) return;
+    this.setState({ cPicked: path, cVal: null, cErr: '' });
+    const val = await window.emberDesktop.validateProject(path);
+    this.setState({ cVal: val, cErr: '' });
+  };
+
+  doConnect = async () => {
+    const { cPicked, cVal } = this.state;
+    if (!this.hasBridge() || !cPicked || !cVal || !cVal.valid || this.state.connecting) return;
+    this.setState({ connecting: true });
+    const res = await window.emberDesktop.connectProject(cPicked);
+    if (!res.ok) { return this.setState({ connecting: false, cErr: res.error || 'Connect failed.' }); }
+    const cfg = res.config;
+    const project = { name: cfg.projectName, path: res.root, engine: cfg.engine };
+    this.setState({
+      project, configText: JSON.stringify(cfg, null, 2),
+      connectOpen: false, connecting: false, cErr: '', cPicked: '', cVal: null,
+      runLines: [{ t: '✓ ' + (res.written ? 'ember.config.json written' : 'existing ember.config.json loaded') + ' — ' + project.name + ' (' + project.engine + ')', c: '#2f9e6b' }]
+    });
+    this.notify('Project connected', project.name + ' — ' + res.root);
+    this.toast(project.name + ' connected — the forge is warm');
+    // Register with the backend workspace when signed in and reachable.
+    if (this.state.token && this.state.backendUp) {
+      try {
+        const created = await this.api('POST', '/projects', { name: project.name, engine: project.engine, path: project.path, config: cfg });
+        this.setState({ backendProjectId: created.id });
+      } catch (e) { this.toast('Backend sync skipped: ' + e.message); }
+    }
+  };
+
   disconnect = () => {
     const n = this.state.project && this.state.project.name;
-    this.setState({ project: null, configText: '', runLines: [] });
+    this.setState({ project: null, configText: '', runLines: [], backendProjectId: null });
     this.toast((n || 'Project') + ' disconnected');
   };
 
-  // ---------- runs ----------
-  ignite = (profile) => {
+  // ---------- runs (real agent only — no simulated output, ever) ----------
+  ignite = async (profile) => {
     profile = typeof profile === 'string' ? profile : 'smoke';
     if (!this.state.project) { this.setState({ connectOpen: true }); this.toast('The forge is cold — connect a project first.'); return; }
     if (this.state.running) { this.toast('A run is already burning.'); return; }
-    const p = this.state.project;
-    const files = this.hashN(p.name, 140, 124);
-    const findings = this.hashN(p.name + 'f', 6, 3);
-    const crit = this.hashN(p.name + 'c', 2, 0);
-    const high = Math.min(findings - crit, this.hashN(p.name + 'h', 2, 1));
-    const logs = this.hashN(p.name + 'l', 5, 2);
-    const stability = (97.2 - findings * 0.5 - crit * 1.3).toFixed(1);
-    const seq = [
-      ['› ember run --profile ' + profile, '#ff9d4d'],
-      ['› scan — walking project tree…', '#9a958f'],
-      ['› scan — ' + files + ' files · engine: ' + p.engine, '#9a958f'],
-      ['› analyze — 20 heuristics + custom rules', '#9a958f'],
-      ['› analyze — ' + findings + ' findings (' + crit + ' critical)', crit > 0 ? '#ff6a4d' : '#9a958f'],
-      ['› logs — ' + logs + ' issues mined from Logs/', '#9a958f'],
-      ['✓ report written — aftermath #' + (this.state.reports.length + 1), '#2f9e6b'],
-      ['→ stability ' + stability, '#ffd27a']
-    ];
-    this.setState({ running: true, runLines: [], view: 'home' });
-    seq.forEach((l, i) => this.after(450 + i * 560, () => this.setState(s => ({ runLines: [...s.runLines, { t: l[0], c: l[1] }] }))));
-    this.after(450 + seq.length * 560 + 350, () => {
-      const rep = { id: Date.now(), n: this.state.reports.length + 1, at: new Date(), profile, files, findings, logs, crit, high, med: Math.max(0, findings - crit - high), stability, project: p.name, engine: p.engine };
-      this.setState(s => ({ running: false, reports: [rep, ...s.reports] }));
-      this.notify('Aftermath report ready', p.name + ' · ' + profile + ' · stability ' + stability);
-      this.toast('Aftermath #' + rep.n + ' ready — stability ' + stability);
-    });
+    if (!this.hasBridge()) {
+      this.setState({ runLines: [{ t: '⊘ blocked — runs execute the real agent and need Ember Desktop (Electron). Browser preview cannot run it.', c: '#ffd27a' }] });
+      this.toast('Blocked: runs need Ember Desktop (Electron).');
+      return;
+    }
+    this.setState({ running: true, runLines: [{ t: '› ember run --profile ' + profile, c: '#ff9d4d' }], view: 'home' });
+    const res = await window.emberDesktop.runProfile(this.state.project.path, profile);
+    if (!res.ok) {
+      this.setState(s => ({ running: false, runLines: [...s.runLines, { t: '✗ ' + res.error, c: '#ff6a4d' }] }));
+      this.toast('Run failed: ' + res.error);
+      return;
+    }
+    const m = (res.report && res.report.metrics) || {};
+    const sb = m.severityBreakdown || {};
+    const rep = {
+      id: Date.now(), n: this.state.reports.length + 1, at: new Date(), profile,
+      project: this.state.project.name, engine: this.state.project.engine,
+      files: m.filesScanned || 0, findings: m.bugsFound || 0,
+      crit: sb.critical || 0, high: sb.high || 0, med: sb.medium || 0, low: sb.low || 0,
+      logs: m.logsAnalyzed || 0, blocked: m.blockedChecks || 0,
+      bugs: (res.report && res.report.bugs) || [],
+      summary: (res.report && res.report.executiveSummary) || '',
+      markdown: res.markdown || ''
+    };
+    this.setState(s => ({
+      running: false,
+      reports: [rep, ...s.reports],
+      runLines: [...s.runLines, { t: '✓ report ready — ' + rep.findings + ' finding(s), ' + rep.blocked + ' blocked check(s)', c: '#2f9e6b' }]
+    }));
+    this.notify('QA report ready', rep.project + ' · ' + profile + ' · ' + rep.findings + ' findings (' + rep.crit + ' critical)');
+    this.toast('Report #' + rep.n + ' ready — ' + rep.findings + ' real finding(s)');
+    if (this.state.token && this.state.backendUp) {
+      try { await this.api('POST', '/agent/report', { projectId: this.state.backendProjectId, report: res.report }); }
+      catch (e) { this.toast('Backend sync skipped: ' + e.message); }
+    }
   };
 
+  // Real findings from the report — file, line and evidence come from the agent.
   findingsFor(rep) {
-    const base = { unity: 'Assets/Scripts/', unreal: 'Source/Game/', godot: 'scripts/', web: 'src/', custom: 'src/' }[rep.engine] || 'src/';
-    const ext = { unity: '.cs', unreal: '.cpp', godot: '.gd', web: '.ts', custom: '.js' }[rep.engine] || '.js';
-    const all = [
-      { sev: 'CRITICAL', c: '#c8330f', file: base + 'SaveSystem' + ext + ':214', txt: 'Possible null reference — Load() dereferences save slot without a guard' },
-      { sev: 'HIGH', c: '#e85410', file: base + 'Inventory' + ext + ':88', txt: 'Unbounded stack merge — overflow risk when stack count exceeds 999' },
-      { sev: 'MEDIUM', c: '#d4870a', file: base + 'MenuController' + ext + ':41', txt: 'Focus trap — back action unreachable from options submenu' },
-      { sev: 'LOW', c: '#8b857f', file: base + 'AudioPool' + ext + ':132', txt: 'FIXME left in shipping path — pooled audio source never released' }
-    ];
-    return all.slice(0, Math.max(2, Math.min(4, rep.findings)));
+    const colors = { critical: '#c8330f', high: '#e85410', medium: '#d4870a', low: '#8b857f' };
+    return (rep.bugs || []).slice(0, 8).map(b => ({
+      sev: String(b.severity || 'medium').toUpperCase(),
+      c: colors[b.severity] || '#8b857f',
+      file: (b.filesInvolved && b.filesInvolved[0]) || b.evidence || '',
+      txt: b.title || ''
+    }));
   }
   reportMd(rep) {
-    return '# Ember Aftermath Report #' + rep.n + '\n\nProject: ' + rep.project + ' (' + rep.engine + ')\nProfile: ' + rep.profile + '\nDate: ' + rep.at.toLocaleString() + '\n\n- Files scanned: ' + rep.files + '\n- Findings: ' + rep.findings + ' (' + rep.crit + ' critical, ' + rep.high + ' high, ' + rep.med + ' medium)\n- Log issues: ' + rep.logs + '\n- Stability: ' + rep.stability + '\n\n## Findings\n' + this.findingsFor(rep).map(f => '- [' + f.sev + '] ' + f.txt + ' (' + f.file + ')').join('\n') + '\n\n## Blocked checks\n- performance — requires profiler hook\n- save/load — requires save-system hook\n- controller input — requires engine input bridge\n';
+    if (rep.markdown) return rep.markdown;
+    return '# Ember QA Report #' + rep.n + '\n\nProject: ' + rep.project + ' (' + rep.engine + ')\nProfile: ' + rep.profile + '\nDate: ' + rep.at.toLocaleString() + '\n\n- Files scanned: ' + rep.files + '\n- Findings: ' + rep.findings + ' (' + rep.crit + ' critical, ' + rep.high + ' high, ' + rep.med + ' medium, ' + rep.low + ' low)\n- Log issues: ' + rep.logs + '\n- Blocked checks: ' + rep.blocked + '\n';
   }
   copyText(txt, okMsg) {
     try { navigator.clipboard.writeText(txt).then(() => this.toast(okMsg), () => this.toast('Clipboard unavailable')); }
     catch (e) { this.toast('Clipboard unavailable'); }
   }
 
-  // ---------- palette ----------
-  paletteBase() {
-    const go = (v) => () => this.setState({ view: v, paletteOpen: false });
-    return [
-      { label: 'Go to Overview', kind: 'NAV', run: go('home') },
-      { label: 'Go to Projects', kind: 'NAV', run: go('projects') },
-      { label: 'Go to Reports', kind: 'NAV', run: go('reports') },
-      { label: 'Go to Test Plans', kind: 'NAV', run: go('plans') },
-      { label: 'Go to Connectors', kind: 'NAV', run: go('connectors') },
-      { label: 'Go to Config Editor', kind: 'NAV', run: go('config') },
-      { label: 'Go to Billing', kind: 'NAV', run: go('billing') },
-      { label: 'Connect a project', kind: 'ACTION', run: () => this.setState({ connectOpen: true, paletteOpen: false }) },
-      { label: 'Ignite run — smoke profile', kind: 'ACTION', run: () => { this.setState({ paletteOpen: false }); this.ignite('smoke'); } },
-      { label: 'Open profile & settings', kind: 'ACTION', run: () => this.setState({ sheetOpen: true, sheetPage: 'root', paletteOpen: false }) },
-      { label: 'Open notifications', kind: 'ACTION', run: () => this.setState({ bellOpen: true, paletteOpen: false }) },
-      { label: 'Sign out', kind: 'ACTION', run: () => { this.setState({ paletteOpen: false }); this.signOut(); } }
-    ];
-  }
-  filteredPalette() {
-    const q = (this.state.palQ || '').toLowerCase().trim();
-    const all = this.paletteBase();
-    if (!q) return all;
-    return all.filter(a => a.label.toLowerCase().includes(q));
-  }
-  onPalKey = (e) => {
-    const items = this.filteredPalette();
-    if (e.key === 'ArrowDown') { e.preventDefault(); this.setState(s => ({ palSel: Math.min(s.palSel + 1, items.length - 1) })); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState(s => ({ palSel: Math.max(s.palSel - 1, 0) })); }
-    else if (e.key === 'Enter') { const it = items[this.state.palSel]; if (it) it.run(); }
-    else if (e.key === 'Escape') this.setState({ paletteOpen: false });
-  };
-
-  // ---------- sheet ----------
-  signOut = () => {
-    this.setState({ user: null, phase: 'auth', authMode: 'signin', sheetOpen: false, sheetPage: 'root', paletteOpen: false, bellOpen: false, aPass: '', pName: null, pEmail: null });
-    this.toast('Signed out');
-  };
-  saveProfile = () => {
+  // ---------- profile & settings ----------
+  saveProfile = async () => {
     const name = (this.state.pName ?? (this.state.user && this.state.user.name) ?? '').trim();
-    const email = (this.state.pEmail ?? (this.state.user && this.state.user.email) ?? '').trim();
-    if (!name) return this.toast('Name can\u2019t be empty');
-    const initials = name.split(/[\s.\-_]+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
-    this.setState(s => ({ user: { ...s.user, name, email, initials } }));
+    if (!name) return this.toast('Name can’t be empty');
+    if (this.state.token && this.state.backendUp) {
+      try { await this.api('PATCH', '/auth/me', { name }); }
+      catch (e) { return this.toast('Save failed: ' + e.message); }
+    }
+    this.setState(s => ({ user: { ...s.user, name, initials: this.initialsOf(name) } }));
     this.toast('Profile updated');
   };
-  savePassword = () => {
+  savePassword = async () => {
     const { pw1, pw2, pw3 } = this.state;
     if (!pw1) return this.setState({ pwErr: 'Enter your current password.' });
     if ((pw2 || '').length < 8) return this.setState({ pwErr: 'New password needs at least 8 characters.' });
-    if (pw2 !== pw3) return this.setState({ pwErr: 'New passwords don\u2019t match.' });
-    this.setState({ pw1: '', pw2: '', pw3: '', pwErr: '' });
-    this.toast('Password updated');
+    if (pw2 !== pw3) return this.setState({ pwErr: 'New passwords don’t match.' });
+    if (!this.state.token) return this.setState({ pwErr: 'Sign in with a backend account to change your password.' });
+    try {
+      await this.api('POST', '/auth/change-password', { currentPassword: pw1, newPassword: pw2 });
+      this.setState({ pw1: '', pw2: '', pw3: '', pwErr: '' });
+      this.toast('Password updated');
+    } catch (e) { this.setState({ pwErr: e.message }); }
   };
 
   validateConfig = () => {
@@ -3043,7 +3099,7 @@ class Component extends DCLogic {
       if (!parsed.projectName) throw new Error('projectName is required');
       if (!parsed.engine) throw new Error('engine is required');
       this.setState(s => ({ project: { ...s.project, name: parsed.projectName, engine: parsed.engine } }));
-      this.toast('Config valid — 0 schema errors · saved');
+      this.toast('Config valid — 0 schema errors');
     } catch (e) { this.toast('Invalid config — ' + e.message); }
   };
 
@@ -3062,19 +3118,17 @@ class Component extends DCLogic {
     const L = this.dict();
     const phase = this.curPhase();
     const lang = this.curLang();
-    const user = S.user || { name: 'Operator', email: 'operator@local', initials: 'OP' };
+    const user = S.user || { name: 'Operator', email: '', initials: 'OP' };
     const view = S.view;
     const project = S.project;
     const reports = S.reports;
     const lastRep = reports[0] || null;
     const dely = (i, base, step) => (base + i * step).toFixed(2) + 's';
 
-    // welcome / auth
     const welcomeWords = L.wWords.map((t, i) => ({ t, d: dely(i, 0.15, 0.09) }));
     const homeTitle = project ? { words: [project.name, 'is', 'ready', 'to'], orange: 'burn.' } : { words: ['Light', 'the'], orange: 'forge.' };
     const homeWords = homeTitle.words.map((t, i) => ({ t, d: dely(i, 0.1, 0.08) }));
 
-    // nav
     const NAV = [['home', 'Overview'], ['projects', 'Projects'], ['reports', 'Reports'], ['plans', 'Test Plans'], ['connectors', 'Connectors'], ['config', 'Config'], ['billing', 'Billing']];
     const navTabs = NAV.map(([id, label]) => {
       const on = view === id;
@@ -3086,49 +3140,48 @@ class Component extends DCLogic {
       return { label: code.toUpperCase(), full: code === 'en' ? 'English' : 'Français', go: () => { this.setState({ lang: code }); }, bg: on ? '#1a1512' : 'transparent', color: on ? '#f3ede4' : 'rgba(26,21,18,.5)', bd: on ? '#1a1512' : 'rgba(26,21,18,.18)' };
     });
 
-    // home
-    const done = { c: 'rgba(26,21,18,.18)', tag: 'DONE ✓', tagColor: '#2f9e6b' };
+    // home — every state below reflects real session state, nothing scripted
+    const done = { c: 'rgba(26,21,18,.18)' };
     const steps = [
       {
-        num: '01', title: 'Connect a project', desc: 'Point Ember at a game folder — it detects the engine and writes ember.config.json.',
+        num: '01', title: 'Connect a project', desc: 'Pick your game folder with the native picker — Ember validates it is a real project before writing ember.config.json.',
         numColor: project ? done.c : '#e85410', showBtn: !project, btnLabel: 'Connect', go: () => this.setState({ connectOpen: true }),
         showTag: !!project, tag: 'DONE ✓', tagColor: '#2f9e6b'
       },
       {
-        num: '02', title: 'Ignite the first run', desc: 'The agent scans files, analyzes code and mines the logs — live in the forge feed.',
+        num: '02', title: 'Ignite the first run', desc: 'The real agent scans files, analyzes code and mines the logs — live in the feed.',
         numColor: reports.length ? done.c : (project ? '#e85410' : 'rgba(26,21,18,.18)'), showBtn: !!project && !reports.length && !S.running, btnLabel: 'Ignite', go: () => this.ignite('smoke'),
         showTag: reports.length > 0 || (!project) || S.running, tag: reports.length ? 'DONE ✓' : (S.running ? 'RUNNING…' : 'NEEDS 01'), tagColor: reports.length ? '#2f9e6b' : (S.running ? '#e85410' : 'rgba(26,21,18,.35)')
       },
       {
-        num: '03', title: 'Read the aftermath', desc: 'Findings with file & line evidence, severity breakdown and a stability score.',
+        num: '03', title: 'Read the report', desc: 'Findings with file & line evidence, severity breakdown and honestly-blocked checks.',
         numColor: reports.length ? '#e85410' : 'rgba(26,21,18,.18)', showBtn: reports.length > 0, btnLabel: 'Open report', go: () => this.setState({ reportView: lastRep }),
         showTag: !reports.length, tag: 'NEEDS 02', tagColor: 'rgba(26,21,18,.35)'
       }
     ];
 
-    const termLines = (S.running || S.runLines.length) ? S.runLines : [{ t: '› forge idle — ' + (project ? 'ready to ignite ' + project.name : 'connect a project to ignite'), c: '#8b857f' }];
+    const termLines = (S.running || S.runLines.length) ? S.runLines : [{ t: '› agent idle — ' + (project ? 'ready to run ' + project.name : 'connect a project first'), c: '#8b857f' }];
 
     const statusChips = [
       { t: project ? 'PROJECT: ' + project.name.toUpperCase() : 'NOT CONNECTED', dot: project ? '#2f9e6b' : 'rgba(26,21,18,.3)' },
-      { t: 'BACKEND OFFLINE — LOCAL-FIRST', dot: '#d4870a' },
-      { t: 'AGENT CORE 0.2.0', dot: '#e85410' }
+      { t: S.backendUp === null ? 'BACKEND: CHECKING…' : (S.backendUp ? 'BACKEND ONLINE — v' + S.backendVersion : 'BACKEND OFFLINE'), dot: S.backendUp ? '#2f9e6b' : (S.backendUp === null ? '#d4870a' : '#c8330f') },
+      { t: this.hasBridge() ? 'AGENT BRIDGE READY' : 'BROWSER PREVIEW — NO AGENT', dot: this.hasBridge() ? '#e85410' : '#d4870a' }
     ];
 
-    // reports
     const fmtDate = (d) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    const sevLabelOf = (r) => r.crit > 0 ? (r.crit + ' CRIT') : (r.high > 0 ? (r.high + ' HIGH') : (r.findings + ' FOUND'));
     const reportRows = reports.map(r => ({
       numLabel: '#' + r.n,
       title: r.project + ' — ' + r.profile + ' run',
       dateLabel: fmtDate(r.at).toUpperCase(),
-      meta: r.files + ' FILES · ' + r.findings + ' FINDINGS · ' + r.logs + ' LOG ISSUES',
-      stability: r.stability,
+      meta: r.files + ' FILES · ' + r.findings + ' FINDINGS · ' + r.logs + ' LOG ISSUES · ' + r.blocked + ' BLOCKED',
+      sevLabel: sevLabelOf(r),
       open: () => this.setState({ reportView: r })
     }));
 
-    // plans
     const defaultPlans = [
       { name: 'smoke', tag: 'DEFAULT', desc: 'Fast pass on every build — scan the tree, analyze the code, mine the logs.', checks: 'SCAN · ANALYZE · LOGS', run: () => this.ignite('smoke') },
-      { name: 'full', tag: 'DEFAULT', desc: 'The whole forge — everything in smoke, plus your build and engine test commands.', checks: 'SCAN · ANALYZE · LOGS · BUILD · TEST', run: () => this.ignite('full') }
+      { name: 'full', tag: 'DEFAULT', desc: 'Everything in smoke, plus your configured build and engine test commands.', checks: 'SCAN · ANALYZE · LOGS · BUILD · TEST', run: () => this.ignite('full') }
     ];
     const planCards = [...defaultPlans, ...S.plans.map(p => ({ name: p.name, tag: 'CUSTOM', desc: 'Custom plan — ' + p.checks.length + ' checks.', checks: p.checks.map(c => c.toUpperCase()).join(' · '), run: () => this.ignite(p.name) }))];
 
@@ -3142,25 +3195,35 @@ class Component extends DCLogic {
       };
     });
 
-    // connectors
+    // connectors — statuses are live, not decorative
+    const backendStatus = S.backendUp === null ? 'CHECKING…' : (S.backendUp ? 'ONLINE' : 'OFFLINE');
     const connectors = [
-      { n: '01', name: 'Backend API', desc: 'Sync projects, reports, notifications and team to the Ember API.', status: 'OFFLINE', stColor: '#c8330f', stBorder: 'rgba(200,51,15,.35)', hasAction: true, actLabel: 'Retry connection', act: () => this.toast('Backend offline — start localhost:4310 and retry') },
-      { n: '02', name: 'Ember CLI', desc: 'The local agent. Runs scans, analysis and commands entirely offline.', status: 'AVAILABLE', stColor: '#2f9e6b', stBorder: 'rgba(47,158,107,.35)', hasAction: true, actLabel: 'Copy install command', act: () => this.copyText('npm link --workspace @ember/agent', 'Install command copied') },
+      {
+        n: '01', name: 'Backend API', desc: 'Sync projects, reports, notifications and team to the Ember API.',
+        status: backendStatus, stColor: S.backendUp ? '#2f9e6b' : '#c8330f', stBorder: S.backendUp ? 'rgba(47,158,107,.35)' : 'rgba(200,51,15,.35)',
+        hasAction: true, actLabel: 'Re-check connection', act: async () => { const up = await this.checkBackend(); this.toast(up ? 'Services online' : (this.hasBridge() ? 'Local service not responding — restart Ember Desktop if this persists' : 'Services offline (dev preview: npm run dev:backend)')); }
+      },
+      {
+        n: '02', name: 'Ember Agent', desc: 'The local agent core. Runs scans, analysis and commands on this machine.',
+        status: this.hasBridge() ? 'READY' : 'NEEDS DESKTOP', stColor: this.hasBridge() ? '#2f9e6b' : '#d4870a', stBorder: this.hasBridge() ? 'rgba(47,158,107,.35)' : 'rgba(212,135,10,.35)',
+        hasAction: true, actLabel: 'Copy CLI install command', act: () => this.copyText('npm link --workspace @ember/agent', 'Install command copied')
+      }
     ];
 
-    // billing
+    // billing (plans shown; checkout requires the backend + a configured provider)
     const mk = (dark) => dark
       ? { bg: '#0c0a0d', color: '#f3ede4', bd: 'transparent', shadow: '0 40px 90px rgba(12,10,13,.35)', checkBg: 'rgba(255,138,60,.2)', checkColor: '#ff9d4d', btnBg: 'linear-gradient(135deg,#ffd27a,#ff7a1a)', btnColor: '#1a0f06', btnBd: 'transparent' }
       : { bg: '#ffffff', color: '#1a1512', bd: 'rgba(26,21,18,.09)', shadow: '0 20px 50px rgba(26,21,18,.05)', checkBg: 'rgba(232,84,16,.12)', checkColor: '#e85410', btnBg: 'transparent', btnColor: '#1a1512', btnBd: 'rgba(26,21,18,.2)' };
     const checkoutToast = () => { window.location.href = 'mailto:hello@ember.dev?subject=Ember%20billing'; this.toast('Opening billing contact request'); };
     const billPlans = [
-      { name: 'Free', price: '$0', period: 'forever', tagline: 'Try Ember on one project.', hot: false, features: [{ t: '1 connected project' }, { t: 'Local scans & code analysis' }, { t: '5 reports / month' }, { t: 'Community support' }], btnLabel: 'Current plan', act: () => this.toast('You\u2019re already on Free'), ...mk(false) },
-      { name: 'Pro', price: '$29', period: '/ user / mo', tagline: 'For indies shipping seriously.', hot: true, features: [{ t: 'Unlimited projects' }, { t: 'Real agent scans & log analysis' }, { t: 'Unlimited report exports' }, { t: 'Custom test plans & rules' }], btnLabel: 'Upgrade to Pro', act: checkoutToast, ...mk(true) },
-      { name: 'Studio', price: '$99', period: '/ workspace / mo', tagline: 'For teams with a QA pipeline.', hot: false, features: [{ t: 'Everything in Pro' }, { t: 'Team workspace & shared reports' }, { t: 'CI/CD integration' }, { t: 'Priority support' }], btnLabel: 'Upgrade to Studio', act: checkoutToast, ...mk(false) },
-      { name: 'Lifetime', price: '$499', period: 'one-time', tagline: 'Own Ember forever.', hot: false, features: [{ t: 'Everything in Studio, forever' }, { t: 'No monthly fees, ever' }, { t: 'All future updates included' }, { t: 'Priority support for life' }], btnLabel: 'Buy Lifetime', act: checkoutToast, ...mk(false) }
+      { name: 'Pay as you go', price: 'Credits', period: 'billed on what you run', tagline: 'No commitment — pay only for the scans, analyses and AI you actually use. Bigger credit packs cost less per credit.', hot: false, badge: '', features: [{ t: '1 scan ≈ 1 credit · deep AI analysis ≈ 4 credits' }, { t: 'Spending cap + low-balance alerts' }, { t: 'Optional auto-reload (you can turn it off)' }, { t: 'Standard AI model · community support' }], btnLabel: 'Add credits', act: checkoutToast, ...mk(false) },
+      { name: 'Day pass', price: '$9.99', period: '/ day', tagline: 'Full access for 24 hours — perfect for a one-off crunch.', hot: false, badge: '', features: [{ t: 'Unlimited scans & reports for 24h' }, { t: 'Up to 3 projects' }, { t: 'Standard AI model' }, { t: 'Email support' }], btnLabel: 'Get a day pass', act: checkoutToast, ...mk(false) },
+      { name: 'Weekly', price: '$29.99', period: '/ week', tagline: '≈ $4.28 / day · cheaper than three day passes.', hot: false, badge: '', features: [{ t: 'Everything in Day pass' }, { t: 'Up to 10 projects' }, { t: 'Priority queue · faster runs' }, { t: 'Faster AI model' }], btnLabel: 'Go weekly', act: checkoutToast, ...mk(false) },
+      { name: 'Monthly', price: '$59.99', period: '/ month', tagline: '≈ $2 / day · save 50% vs paying weekly.', hot: false, badge: '', features: [{ t: 'Unlimited projects & report exports' }, { t: 'Advanced AI model + deeper analysis' }, { t: 'Advanced reports & automations' }, { t: 'Priority support' }], btnLabel: 'Go monthly', act: checkoutToast, ...mk(false) },
+      { name: 'Annual', price: '$500', period: '/ year', tagline: '≈ $41.67 / month — save 30% ($220) vs monthly.', hot: true, badge: 'BEST VALUE', features: [{ t: 'Everything in Monthly, all year' }, { t: 'Most powerful AI model + longest history' }, { t: 'Advanced integrations & early access' }, { t: 'Priority support' }], btnLabel: 'Go annual — save 30%', act: checkoutToast, ...mk(true) },
+      { name: 'Lifetime', price: '$2,500', period: 'one-time', tagline: 'Own Ember forever — pays for itself in ~5 years vs annual. For power users.', hot: false, badge: 'PREMIUM', features: [{ t: 'Everything in Annual, forever' }, { t: 'No subscription, ever' }, { t: 'All future updates included' }, { t: 'Priority support for life' }], btnLabel: 'Buy Lifetime', act: checkoutToast, ...mk(false) }
     ];
 
-    // notifications
     const unread = S.notifs.filter(n => !n.read).length;
     const notifItems = S.notifs.map(n => ({
       title: n.title, body: n.body, time: fmtDate(n.at).toUpperCase(),
@@ -3168,7 +3231,6 @@ class Component extends DCLogic {
       read: () => this.setState(s => ({ notifs: s.notifs.map(x => x.id === n.id ? { ...x, read: true } : x) }))
     }));
 
-    // sheet
     const page = (p) => () => this.setState({ sheetPage: p });
     const toView = (v) => () => this.setState({ sheetOpen: false, sheetPage: 'root', view: v });
     const sheetGroups = [
@@ -3190,20 +3252,15 @@ class Component extends DCLogic {
       return { label, desc, bg: on ? '#e85410' : 'rgba(26,21,18,.12)', just: on ? 'flex-end' : 'flex-start', flip: () => this.setState(s => ({ prefs: { ...s.prefs, [k]: !s.prefs[k] } })) };
     });
 
-    // palette
-    const palItems = this.filteredPalette().map((a, i) => ({
-      label: a.label, kind: a.kind, run: a.run,
-      bg: i === S.palSel ? 'rgba(232,84,16,.08)' : 'transparent',
-      hover: () => this.setState({ palSel: i })
-    }));
+    // connect modal validation card
+    const cVal = S.cVal;
+    const cValLines = cVal ? [
+      ...cVal.evidence.map(t => ({ t: '· ' + t })),
+      ...cVal.warnings.map(t => ({ t: '! ' + t })),
+      ...cVal.errors.map(t => ({ t: '✗ ' + t }))
+    ] : [];
 
-    // engines
-    const engineBtns = [['unity', 'Unity'], ['unreal', 'Unreal'], ['godot', 'Godot'], ['web', 'Web'], ['custom', 'Custom']].map(([id, label]) => {
-      const on = S.cEngine === id;
-      return { label, go: () => this.setState({ cEngine: id }), bd: on ? '#e85410' : 'rgba(26,21,18,.14)', bg: on ? 'rgba(232,84,16,.07)' : 'transparent', color: on ? '#e85410' : 'rgba(26,21,18,.55)' };
-    });
-
-    // report viewer
+    // report viewer — real metrics only
     const rv = S.reportView;
     const rvMax = rv ? Math.max(rv.crit, rv.high, rv.med, 1) : 1;
     const rvBars = rv ? [
@@ -3215,7 +3272,7 @@ class Component extends DCLogic {
       { label: 'FILES SCANNED', val: String(rv.files), color: '#1a1512' },
       { label: 'FINDINGS', val: String(rv.findings), color: '#1a1512' },
       { label: 'LOG ISSUES', val: String(rv.logs), color: '#1a1512' },
-      { label: 'STABILITY', val: rv.stability, color: '#e85410' }
+      { label: 'BLOCKED CHECKS', val: String(rv.blocked), color: '#d4870a' }
     ] : [];
 
     const set = (k) => (e) => this.setState({ [k]: e.target.value, authErr: '', cErr: '', planErr: '', pwErr: '' });
@@ -3238,16 +3295,17 @@ class Component extends DCLogic {
       aName: S.aName, aEmail: S.aEmail, aPass: S.aPass,
       onAName: set('aName'), onAEmail: set('aEmail'), onAPass: set('aPass'),
       hasAuthErr: !!S.authErr, authErr: S.authErr,
-      aSubmit: S.authMode === 'signup' ? L.signup : L.signin,
+      aSubmit: S.authBusy ? '…' : (S.authMode === 'signup' ? L.signup : L.signin),
       aSwapQ: S.authMode === 'signup' ? L.swapQ2 : L.swapQ1,
       aSwapA: S.authMode === 'signup' ? L.swapA2 : L.swapA1,
       toggleMode: () => this.setState(s => ({ authMode: s.authMode === 'signup' ? 'signin' : 'signup', authErr: '' })),
-      aForgot: L.forgot, forgot: () => this.toast(L.forgotToast),
-      aLocal: L.local, doAuth: this.doAuth, localOnly: this.localOnly,
+      aForgot: L.forgot, forgot: this.forgot, doAuth: this.doAuth,
+      flipTos: () => this.setState(s => ({ tosOk: !s.tosOk, authErr: '' })),
+      tosMark: S.tosOk ? '✓' : '', tosBoxBg: S.tosOk ? '#e85410' : 'transparent', tosBoxBd: S.tosOk ? '#e85410' : 'rgba(26,21,18,.3)',
       // shell
-      navTabs, tCommands: 'Commands',
+      navTabs,
       userInitials: user.initials, userName: user.name, userEmail: user.email,
-      modeLabel: project ? 'LOCAL PROJECT' : 'NOT CONNECTED',
+      modeLabel: project ? 'CONNECTED' : 'NOT CONNECTED',
       modeColor: project ? '#2f9e6b' : 'rgba(26,21,18,.45)',
       modeDot: project ? '#2f9e6b' : 'rgba(26,21,18,.3)',
       // views
@@ -3257,14 +3315,15 @@ class Component extends DCLogic {
       dateStr: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase(),
       homeWords, homeOrange: homeTitle.orange, homeOrangeDelay: dely(homeWords.length, 0.1, 0.08),
       homeSub: project
-        ? 'The config is written and the agent is armed. Ignite a run — scan, analyze, logs — and read the aftermath.'
-        : 'Connect your first game project. Ember scans the code, mines the logs, runs your commands — and writes the aftermath.',
+        ? 'The config is written and the agent is armed. Run it — scan, analyze, logs — and read the report.'
+        : 'Connect your first game project. Ember scans the code, mines the logs, runs your commands — and writes the report.',
       statusChips, seqTitle: 'Three steps to your first report.', steps, termLines,
-      lastStability: lastRep ? lastRep.stability : '', lastMeta: lastRep ? lastRep.project + ' · ' + lastRep.profile + ' · ' + lastRep.findings + ' findings · ' + lastRep.logs + ' log issues' : '',
+      lastHeadline: lastRep ? (lastRep.crit > 0 ? lastRep.crit + ' crit' : lastRep.findings + ' found') : '',
+      lastMeta: lastRep ? lastRep.project + ' · ' + lastRep.profile + ' · ' + lastRep.findings + ' findings · ' + lastRep.logs + ' log issues · ' + lastRep.blocked + ' blocked' : '',
       openLastReport: () => this.setState({ reportView: lastRep }), tOpenReport: 'Open report',
       // projects
       projName: project ? project.name : '', projPath: project ? project.path : '', projEngine: project ? project.engine.toUpperCase() : '',
-      openConnect: () => this.setState({ connectOpen: true, cErr: '' }),
+      openConnect: () => this.setState({ connectOpen: true, cErr: '', cPicked: '', cVal: null }),
       goConfig: () => this.setState({ view: 'config' }),
       disconnect: this.disconnect,
       igniteSmoke: () => this.ignite('smoke'),
@@ -3285,7 +3344,7 @@ class Component extends DCLogic {
       // dock
       dockOn: (this.props.showDock ?? true) && phase === 'app',
       dockStatus: project ? project.name.toUpperCase() : 'NO PROJECT',
-      dockRunLabel: S.running ? 'Running…' : 'Ignite run',
+      dockRunLabel: S.running ? 'Running…' : 'Run agent',
       // bell
       bellOn: S.bellOpen, toggleBell: () => this.setState(s => ({ bellOpen: !s.bellOpen, sheetOpen: false })),
       closeBell: () => this.setState({ bellOpen: false }),
@@ -3306,28 +3365,27 @@ class Component extends DCLogic {
       pw1: S.pw1, pw2: S.pw2, pw3: S.pw3, onPw1: set('pw1'), onPw2: set('pw2'), onPw3: set('pw3'),
       hasPwErr: !!S.pwErr, pwErr: S.pwErr, savePassword: this.savePassword,
       toggles,
-      localBg: S.prefs.localOnly ? '#e85410' : 'rgba(26,21,18,.12)', localJust: S.prefs.localOnly ? 'flex-end' : 'flex-start',
-      flipLocal: () => this.setState(s => ({ prefs: { ...s.prefs, localOnly: !s.prefs.localOnly } })),
       reportProblem: () => { window.open('https://github.com/corncorn5086/Game-Tester2/issues/new', '_blank', 'noopener'); this.toast('Opening issue form'); },
-      // palette
-      paletteOn: S.paletteOpen,
-      openPalette: () => this.setState({ paletteOpen: true, palQ: '', palSel: 0, bellOpen: false, sheetOpen: false }),
-      closePalette: () => this.setState({ paletteOpen: false }),
-      palQ: S.palQ, onPalQ: (e) => this.setState({ palQ: e.target.value, palSel: 0 }),
-      onPalKey: this.onPalKey, palItems, palEmpty: palItems.length === 0,
-      palPlaceholder: 'Type a command…',
       // connect modal
-      connectOn: S.connectOpen, closeConnect: () => this.setState({ connectOpen: false, cErr: '' }),
-      cName: S.cName, cPath: S.cPath, onCName: set('cName'), onCPath: set('cPath'),
-      engineBtns, hasCErr: !!S.cErr, cErr: S.cErr, doConnect: this.doConnect,
+      connectOn: S.connectOpen, closeConnect: () => this.setState({ connectOpen: false, cErr: '', cPicked: '', cVal: null }),
+      pickFolder: this.pickFolder,
+      pickLabel: S.cPicked ? 'Choose a different folder…' : '📁 Open Folder — choose your game project',
+      hasPicked: !!S.cPicked, cPicked: S.cPicked,
+      hasCVal: !!cVal, cValLines,
+      cValTitle: cVal ? (cVal.valid ? ('VALIDATED — ' + (cVal.engine || 'project').toUpperCase() + ' (' + cVal.confidence.toUpperCase() + ' CONFIDENCE)') : 'NOT A VALID PROJECT') : '',
+      cValBg: cVal && cVal.valid ? 'rgba(47,158,107,.06)' : 'rgba(200,51,15,.06)',
+      cValBd: cVal && cVal.valid ? 'rgba(47,158,107,.3)' : 'rgba(200,51,15,.3)',
+      cValColor: cVal && cVal.valid ? '#2f9e6b' : '#c8330f',
+      canConnect: !!(cVal && cVal.valid && !S.connecting),
+      hasCErr: !!S.cErr, cErr: S.cErr, doConnect: this.doConnect,
       // plan modal
       planOn: S.planOpen, closePlan: () => this.setState({ planOpen: false, planErr: '' }),
       planName: S.planName, onPlanName: set('planName'), checkBtns,
       hasPlanErr: !!S.planErr, planErr: S.planErr, doCreatePlan: this.doCreatePlan,
       // report viewer
       reportOn: !!rv, closeReport: () => this.setState({ reportView: null }),
-      rvDate: rv ? ('AFTERMATH #' + rv.n + ' — ' + fmtDate(rv.at).toUpperCase() + ' — PROFILE: ' + rv.profile.toUpperCase()) : '',
-      rvTitle: rv ? (rv.project + ' — the aftermath.') : '',
+      rvDate: rv ? ('REPORT #' + rv.n + ' — ' + fmtDate(rv.at).toUpperCase() + ' — PROFILE: ' + rv.profile.toUpperCase()) : '',
+      rvTitle: rv ? (rv.project + ' — the report.') : '',
       rvMeta, rvBars,
       rvFindings: rv ? this.findingsFor(rv) : [],
       exportJson: () => rv && this.copyText(JSON.stringify(rv, null, 2), 'Report JSON copied'),
@@ -3338,5 +3396,30 @@ class Component extends DCLogic {
   }
 }
 </script>
+<!-- ember-ui-overrides -->
+<style id="ember-ui-overrides">
+/* Ember Desktop v3 — targeted UI corrections (additive; the design file is generated). */
+/* 1. Remove the macOS traffic-light dots in the top bar. */
+[data-dc-tpl="79"] [data-dc-tpl="80"]{ display:none !important; }
+/* 2. Real Ember flame logo in place of the small orange ball. */
+[data-dc-tpl="84"] [data-dc-tpl="85"]{
+  width:26px !important; height:26px !important; border-radius:0 !important;
+  background:url('./ember-logo.png') center/contain no-repeat !important;
+  box-shadow:none !important; animation:none !important;
+}
+/* 4. Centered modals: force the centering transform (their entrance animation
+      was overriding translate(-50%,-50%), leaving them off to the bottom-right)
+      and cap height so they never overflow the window. */
+[style*="translate(-50%, -50%)"]{
+  transform:translate(-50%, -50%) !important;
+  max-height:90vh !important; overflow-y:auto !important;
+}
+/* 5. Profile / Settings open full-screen instead of a narrow side drawer. */
+[data-dc-tpl="345"]{
+  top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+  width:100% !important; max-width:100% !important; border-radius:0 !important;
+}
+[data-dc-tpl="345"] > *{ max-width:900px !important; margin-left:auto !important; margin-right:auto !important; width:100% !important; }
+</style>
 </body>
 </html>

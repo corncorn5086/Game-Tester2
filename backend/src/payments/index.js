@@ -62,9 +62,10 @@ export async function startCheckout(provider, plan, urls = {}) {
       return { error: `${provider} is not available yet`, detail: braintreeStatus().note, notConfigured: true };
     }
     // Braintree providers tokenize in a hosted Drop-in page, opened like the
-    // PayPal approval window; the desktop app opens `checkoutUrl`.
+    // PayPal approval window; the desktop app opens `checkoutUrl`. The page
+    // authorizes with the payment-intent id — plan/workspace stay server-side.
     const base = urls.apiBase ?? '';
-    return { braintree: true, provider, checkoutUrl: `${base}/billing/braintree/checkout?plan=${encodeURIComponent(plan.id)}` };
+    return { braintree: true, provider, checkoutUrl: `${base}/billing/braintree/checkout?intent=${encodeURIComponent(urls.intentId ?? '')}` };
   }
 
   const p = PROVIDERS.find((x) => x.id === provider);

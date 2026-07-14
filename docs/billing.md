@@ -4,7 +4,7 @@
 
 | Plan | Price | For |
 |---|---|---|
-| **Free** | $0 | 1 project, local scans, limited reports (5/month), demo mode |
+| **Free** | $0 | 1 project, on-device scans, limited reports (5/month) |
 | **Pro** | $29 / user / month | Unlimited projects, real agent scans, report exports, custom test plans |
 | **Studio** | $99 / workspace / month | Team workspace, shared reports, CI/CD, advanced triage, cloud sync |
 | **Enterprise** | Custom | Custom integrations, private deployment, security controls, priority support |

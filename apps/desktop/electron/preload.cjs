@@ -1,51 +1,28 @@
+/**
+ * Ember Desktop — preload bridge.
+ * Exposes a small, fixed IPC surface to the renderer. The renderer never
+ * gets Node/Electron APIs — only these vetted functions, and the main
+ * process re-validates every path against the ProjectValidator allowlist.
+ */
 const { contextBridge, ipcRenderer } = require('electron');
 
-/**
- * window.ember — the only bridge between the UI and the machine.
- * Presence of this object means the app runs in the real desktop shell.
- */
-contextBridge.exposeInMainWorld('ember', {
-  desktop: true,
-  settings: {
-    get: () => ipcRenderer.invoke('settings:get'),
-    set: (patch) => ipcRenderer.invoke('settings:set', patch)
-  },
-  selectFolder: (title) => ipcRenderer.invoke('dialog:selectFolder', title),
-  selectImage: () => ipcRenderer.invoke('dialog:selectImage'),
-  systemInfo: () => ipcRenderer.invoke('system:info'),
-  openPath: (p) => ipcRenderer.invoke('shell:openPath', p),
-  openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
-  project: {
-    detect: (dir) => ipcRenderer.invoke('project:detect', dir)
-  },
-  config: {
-    load: (dir) => ipcRenderer.invoke('config:load', dir),
-    generate: (dir, opts) => ipcRenderer.invoke('config:generate', dir, opts),
-    write: (path, config) => ipcRenderer.invoke('config:write', path, config),
-    validate: (dir) => ipcRenderer.invoke('config:validate', dir)
-  },
-  agent: {
-    scan: (dir) => ipcRenderer.invoke('agent:scan', dir),
-    analyze: (dir) => ipcRenderer.invoke('agent:analyze', dir),
-    logs: (dir) => ipcRenderer.invoke('agent:logs', dir),
-    run: (dir, profile) => ipcRenderer.invoke('agent:run', dir, profile),
-    report: (dir, opts) => ipcRenderer.invoke('agent:report', dir, opts),
-    reportPdf: (report) => ipcRenderer.invoke('agent:reportPdf', report),
-    doctor: (dir) => ipcRenderer.invoke('agent:doctor', dir),
-    listReports: (dir) => ipcRenderer.invoke('agent:listReports', dir),
-    aiStatus: (provider) => ipcRenderer.invoke('agent:aiStatus', provider),
-    aiExplainBug: (bug, provider) => ipcRenderer.invoke('agent:aiExplainBug', bug, provider),
-    aiSummarizeReport: (report, provider) => ipcRenderer.invoke('agent:aiSummarizeReport', report, provider),
-    aiTriageBug: (bug, provider) => ipcRenderer.invoke('agent:aiTriageBug', bug, provider),
-    onRunStep: (cb) => {
-      const handler = (_e, step) => cb(step);
-      ipcRenderer.on('agent:run-step', handler);
-      return () => ipcRenderer.removeListener('agent:run-step', handler);
-    }
-  },
-  file: {
-    read: (path) => ipcRenderer.invoke('file:read', path),
-    write: (path, content) => ipcRenderer.invoke('file:write', path, content),
-    saveAs: (opts) => ipcRenderer.invoke('file:saveDialog', opts)
+contextBridge.exposeInMainWorld('emberDesktop', {
+  /** Open the native folder picker. Resolves to an absolute path or null. */
+  pickFolder: () => ipcRenderer.invoke('ember:pick-folder'),
+
+  /** Strict project validation (shared ProjectValidator) for a folder. */
+  validateProject: (path) => ipcRenderer.invoke('ember:validate-project', String(path ?? '')),
+
+  /** Load or generate ember.config.json in a previously validated folder. */
+  connectProject: (path) => ipcRenderer.invoke('ember:connect-project', String(path ?? '')),
+
+  /** Run a real agent profile (scan/analyze/logs/…) in a connected project. */
+  runProfile: (path, profile) => ipcRenderer.invoke('ember:run-profile', String(path ?? ''), String(profile ?? 'smoke')),
+
+  /** Subscribe to live step events for the current run. Returns unsubscribe. */
+  onRunStep: (callback) => {
+    const listener = (_event, step) => callback(step);
+    ipcRenderer.on('ember:run-step', listener);
+    return () => ipcRenderer.removeListener('ember:run-step', listener);
   }
 });
