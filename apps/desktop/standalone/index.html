@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>
+/* Ember Desktop: load React/ReactDOM/Babel from bundled local copies instead of
+   unpkg, and (by defining window.__resources) skip the runtime's fetch(location.href)
+   re-parse that blanked the screen. Makes the app work fully offline. */
+window.__resources = {
+  "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "/vendor/react.production.min.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "/vendor/react-dom.production.min.js",
+  "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js": "/vendor/babel.min.js"
+};
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
@@ -1904,6 +1914,7 @@ float snoise(vec3 v){
 })();
 
 </script>
+  <title>Ember Desktop</title>
 </head>
 <body>
 <x-dc>
@@ -2364,8 +2375,8 @@ float snoise(vec3 v){
                 <div style="border-radius:22px; padding:28px 26px; display:flex; flex-direction:column; background:{{ bp.bg }}; color:{{ bp.color }}; border:1px solid {{ bp.bd }}; box-shadow:{{ bp.shadow }}; transition:transform .3s; animation:riseIn .5s both;" style-hover="transform:translateY(-5px);">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:19px;">{{ bp.name }}</div>
-                    <sc-if value="{{ bp.hot }}" hint-placeholder-val="{{ false }}">
-                      <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; color:#ffd27a; border:1px solid rgba(255,210,122,.4); padding:4px 10px; border-radius:100px;">POPULAR</span>
+                    <sc-if value="{{ bp.badge }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; color:#ffd27a; border:1px solid rgba(255,210,122,.4); padding:4px 10px; border-radius:100px;">{{ bp.badge }}</span>
                     </sc-if>
                   </div>
                   <div style="margin-top:14px; display:flex; align-items:baseline; gap:6px;">
@@ -2789,7 +2800,7 @@ float snoise(vec3 v){
   </sc-if>
 </div>
 </x-dc>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{&quot;startPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;splash&quot;,&quot;welcome&quot;,&quot;auth&quot;,&quot;app&quot;],&quot;default&quot;:&quot;welcome&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;showDock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;startPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;splash&quot;,&quot;welcome&quot;,&quot;auth&quot;,&quot;app&quot;],&quot;default&quot;:&quot;welcome&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;fr&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;showDock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
 class Component extends DCLogic {
   state = {
     phase: null, lang: null, splash: [],
@@ -3154,10 +3165,12 @@ class Component extends DCLogic {
       : { bg: '#ffffff', color: '#1a1512', bd: 'rgba(26,21,18,.09)', shadow: '0 20px 50px rgba(26,21,18,.05)', checkBg: 'rgba(232,84,16,.12)', checkColor: '#e85410', btnBg: 'transparent', btnColor: '#1a1512', btnBd: 'rgba(26,21,18,.2)' };
     const checkoutToast = () => { window.location.href = 'mailto:hello@ember.dev?subject=Ember%20billing'; this.toast('Opening billing contact request'); };
     const billPlans = [
-      { name: 'Free', price: '$0', period: 'forever', tagline: 'Try Ember on one project.', hot: false, features: [{ t: '1 connected project' }, { t: 'Local scans & code analysis' }, { t: '5 reports / month' }, { t: 'Community support' }], btnLabel: 'Current plan', act: () => this.toast('You\u2019re already on Free'), ...mk(false) },
-      { name: 'Pro', price: '$29', period: '/ user / mo', tagline: 'For indies shipping seriously.', hot: true, features: [{ t: 'Unlimited projects' }, { t: 'Real agent scans & log analysis' }, { t: 'Unlimited report exports' }, { t: 'Custom test plans & rules' }], btnLabel: 'Upgrade to Pro', act: checkoutToast, ...mk(true) },
-      { name: 'Studio', price: '$99', period: '/ workspace / mo', tagline: 'For teams with a QA pipeline.', hot: false, features: [{ t: 'Everything in Pro' }, { t: 'Team workspace & shared reports' }, { t: 'CI/CD integration' }, { t: 'Priority support' }], btnLabel: 'Upgrade to Studio', act: checkoutToast, ...mk(false) },
-      { name: 'Lifetime', price: '$499', period: 'one-time', tagline: 'Own Ember forever.', hot: false, features: [{ t: 'Everything in Studio, forever' }, { t: 'No monthly fees, ever' }, { t: 'All future updates included' }, { t: 'Priority support for life' }], btnLabel: 'Buy Lifetime', act: checkoutToast, ...mk(false) }
+      { name: 'Pay as you go', price: 'Credits', period: 'billed on what you run', tagline: 'No commitment \u2014 pay only for the scans, analyses and AI you actually use. Bigger credit packs cost less per credit.', hot: false, badge: '', features: [{ t: '1 scan \u2248 1 credit \u00b7 deep AI analysis \u2248 4 credits' }, { t: 'Spending cap + low-balance alerts' }, { t: 'Optional auto-reload (you can turn it off)' }, { t: 'Standard AI model \u00b7 community support' }], btnLabel: 'Add credits', act: checkoutToast, ...mk(false) },
+      { name: 'Day pass', price: '$9.99', period: '/ day', tagline: 'Full access for 24 hours \u2014 perfect for a one-off crunch.', hot: false, badge: '', features: [{ t: 'Unlimited scans & reports for 24h' }, { t: 'Up to 3 projects' }, { t: 'Standard AI model' }, { t: 'Email support' }], btnLabel: 'Get a day pass', act: checkoutToast, ...mk(false) },
+      { name: 'Weekly', price: '$29.99', period: '/ week', tagline: '\u2248 $4.28 / day \u00b7 cheaper than three day passes.', hot: false, badge: '', features: [{ t: 'Everything in Day pass' }, { t: 'Up to 10 projects' }, { t: 'Priority queue \u00b7 faster runs' }, { t: 'Faster AI model' }], btnLabel: 'Go weekly', act: checkoutToast, ...mk(false) },
+      { name: 'Monthly', price: '$59.99', period: '/ month', tagline: '\u2248 $2 / day \u00b7 save 50% vs paying weekly.', hot: false, badge: '', features: [{ t: 'Unlimited projects & report exports' }, { t: 'Advanced AI model + deeper analysis' }, { t: 'Advanced reports & automations' }, { t: 'Priority support' }], btnLabel: 'Go monthly', act: checkoutToast, ...mk(false) },
+      { name: 'Annual', price: '$500', period: '/ year', tagline: '\u2248 $41.67 / month \u2014 save 30% ($220) vs monthly.', hot: true, badge: 'BEST VALUE', features: [{ t: 'Everything in Monthly, all year' }, { t: 'Most powerful AI model + longest history' }, { t: 'Advanced integrations & early access' }, { t: 'Priority support' }], btnLabel: 'Go annual \u2014 save 30%', act: checkoutToast, ...mk(true) },
+      { name: 'Lifetime', price: '$2,500', period: 'one-time', tagline: 'Own Ember forever \u2014 pays for itself in ~5 years vs annual. For power users.', hot: false, badge: 'PREMIUM', features: [{ t: 'Everything in Annual, forever' }, { t: 'No subscription, ever' }, { t: 'All future updates included' }, { t: 'Priority support for life' }], btnLabel: 'Buy Lifetime', act: checkoutToast, ...mk(false) }
     ];
 
     // notifications
@@ -3338,5 +3351,30 @@ class Component extends DCLogic {
   }
 }
 </script>
+<!-- ember-ui-overrides -->
+<style id="ember-ui-overrides">
+/* Ember Desktop v3 — targeted UI corrections (additive; the design file is generated). */
+/* 1. Remove the macOS traffic-light dots in the top bar. */
+[data-dc-tpl="79"] [data-dc-tpl="80"]{ display:none !important; }
+/* 2. Real Ember flame logo in place of the small orange ball. */
+[data-dc-tpl="84"] [data-dc-tpl="85"]{
+  width:26px !important; height:26px !important; border-radius:0 !important;
+  background:url('./ember-logo.png') center/contain no-repeat !important;
+  box-shadow:none !important; animation:none !important;
+}
+/* 4. Centered modals: force the centering transform (their entrance animation
+      was overriding translate(-50%,-50%), leaving them off to the bottom-right)
+      and cap height so they never overflow the window. */
+[style*="translate(-50%, -50%)"]{
+  transform:translate(-50%, -50%) !important;
+  max-height:90vh !important; overflow-y:auto !important;
+}
+/* 5. Profile / Settings open full-screen instead of a narrow side drawer. */
+[data-dc-tpl="345"]{
+  top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+  width:100% !important; max-width:100% !important; border-radius:0 !important;
+}
+[data-dc-tpl="345"] > *{ max-width:900px !important; margin-left:auto !important; margin-right:auto !important; width:100% !important; }
+</style>
 </body>
 </html>

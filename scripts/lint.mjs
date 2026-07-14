@@ -10,7 +10,7 @@ import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'release', 'design', 'data']);
+const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'release', 'design', 'data', 'vendor']);
 
 function walk(dir, acc = []) {
   for (const name of readdirSync(dir)) {
