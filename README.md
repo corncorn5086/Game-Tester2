@@ -12,7 +12,7 @@ yet is reported as **blocked** with the exact missing piece.
 
 ```
 apps/web        Ember marketing site (Vite + React) — presents & distributes the product
-apps/desktop    Ember Desktop (Electron) — ships the v3 desktop design as a native app
+apps/desktop    Ember Desktop (Electron) — the 残火 “Zanka” redesign as a native app
 apps/agent      Ember Agent — real, offline-first CLI (`ember`), zero external deps
 backend         Ember API (Express + SQLite via node:sqlite) — projects, bugs, reports, auth, billing, team
 shared          Schemas, engine profiles, plans, constants shared by everything
@@ -38,9 +38,12 @@ npm install
 | Web + backend together | `npm run dev:all` | 4311 + 4310 |
 | Agent CLI | `npm run agent -- --help` | — |
 
-The desktop app is a native Electron window that serves the bundled **v3 design**
-(`apps/desktop/standalone/`, with React/Babel vendored locally so it runs offline).
-Launch it separately with `npm run dev:desktop`.
+The desktop app is a native Electron window that serves the bundled **残火 “Zanka”
+redesign** (`apps/desktop/standalone/`, with React/Babel and all fonts vendored
+locally so it runs fully offline). The Welcome screen keeps the classic molten-orb
+concept; past sign-in the app becomes a lacquer-dark “forge” navigated through the
+Ember Dial — the orb at the bottom of the screen that blooms into a radial compass
+(keys 1–7, ⌘K command palette). Launch it separately with `npm run dev:desktop`.
 
 Other scripts: `build:web` / `build:desktop` / `build:backend` / `build:agent`,
 `lint`, `typecheck`, `test:agent`, and `npm test --workspace @ember/backend`.
@@ -96,7 +99,7 @@ Full reference: [docs/config.md](docs/config.md) · CLI reference: [docs/cli.md]
 - **Bug records** — severity, category, source, evidence, repro steps, reproducibility confidence, regression risk, status.
 - **QA reports** — executive summary + professional metrics (bugs found, crash risk, failed checks, severity breakdown, build health, logs analyzed, files scanned, commands executed…), JSON & Markdown export, run-over-run regression diff (fixed / still present / new).
 - **Backend** — full REST API with SQLite storage, real auth (scrypt + session tokens), report ingestion into a shared triage board, notifications, usage metrics counted from the database.
-- **Desktop app (v3 design)** — the Ember Desktop v3 design running as a native Electron app: onboarding/auth screens, Command Center, Projects, Connect, Agent, Analyze, Run, Bugs, Reports and Settings, with the animated molten-core orb. It is served over a local HTTP loopback with React/ReactDOM/Babel and the 3D runtime **vendored locally** (`apps/desktop/standalone/vendor/`), so it renders offline with no CDN dependency. This is a visual/interactive design build; the real agent core (scans, reports) is exposed through the CLI and backend.
+- **Desktop app (残火 “Zanka” redesign)** — the Ember Desktop redesign running as a native Electron app: the preserved molten-orb Welcome, a dark-forge shell with radial Ember-Dial navigation, Overview (ignition sequence + live forge feed), Projects, Reports with paper-scroll report viewer, Test Plans, Connectors, Config editor, Billing, full-screen Settings, notifications and a ⌘K command palette — all with the animated molten-core orb. It is served over a local HTTP loopback with React/ReactDOM/Babel, the 3D runtime **and all fonts vendored locally** (`apps/desktop/standalone/vendor/`, `apps/desktop/standalone/fonts/`), so it renders offline with no CDN dependency. This is a visual/interactive design build; the real agent core (scans, reports) is exposed through the CLI and backend.
 
 ## Data modes — no fake results
 

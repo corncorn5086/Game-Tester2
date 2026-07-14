@@ -2,7 +2,7 @@
   "name": "@ember/desktop",
   "version": "0.2.0",
   "private": true,
-  "description": "Ember Desktop — the v3 design as a native Electron app.",
+  "description": "Ember Desktop — the 残火 (Zanka) redesign as a native Electron app.",
   "author": "Ember <hello@ember.dev>",
   "type": "module",
   "main": "electron/main.cjs",

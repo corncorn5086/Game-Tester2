@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Dev launcher: opens Electron directly on the Ember Desktop v3 design
+ * Dev launcher: opens Electron directly on the Ember Desktop redesign
  * (apps/desktop/standalone/index.html). No dev server, no ports to collide
- * with. Needs an internet connection the first time — the design loads
- * React from a CDN.
+ * with. Fully offline — React, Babel, fonts and the 3D runtime are all
+ * vendored inside standalone/.
  */
 import { spawn } from 'node:child_process';
 

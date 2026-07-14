@@ -1,8 +1,9 @@
 /**
  * Ember Desktop — Electron shell.
- * Serves the Ember Desktop v3 design (standalone/) over http://127.0.0.1 and
- * opens it in a native window. HTTP (not file://) is required because the
- * design's runtime does `fetch(location.href)` to resolve its own resources.
+ * Serves the Ember Desktop 残火 (Zanka) redesign (standalone/) over
+ * http://127.0.0.1 and opens it in a native window. HTTP (not file://) is
+ * required because Babel standalone fetches app.jsx over XHR, which the
+ * file:// protocol blocks.
  */
 const { app, BrowserWindow, shell } = require('electron');
 const { join } = require('node:path');

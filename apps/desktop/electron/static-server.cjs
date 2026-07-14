@@ -1,10 +1,9 @@
 /**
- * Tiny static file server for the packaged v3 design.
+ * Tiny static file server for the packaged Ember Desktop UI.
  *
- * The design's runtime does `fetch(location.href)` to re-read itself and
- * resolve its inlined resources. That fetch is blocked under the file://
- * protocol, which makes the UI break right after the first paint — so we
- * serve the standalone/ folder over http://127.0.0.1 instead.
+ * Babel standalone fetches app.jsx over XHR, which is blocked under the
+ * file:// protocol — so we serve the standalone/ folder over
+ * http://127.0.0.1 instead.
  */
 const { createServer } = require('node:http');
 const { readFile } = require('node:fs');
