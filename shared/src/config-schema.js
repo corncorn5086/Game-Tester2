@@ -28,6 +28,7 @@ export const CONFIG_FIELDS = {
   excludeExtensions: ['string[]', false, 'File extensions to skip'],
   maxFiles: ['number', false, 'Max files to analyze per run (default 5000)'],
   testProfiles: ['object', false, 'Named test profiles: { smoke: { checks: [...], commands: [...] } }'],
+  webRunner: ['object', false, 'Forward-compatible Web runner configuration'],
   customRules: ['array', false, 'Custom analysis rules: { id, pattern, flags?, message, severity, category, extensions? }'],
   scenarios: ['array', false, 'Recorded playtest scenarios: { id, name, steps: string[], expectedResult, createdAt }'],
   backend: ['object', false, 'Optional backend sync: { url, projectId?, token? (prefer EMBER_AGENT_TOKEN env) }']

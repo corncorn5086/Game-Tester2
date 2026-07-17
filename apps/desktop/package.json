@@ -10,10 +10,15 @@
     "dev": "node scripts/dev-standalone.mjs",
     "start": "electron .",
     "build": "node -e \"console.log('@ember/desktop: nothing to build (static standalone UI)')\"",
-    "dist": "electron-builder",
-    "dist:win": "electron-builder --win",
-    "dist:mac": "electron-builder --mac",
-    "dist:linux": "electron-builder --linux"
+    "test": "node electron/project-service.test.cjs && node electron/auth-session.test.cjs && node electron/managed-ai-client.test.cjs && node electron/public-service-config.test.cjs && node scripts/package-desktop.test.cjs",
+    "dist": "node scripts/package-desktop.cjs",
+    "dist:win": "node scripts/package-desktop.cjs --win",
+    "dist:mac": "node scripts/package-desktop.cjs --mac",
+    "dist:linux": "node scripts/package-desktop.cjs --linux"
+  },
+  "dependencies": {
+    "@ember/agent": "*",
+    "@ember/shared": "*"
   },
   "devDependencies": {
     "electron": "^43.1.0",

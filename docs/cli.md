@@ -65,7 +65,7 @@ QA report, stores it in `.ember/reports/` and diffs it against the previous one.
 ember report                     # JSON report
 ember report --format md         # Markdown report
 ember report --profile full      # include a full test-profile run
-ember report --ai                # add an AI executive summary (requires ANTHROPIC_API_KEY)
+ember report --ai                # add an AI summary (trusted operator mode)
 ```
 
 Report contents: executive summary, professional metrics (bugs found, crash risk,
@@ -84,14 +84,13 @@ Environment + configuration diagnostics: Node version, git, config presence,
 every configured path (exists?), every command (set?), backend reachability.
 Each failing check comes with a remedy.
 
-## AI (optional)
+## AI (optional, server/operator mode)
 
-Ember supports two interchangeable AI providers — Claude Fable 5 and OpenAI.
-Set `ANTHROPIC_API_KEY` and/or `OPENAI_API_KEY` (in `.env` or the environment)
-to enable them. Pin one explicitly in Ember Desktop Settings → AI, or with
-`--ai-provider claude|openai` on the CLI. Leave it on "Auto" (the default) to
-try Claude Fable 5 first and automatically fall back to OpenAI if the call
-fails (e.g. no credit, rate limit) — every attempt is a real API call, never
+Ember supports Claude and OpenAI in trusted server/operator environments.
+Provider credentials are configured on the Ember backend, never by an Ember
+Desktop customer and never inside the packaged EXE. The standalone CLI keeps an
+operator-only environment-variable path for private automation; do not distribute
+those variables to client machines. Every attempt is a real provider call, never
 a simulated one. Two features, never anything else, never silently:
 
 - **Bug explanations** — root-cause hypothesis + a concrete fix suggestion,
@@ -101,11 +100,9 @@ a simulated one. Two features, never anything else, never silently:
   from the report's real metrics (`ember report --ai`, or "Generate AI summary"
   in the desktop Reports view).
 
-Without a configured key, both features report an explicit not-configured
-state — Ember never fabricates an AI response. Get a Claude key at
-[console.anthropic.com](https://console.anthropic.com) → Settings → API Keys,
-or an OpenAI key at [platform.openai.com](https://platform.openai.com/api-keys).
-`ember doctor` reports whether AI is enabled and which provider is active.
+Without a configured backend provider, both features report an explicit
+unavailable state — Ember never fabricates an AI response. `ember doctor`
+reports whether the current trusted operator environment has AI enabled.
 
 ## Backend sync (optional)
 

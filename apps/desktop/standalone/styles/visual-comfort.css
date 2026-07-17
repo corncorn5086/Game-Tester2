@@ -1,0 +1,523 @@
+/* Visual comfort pass -----------------------------------------------------
+   Keeps Ember's Japanese paper identity while making every working screen
+   calmer, rounder and readable at normal desktop viewing distances. */
+
+:root {
+  --ember-app-top: 76px;
+  --ember-comfort-card: 22px;
+  --ember-comfort-control: 14px;
+  --ember-comfort-body: 14px;
+  --ember-comfort-meta: 12.5px;
+}
+
+.ember-app-header {
+  padding-inline: clamp(24px, 3.4vw, 48px);
+  background: color-mix(in srgb, var(--ember-bg) 96%, var(--ember-surface-solid)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.ember-app-header__section,
+.ember-app-header__profile {
+  font-size: 12px;
+}
+
+.ember-app-nav > button,
+.ember-app-more > button {
+  min-height: 38px;
+  padding-inline: 17px;
+  font-size: 12.5px;
+}
+
+.ember-app-header__profile {
+  min-height: 42px;
+  padding-right: 12px;
+}
+
+.ember-app-header__profile > span:first-child {
+  width: 34px;
+  height: 34px;
+  font-size: 10.5px;
+}
+
+.ember-app-header__badge { font-size: 10px; }
+.ember-app-more__caption { font-size: 10px; }
+.ember-app-more__menu > button:not(.ember-app-more__command) { min-height: 62px; border-radius: 15px; }
+.ember-app-more__copy strong { font-size: 13px; }
+.ember-app-more__copy small { font-size: 11.5px; }
+.ember-app-more__command { min-height: 45px; font-size: 12px; }
+.ember-app-more__command kbd { font-size: 10px; }
+
+/* Shared editorial page headers */
+.ember-projects__page,
+.ember-reports__page,
+.ember-plans__page {
+  padding-top: clamp(34px, 4.5vh, 46px);
+}
+
+.ember-projects__intro,
+.ember-reports__intro,
+.ember-plans__intro {
+  min-height: 0;
+  align-items: flex-end;
+  padding-bottom: 24px;
+}
+
+.ember-projects__eyebrow,
+.ember-reports__eyebrow,
+.ember-plans__eyebrow {
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.ember-projects__intro h1,
+.ember-reports__intro h1,
+.ember-plans__intro h1 {
+  margin-top: 14px;
+  font-size: clamp(44px, 4.25vw, 58px);
+  line-height: 1.04;
+  letter-spacing: -.04em;
+}
+
+.ember-projects__intro-copy > p,
+.ember-reports__intro-copy > p,
+.ember-plans__intro-copy > p {
+  margin-top: 10px;
+  margin-left: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  letter-spacing: .11em;
+}
+
+/* Projects: fewer rigid edges, stronger names, readable metadata */
+.ember-projects__add,
+.ember-projects__primary {
+  min-height: 50px;
+  border-radius: var(--ember-radius-pill);
+  font-size: 14px;
+}
+
+.ember-projects__registry,
+.ember-projects__empty {
+  border-radius: var(--ember-comfort-card);
+}
+
+.ember-projects__registry-head {
+  padding: 22px 26px 20px;
+}
+
+.ember-projects__registry-head span,
+.ember-projects__registry-head > p,
+.ember-projects__footnote {
+  font-size: var(--ember-comfort-meta);
+}
+
+.ember-projects__registry-head h2 { font-size: 25px; }
+
+.ember-projects__project {
+  min-height: 112px;
+  padding: 21px 24px;
+  grid-template-columns: 48px minmax(250px, 1fr) 100px 154px auto;
+  gap: 20px;
+}
+
+.ember-projects__folio-number {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  font-size: 18px;
+}
+
+.ember-projects__project-title h3 { font-size: 23px; }
+.ember-projects__project-title span { padding: 4px 9px; font-size: 11.5px; }
+.ember-projects__project-copy > p { margin-top: 8px; font-size: 12.5px; line-height: 1.5; }
+.ember-projects__engine small { font-size: 11.5px; }
+.ember-projects__engine strong { font-size: 12.5px; }
+.ember-projects__project-state { font-size: 12px; }
+.ember-projects__project.is-running .ember-projects__project-state > i {
+  background: var(--ember-heat-500);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ember-heat-500) 15%, transparent);
+}
+
+.ember-projects__open,
+.ember-projects__remove,
+.ember-projects__cancel-remove,
+.ember-projects__confirm-remove {
+  min-height: 42px;
+  border-radius: var(--ember-radius-pill);
+  font-size: 12.5px;
+}
+
+.ember-projects__footnote { letter-spacing: .1em; }
+.ember-projects__remove:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+/* Reports: clear rows with progressive detail */
+.ember-reports__count span,
+.ember-reports__count strong { font-size: var(--ember-comfort-meta); }
+
+.ember-reports__archive,
+.ember-reports__empty {
+  border-radius: var(--ember-comfort-card);
+}
+
+.ember-reports__archive-head { padding: 22px 24px 20px; }
+.ember-reports__archive-head > div > span { font-size: 11.5px; }
+.ember-reports__archive-head h2 { font-size: 26px; }
+
+.ember-reports__filters {
+  padding: 4px;
+  border-radius: var(--ember-radius-pill);
+}
+
+.ember-reports__filter {
+  min-height: 38px;
+  padding-inline: 15px;
+  border-radius: var(--ember-radius-pill);
+  font-size: 12px;
+}
+
+.ember-reports__report {
+  min-height: 108px;
+  padding: 19px 22px;
+  grid-template-columns: 54px minmax(260px, 1fr) minmax(360px, auto) 40px;
+  gap: 20px;
+}
+
+.ember-reports__report-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  font-size: 19px;
+}
+
+.ember-reports__report-copy strong { font-size: 22px; }
+.ember-reports__report-copy small { font-size: 12.5px; line-height: 1.45; }
+.ember-reports__report-facts > span { min-height: 38px; padding-inline: 15px; font-size: 12px; }
+.ember-reports__open-mark { width: 36px; height: 36px; border-radius: 50%; }
+
+.ember-reports__archive-foot,
+.ember-reports__footnote {
+  min-height: 48px;
+  font-size: var(--ember-comfort-meta);
+  letter-spacing: .09em;
+}
+
+/* Plans: fix the overlapping masthead and remove the wall of microcopy */
+.ember-plans__registry-state > span,
+.ember-plans__registry-state > strong { font-size: var(--ember-comfort-meta); }
+
+.ember-plans__workspace {
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 20px;
+}
+
+.ember-plans__registry-head { min-height: 112px; padding: 28px 28px 22px 31px; }
+.ember-plans__registry-head > div > span { font-size: 11.5px; }
+.ember-plans__registry-head h2 { font-size: 29px; }
+.ember-plans__new { min-height: 48px; padding-left: 18px; font-size: 13px; }
+
+.ember-plans__registry-columns {
+  min-height: 42px;
+  font-size: 11.5px;
+}
+
+.ember-plans__form-row {
+  min-height: 142px;
+  padding-block: 22px;
+}
+
+.ember-plans__form-number > small { font-size: 11.5px; }
+.ember-plans__form-copy > p { font-size: 13px; line-height: 1.55; }
+.ember-plans__checks { flex-wrap: wrap; overflow: visible; gap: 7px; }
+.ember-plans__checks > span { padding: 6px 9px; border-radius: var(--ember-radius-pill); font-size: 11.5px; }
+.ember-plans__run { min-width: 76px; min-height: 58px; border-radius: 18px; }
+.ember-plans__run > span { font-size: 12.5px; }
+.ember-plans__run > small { font-size: 11.5px; }
+.ember-plans__registry-foot { min-height: 52px; font-size: 12px; }
+.ember-plans__registry-foot span:last-child { font-size: 12px; }
+
+.ember-plans__core-shrine { border-radius: var(--ember-comfort-card); }
+.ember-plans__project-state > span,
+.ember-plans__project-state > small { font-size: 11.5px; }
+.ember-plans__project-state > strong { font-size: 12.5px; }
+
+.ember-plans__bridge-note {
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.ember-plans__bridge-note header strong { font-size: 11.5px; }
+.ember-plans__bridge-note header small { font-size: 11.5px; }
+.ember-plans__bridge-note > p { font-size: 12.5px; line-height: 1.55; }
+.ember-plans__bridge-note > div { display: none; }
+.ember-plans__footnote { font-size: var(--ember-comfort-meta); }
+
+/* Home: readable summaries; the report keeps exhaustive evidence */
+.ember-home__page { padding-top: clamp(34px, 4.6vh, 48px); }
+.ember-home__welcome,
+.ember-home__ready-label,
+.ember-home__run-kicker,
+.ember-home__finished-head > div:nth-child(2) > span { font-size: 11.5px; }
+.ember-home__jp-note { font-size: 12.5px; }
+.ember-home__privacy-note { font-size: 13px; }
+
+.ember-home__journey header > span,
+.ember-home__start-copy > span,
+.ember-home__mode-label,
+.ember-home__mode-options > div:first-child > span { font-size: 11.5px; }
+
+.ember-home__journey strong { font-size: 13.5px; }
+.ember-home__journey p { font-size: 12.5px; }
+.ember-home__project-identity p,
+.ember-home__switch { font-size: 12.5px; }
+.ember-home__start-copy p { font-size: 14px; }
+.ember-home__mode-copy small { font-size: 12.5px; }
+.ember-home__mode { min-height: 142px; padding: 20px; border-radius: 20px; }
+.ember-home__profiles button { min-height: 62px; border-radius: 17px; }
+.ember-home__profiles strong { font-size: 13px; }
+.ember-home__profiles small { font-size: 11.5px; }
+.ember-home__launch-row > p { font-size: 12.5px; }
+.ember-home__recent header button,
+.ember-home__recent-empty strong,
+.ember-home__recent-list strong { font-size: 13px; }
+.ember-home__recent-empty p,
+.ember-home__recent-list small { font-size: 11.5px; }
+
+.ember-home__finished-head,
+.ember-home__severity,
+.ember-home__important { border-radius: var(--ember-comfort-card); }
+.ember-home__finished-head p { font-size: 13.5px; }
+.ember-home__readiness span { font-size: 10.5px; }
+.ember-home__severity dt { font-size: 11.5px; }
+.ember-home__important header span { font-size: 11.5px; }
+.ember-home__issue-list > article { min-height: 82px; padding-block: 17px; }
+.ember-home__issue-list > article > span { font-size: 9.5px; }
+.ember-home__issue-list h3 { font-size: 14px; }
+.ember-home__issue-list p { font-size: 11.5px; line-height: 1.5; }
+.ember-home__secondary { font-size: 13px; }
+
+.ember-home__progress-meta,
+.ember-home__run-stats dt,
+.ember-home__run-phases strong,
+.ember-home__technical > button { font-size: 12.5px; }
+.ember-home__run-head p,
+.ember-home__progress-main p { font-size: 13px; }
+.ember-home__run-phases small,
+.ember-home__technical-log p { font-size: 11.5px; }
+
+/* Project assistant: readable pills and calm warnings */
+.ember-onboarding__progress > span { font-size: 11.5px; }
+.ember-onboarding__intro > span,
+.ember-onboarding__validation > span,
+.ember-onboarding__invalid > span:not(.ember-onboarding__invalid-mark) { font-size: 10.5px; }
+.ember-onboarding__method-copy > span { font-size: 10.5px; }
+.ember-onboarding__method-copy small { font-size: 13.5px; }
+.ember-onboarding__local-note > span,
+.ember-onboarding__permission > span { font-size: 12.5px; }
+.ember-onboarding__validation > p,
+.ember-onboarding__path { font-size: 11.5px; }
+.ember-onboarding__validation li { font-size: 12.5px; }
+.ember-onboarding__project-card > div span,
+.ember-onboarding__details dt,
+.ember-onboarding__details dd,
+.ember-onboarding__details > div:first-child dd { font-size: 12.5px; }
+.ember-onboarding__recognized { font-size: 11.5px; }
+.ember-onboarding__capabilities h2 { font-size: 14px; }
+.ember-onboarding__capabilities span { min-height: 38px; padding-inline: 14px; font-size: 12.5px; }
+.ember-onboarding__warnings p { padding: 12px 14px; border-radius: 15px; font-size: 12.5px; }
+.ember-onboarding__primary,
+.ember-onboarding__secondary { min-height: 48px; font-size: 13.5px; }
+
+/* Plan composer */
+.ember-plan-composer__brand strong,
+.ember-plan-composer__brand small,
+.ember-plan-composer__kicker,
+.ember-plan-composer__name > span,
+.ember-plan-composer__selection-count span,
+.ember-plan-composer__selection-count strong,
+.ember-plan-composer__check-field > header span,
+.ember-plan-composer__check-field > header > small { font-size: 11px; }
+.ember-plan-composer__identity > p { font-size: 12px; }
+.ember-plan-composer__sdk-note { border-radius: 16px; }
+.ember-plan-composer__sdk-note p { font-size: 12px; }
+.ember-plan-composer__check { min-height: 64px; border-radius: 16px; }
+.ember-plan-composer__check-index { font-size: 10px; }
+.ember-plan-composer__check-copy strong { font-size: 12.5px; }
+.ember-plan-composer__check-copy small { font-size: 10.5px; }
+.ember-plan-composer__footer > span { font-size: 10.5px; }
+.ember-plan-composer__cancel,
+.ember-plan-composer__create > span { font-size: 13px; }
+
+/* Settings */
+.ember-settings__brand strong,
+.ember-settings__brand small,
+.ember-settings__heading p,
+.ember-settings__back { font-size: 11.5px; }
+.ember-settings__identity span { font-size: 12.5px; }
+.ember-settings__identity small { font-size: 11px; }
+.ember-settings__group h2 { font-size: 11px; }
+.ember-settings__group button { min-height: 48px; font-size: 13.5px; }
+.ember-settings__group:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.ember-settings__field > span,
+.ember-settings__section > header,
+.ember-settings__section > header small { font-size: 11.5px; }
+.ember-settings__field input { min-height: 48px; font-size: 14px; }
+.ember-settings__card h2,
+.ember-settings__toggle-row strong { font-size: 14.5px; }
+.ember-settings__card p,
+.ember-settings__toggle-row p { font-size: 13px; }
+.ember-settings__status,
+.ember-settings__card code,
+.ember-settings__theme small,
+.ember-settings__actions > div strong { font-size: 11.5px; }
+.ember-settings__theme strong { font-size: 14px; }
+.ember-settings__language { min-height: 44px; font-size: 13.5px; }
+.ember-settings__actions > button { min-height: 48px; border-radius: 16px; font-size: 14px; }
+
+/* Reports: evidence must remain readable at normal desktop distance. */
+.ember-report-viewer__brand > strong { font-size: 11px; }
+.ember-report-viewer__brand > small { font-size: 10px; }
+.ember-report-viewer__actions button { min-height: 38px; font-size: 11.5px; }
+.ember-report-viewer__cover-copy > p,
+.ember-report-viewer__score > small,
+.ember-report-viewer__score > em,
+.ember-report-viewer__meta dt,
+.ember-report-viewer__findings > header span,
+.ember-report-viewer__breakdown header span,
+.ember-report-viewer__blocked > span { font-size: 12px; }
+.ember-report-viewer__cover-copy > span { font-size: 12.5px; }
+.ember-report-viewer__findings > header p { max-width: 250px; font-size: 13px; }
+.ember-report-viewer__severity { border-radius: var(--ember-radius-pill); font-size: 11.5px; }
+.ember-report-viewer__finding h3 { font-size: 14.5px; }
+.ember-report-viewer__finding p { font-size: 12.5px; }
+.ember-report-viewer__breakdown header small,
+.ember-report-viewer__blocked > small,
+.ember-report-viewer__bar > span { font-size: 11.5px; }
+.ember-report-viewer__blocked { border-radius: 18px; transform: none; }
+.ember-report-viewer__blocked li strong,
+.ember-report-viewer__blocked li em { font-size: 12px; }
+.ember-report-viewer__footer,
+.ember-report-viewer__footer span:last-child { font-size: 11.5px; }
+
+/* Configuration is paper in light mode; ink black is reserved for dark. */
+.ember-config__title { font-size: clamp(42px, 4.1vw, 56px) !important; }
+.ember-config__eyebrow { font-size: 11.5px !important; }
+
+:root[data-theme="light"] .ember-config__editor {
+  border: 1px solid var(--ember-border) !important;
+  background: color-mix(in srgb, var(--ember-surface-solid) 92%, var(--ember-washi-100)) !important;
+  box-shadow: 0 28px 70px rgba(73, 56, 32, .12) !important;
+}
+
+:root[data-theme="light"] .ember-config__toolbar {
+  border-bottom: 1px solid var(--ember-border) !important;
+  background: color-mix(in srgb, var(--ember-washi-100) 76%, var(--ember-surface-solid)) !important;
+}
+
+:root[data-theme="light"] .ember-config__dot {
+  width: 9px !important;
+  height: 9px !important;
+  background: var(--ember-heat-400) !important;
+  opacity: .7;
+}
+
+:root[data-theme="light"] .ember-config__dot.is-yellow { background: #c8943f !important; }
+:root[data-theme="light"] .ember-config__dot.is-green { background: var(--ember-positive-400) !important; }
+:root[data-theme="light"] .ember-config__filename { color: var(--ember-text-muted) !important; font-size: 12px !important; }
+:root[data-theme="light"] .ember-config__copy { border-color: var(--ember-border) !important; color: var(--ember-text-secondary) !important; font-size: 11px !important; }
+:root[data-theme="light"] .ember-config__textarea {
+  background: rgba(255, 253, 248, .66) !important;
+  color: var(--ember-text) !important;
+  caret-color: var(--ember-heat-600);
+  font-size: 14.5px !important;
+  line-height: 1.75 !important;
+}
+
+:root[data-theme="light"] .ember-config__actions {
+  border-color: var(--ember-border) !important;
+  background: color-mix(in srgb, var(--ember-washi-100) 40%, transparent) !important;
+}
+
+:root[data-theme="light"] .ember-config__helper { color: var(--ember-text-muted) !important; font-size: 11.5px !important; }
+.ember-config__save { min-height: 44px; padding-inline: 22px !important; font-size: 13.5px !important; }
+
+/* The light theme uses paper and ember-red accents, never black panels. */
+:root[data-theme="light"] .ember-app-nav > button.is-active,
+:root[data-theme="light"] .ember-app-more > button.is-active {
+  background: var(--ember-heat-600);
+  color: #fffaf3;
+}
+
+:root[data-theme="light"] :is(
+  .ember-landing__primary,
+  .ember-auth__submit,
+  .ember-home__primary,
+  .ember-projects__add,
+  .ember-projects__primary,
+  .ember-reports__empty-action,
+  .ember-plans__connect,
+  .ember-plan-composer__create,
+  .ember-onboarding__primary
+) {
+  border-color: var(--ember-heat-600);
+  background: var(--ember-heat-600);
+  color: #fffaf3;
+}
+
+:root[data-theme="light"] :is(
+  .ember-app-header__profile > span:first-child,
+  .ember-home__project-icon,
+  .ember-onboarding__project-icon,
+  .ember-onboarding__method > i,
+  .ember-settings__avatar,
+  .ember-settings__profile-mark
+) {
+  background: var(--ember-heat-600);
+  color: #fffaf3;
+}
+
+:root[data-theme="light"] .ember-settings__languages::before {
+  background: var(--ember-heat-600);
+}
+
+:root[data-theme="light"] .ember-language::before {
+  background: var(--ember-heat-600);
+}
+
+:root[data-theme="light"] .ember-landing__primary-mark,
+:root[data-theme="light"] .ember-auth__submit-mark,
+:root[data-theme="light"] .ember-plan-composer__create > i {
+  background: rgba(255, 255, 255, .2);
+}
+
+:root[data-theme="light"] .ember-reports__empty-action {
+  border-radius: var(--ember-radius-pill);
+}
+
+.ember-plans__registry-columns,
+.ember-plans__registry-foot,
+.ember-plans__footnote { color: color-mix(in srgb, var(--ember-text-secondary) 86%, transparent); }
+
+@media (max-width: 1120px) {
+  .ember-projects__project { grid-template-columns: 46px minmax(220px, 1fr) 90px auto; }
+  .ember-projects__project-state { display: none; }
+  .ember-reports__report { grid-template-columns: 50px minmax(230px, 1fr) minmax(260px, auto) 38px; }
+  .ember-plans__workspace { grid-template-columns: minmax(0, 1fr) 280px; }
+}
+
+@media (max-width: 860px) {
+  :root { --ember-app-top: 70px; }
+  .ember-app-nav > button,
+  .ember-app-more > button { padding-inline: 11px; font-size: 11.5px; }
+  .ember-projects__intro h1,
+  .ember-reports__intro h1,
+  .ember-plans__intro h1 { font-size: clamp(39px, 8vw, 50px); }
+  .ember-projects__project { grid-template-columns: 42px minmax(0, 1fr) auto; }
+  .ember-projects__engine { display: none; }
+  .ember-reports__report { grid-template-columns: 44px minmax(0, 1fr) 38px; }
+  .ember-reports__report-facts { display: none; }
+  .ember-plans__workspace { grid-template-columns: 1fr; }
+}

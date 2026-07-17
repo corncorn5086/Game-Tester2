@@ -12,11 +12,31 @@ directories:
 # What ships inside the app: the Electron shell + the static v3 design.
 files:
   - electron/**/*
+  - "!electron/**/*.test.cjs"
   - standalone/**/*
   - package.json
   - "!**/*.map"
 
 asar: true
+
+# The main process dynamically imports the real ESM agent. Workspace symlinks
+# are not reliable once packaged, so ship a deterministic package layout next
+# to app.asar and resolve it through process.resourcesPath.
+extraResources:
+  # Generated only while package-desktop.cjs runs. Packaged builds fail before
+  # electron-builder if this public HTTPS endpoint was not supplied.
+  - from: build/ember-service.json
+    to: ember-service.json
+  - from: ../agent
+    to: ember-core/node_modules/@ember/agent
+    filter:
+      - package.json
+      - src/**/*
+  - from: ../../shared
+    to: ember-core/node_modules/@ember/shared
+    filter:
+      - package.json
+      - src/**/*
 
 win:
   target:

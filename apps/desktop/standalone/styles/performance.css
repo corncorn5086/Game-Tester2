@@ -1,0 +1,31 @@
+/* Keep the animated WebGL identity on its own inexpensive compositing layer.
+   The surrounding aura/rings already provide the glow, so filtering every
+   newly rendered canvas frame only duplicates that light at a high GPU cost. */
+molten-core {
+  contain: layout paint style;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+molten-core canvas {
+  display: block;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.ember-landing__orb-stage > molten-core,
+.ember-auth__orb-stage > molten-core,
+.ember-home__core-stage > molten-core,
+.ember-projects__core-stage molten-core,
+.ember-reports__core-stage molten-core,
+.ember-plans__core-stage molten-core,
+.ember-molten-core {
+  filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  molten-core,
+  molten-core canvas {
+    transform: none;
+  }
+}

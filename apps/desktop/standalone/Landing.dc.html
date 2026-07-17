@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <section class="ember-landing" data-screen-label="Welcome" aria-labelledby="ember-landing-title">
+    <div class="ember-landing__garden" aria-hidden="true"></div>
+    <div class="ember-landing__mist" aria-hidden="true"></div>
+    <div class="ember-landing__petals" aria-hidden="true">
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--far"></i>
+      <i class="ember-landing__petal ember-landing__petal--leaf"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--far"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--leaf"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--far"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--leaf"></i>
+      <i class="ember-landing__petal ember-landing__petal--far"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--leaf"></i>
+      <i class="ember-landing__petal"></i>
+      <i class="ember-landing__petal ember-landing__petal--far"></i>
+    </div>
+
+    <header class="ember-landing__masthead">
+      <div class="ember-landing__brand" aria-label="Ember">
+        <span class="ember-landing__brand-index" aria-hidden="true">01</span>
+        <span class="ember-landing__brand-name">EMBER</span>
+        <span class="ember-landing__meta">{{ wMeta }}</span>
+        <span class="ember-landing__brand-jp" lang="ja" aria-hidden="true">炎の知性</span>
+      </div>
+
+      <div class="ember-language" role="group" aria-label="{{ wLanguage }}">
+        <sc-for list="{{ langBtns }}" as="lb" hint-placeholder-count="2">
+          <button class="{{ lb.className }}" onClick="{{ lb.go }}" aria-pressed="{{ lb.active }}">{{ lb.label }}</button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div class="ember-landing__japanese-rail" lang="ja" aria-hidden="true">
+      <span class="ember-landing__seal">火</span>
+      <span>静けさの中に、火が目覚める</span>
+    </div>
+
+    <div class="ember-landing__orb-stage" role="img" aria-label="{{ wOrbLabel }}">
+      <div class="ember-landing__orb-aura" aria-hidden="true"></div>
+      <div class="ember-landing__orb-ring" aria-hidden="true"></div>
+      <molten-core class="ember-landing__orb-core" aria-hidden="true"></molten-core>
+      <div class="ember-landing__orb-hint" aria-hidden="true">{{ wHint }}</div>
+    </div>
+
+    <aside class="ember-landing__status" aria-label="{{ wStateLabel }}">
+      <span class="ember-landing__status-rule" aria-hidden="true"></span>
+      <span>
+        <span class="ember-landing__status-label">{{ wStateLabel }}</span>
+        <span class="ember-landing__status-value">{{ wState }}</span>
+      </span>
+    </aside>
+
+    <div class="ember-landing__copy">
+      <div class="ember-landing__kicker">{{ wKicker }}</div>
+      <p class="ember-landing__jp-line" lang="ja">庭に宿る、炎の知性。</p>
+      <h1 id="ember-landing-title" class="ember-landing__title">
+        <sc-for list="{{ welcomeWords }}" as="w" hint-placeholder-count="3">
+          <span class="ember-landing__word" style="animation-delay:{{ w.d }};">{{ w.t }}</span>
+        </sc-for>
+        <span class="ember-landing__word--heat" style="animation-delay:{{ wOrangeDelay }};">{{ wOrange }}</span>
+      </h1>
+    </div>
+
+    <div class="ember-landing__actions">
+      <div class="ember-landing__action-label">{{ wAccess }}</div>
+      <p class="ember-landing__description">{{ wSub }}</p>
+      <div class="ember-landing__buttons">
+        <button class="ember-landing__primary" onClick="{{ wSignup }}">
+          <span>{{ wCta }}</span>
+          <span class="ember-landing__primary-mark" aria-hidden="true">&rarr;</span>
+        </button>
+        <button class="ember-landing__secondary" onClick="{{ wSignin }}">{{ wCta2 }}</button>
+      </div>
+    </div>
+
+    <footer class="ember-landing__footer">
+      <span class="ember-landing__platform">{{ wPlatform }}</span>
+      <span class="ember-landing__folio">{{ wBuild }}</span>
+    </footer>
+  </section>
+</x-dc>
+</body>
+</html>

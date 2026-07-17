@@ -5,14 +5,41 @@
  * (DATABASE_URL in .env is reserved for that).
  */
 import { DatabaseSync } from 'node:sqlite';
-import { existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { accessSync, constants as fsConstants, existsSync, mkdirSync, statSync } from 'node:fs';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DATA_DIR = process.env.EMBER_DATA_DIR ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
-if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+const DEFAULT_DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
+const CONFIGURED_DATA_DIR = String(process.env.EMBER_DATA_DIR || '').trim();
+export const DATA_DIR = resolve(CONFIGURED_DATA_DIR || DEFAULT_DATA_DIR);
+if (process.env.NODE_ENV === 'production' && !CONFIGURED_DATA_DIR) {
+  const error = new Error('EMBER_DATA_DIR must point to persistent storage in production.');
+  error.code = 'PERSISTENT_DATA_DIR_REQUIRED';
+  throw error;
+}
+if (process.env.NODE_ENV === 'production' && !isAbsolute(CONFIGURED_DATA_DIR)) {
+  const error = new Error('EMBER_DATA_DIR must be absolute in production.');
+  error.code = 'DATA_DIR_NOT_ABSOLUTE';
+  throw error;
+}
+try {
+  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+  if (!statSync(DATA_DIR).isDirectory()) {
+    const error = new Error('EMBER_DATA_DIR must be a directory.');
+    error.code = 'DATA_DIR_NOT_DIRECTORY';
+    throw error;
+  }
+  accessSync(DATA_DIR, fsConstants.R_OK | fsConstants.W_OK);
+} catch (error) {
+  if (error?.code === 'DATA_DIR_NOT_DIRECTORY') throw error;
+  const unavailable = new Error('EMBER_DATA_DIR must be an existing or creatable writable directory.');
+  unavailable.code = 'DATA_DIR_UNAVAILABLE';
+  unavailable.cause = error;
+  throw unavailable;
+}
 
-export const db = new DatabaseSync(join(DATA_DIR, 'ember.sqlite'));
+export const DB_PATH = join(DATA_DIR, 'ember.sqlite');
+export const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA journal_mode = WAL;');
 db.exec('PRAGMA foreign_keys = ON;');
 
@@ -146,6 +173,20 @@ db.exec(`
     kind TEXT NOT NULL, code TEXT, created_at TEXT NOT NULL, expires_at TEXT NOT NULL, used INTEGER NOT NULL DEFAULT 0
   );
 `);
+addColumn('auth_tokens', 'attempts', 'INTEGER NOT NULL DEFAULT 0');
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_auth_tokens_expiry ON auth_tokens(used, expires_at);
+  CREATE INDEX IF NOT EXISTS idx_auth_tokens_user_kind ON auth_tokens(user_id, kind, created_at);
+
+  -- The operator bootstrap is a durable singleton. Keeping this marker outside
+  -- auth_tokens prevents token-retention cleanup or account deactivation from
+  -- reopening a bootstrap credential that has already been consumed.
+  CREATE TABLE IF NOT EXISTS operator_bootstrap (
+    singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+    user_id TEXT NOT NULL UNIQUE REFERENCES users(id),
+    claimed_at TEXT NOT NULL
+  );
+`);
 
 // Give sessions a stable short id for listing/revoking individually (existing
 // rows are backfilled; SQLite's randomblob/hex generate a safe unique value).
@@ -178,4 +219,14 @@ export function j(value, fallback = null) {
 
 export function now() {
   return new Date().toISOString();
+}
+
+let databaseClosed = false;
+
+/** Flush the WAL and close SQLite after the HTTP server has drained. */
+export function closeDatabase() {
+  if (databaseClosed) return;
+  databaseClosed = true;
+  try { db.exec('PRAGMA wal_checkpoint(TRUNCATE);'); } catch { /* best effort during shutdown */ }
+  db.close();
 }

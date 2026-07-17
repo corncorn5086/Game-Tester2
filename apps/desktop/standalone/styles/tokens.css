@@ -1,0 +1,182 @@
+@font-face {
+  font-family: "Shippori Mincho Ember";
+  src: url("../assets/fonts/shippori-mincho-medium.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Yuji Syuku Ember";
+  src: url("../assets/fonts/yuji-syuku-regular.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Zen Kaku Gothic Ember";
+  src: url("../assets/fonts/zen-kaku-gothic-new-medium.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 500;
+}
+
+:root {
+  color-scheme: light;
+
+  /* Ember material palette */
+  --ember-obsidian-1000: #070706;
+  --ember-obsidian-950: #0b0b0a;
+  --ember-obsidian-900: #11110f;
+  --ember-obsidian-850: #171613;
+  --ember-ivory-50: #f7f4ed;
+  --ember-ivory-100: #eee9df;
+  --ember-titanium-300: #c8c2b7;
+  --ember-titanium-500: #8e897f;
+  --ember-titanium-700: #4b4842;
+  --ember-heat-300: #ffc174;
+  --ember-heat-400: #ff9647;
+  --ember-heat-500: #f36a21;
+  --ember-heat-600: #d84a12;
+  --ember-positive-400: #72c49a;
+
+  /* Japanese paper and ink */
+  --ember-paper-0: #fffdf8;
+  --ember-paper-50: #fbf8f0;
+  --ember-washi-100: #f3eddf;
+  --ember-washi-200: #e9decb;
+  --ember-ink-950: #24231f;
+  --ember-ink-700: #4f4b43;
+  --ember-ink-500: #676157;
+  --ember-line: rgba(61, 55, 46, .16);
+  --ember-paper-glass: rgba(255, 252, 245, .74);
+  --ember-paper-shadow: rgba(73, 56, 32, .12);
+  --ember-heat-text: #b94712;
+
+  /* Semantic surfaces. Components should prefer these over literal paper/ink
+     values so appearance changes do not invert a control accidentally. */
+  --ember-bg: var(--ember-paper-50);
+  --ember-surface: rgba(255, 253, 248, .76);
+  --ember-surface-solid: var(--ember-paper-0);
+  --ember-surface-raised: #fffefa;
+  --ember-field: rgba(255, 253, 248, .72);
+  --ember-overlay: rgba(36, 31, 25, .42);
+  --ember-text: var(--ember-ink-950);
+  --ember-text-secondary: var(--ember-ink-700);
+  --ember-text-muted: var(--ember-ink-500);
+  --ember-border: var(--ember-line);
+  --ember-shadow: 0 24px 70px var(--ember-paper-shadow);
+  --ember-code-bg: #f4ede0;
+  --ember-code-surface: #ebe0ce;
+  --ember-code-text: #332d26;
+  --ember-code-muted: #746a5e;
+  --ember-danger: #b83b20;
+
+  /* Typography */
+  --ember-font-display: "Zen Kaku Gothic Ember", "Bricolage Grotesque", "Segoe UI Variable Display", "Avenir Next", sans-serif;
+  --ember-font-ui: "Zen Kaku Gothic Ember", "Hanken Grotesk", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --ember-font-editorial: "Shippori Mincho Ember", "Iowan Old Style", "Yu Mincho", "Baskerville", Georgia, serif;
+  --ember-font-jp-display: "Shippori Mincho Ember", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", "MS PMincho", serif;
+  --ember-font-jp-brush: "Yuji Syuku Ember", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  --ember-font-jp-sans: "Zen Kaku Gothic Ember", "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  --ember-font-jp: var(--ember-font-jp-display);
+  --ember-font-mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* Shared geometry and motion */
+  --ember-space-1: 4px;
+  --ember-space-2: 8px;
+  --ember-space-3: 12px;
+  --ember-space-4: 16px;
+  --ember-space-5: 24px;
+  --ember-space-6: 32px;
+  --ember-space-7: 48px;
+  --ember-space-8: 64px;
+  --ember-radius-sm: 10px;
+  --ember-radius-md: 16px;
+  --ember-radius-pill: 999px;
+  --ember-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ember-ease-standard: cubic-bezier(.2, .7, .2, 1);
+  --ember-focus: 0 0 0 3px rgba(255, 150, 71, .36), 0 0 0 1px var(--ember-heat-300);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Warm sumi, charred cedar and moonlit washi. None of the principal
+     surfaces use neutral black, so the Japanese material character remains. */
+  --ember-paper-0: #201d17;
+  --ember-paper-50: #11100d;
+  --ember-washi-100: #191712;
+  --ember-washi-200: #2a261e;
+  --ember-ink-950: #f3ecdf;
+  --ember-ink-700: #d3c8b7;
+  --ember-ink-500: #a69c8d;
+  --ember-line: rgba(243, 232, 213, .14);
+  --ember-paper-glass: rgba(25, 22, 17, .84);
+  --ember-paper-shadow: rgba(0, 0, 0, .52);
+  --ember-heat-300: #ffc27d;
+  --ember-heat-400: #ff9a55;
+  --ember-heat-500: #ed7134;
+  --ember-heat-600: #cf5423;
+  --ember-heat-text: #ff9a55;
+  --ember-positive-400: #82cda0;
+
+  --ember-bg: #11100d;
+  --ember-surface: rgba(31, 28, 22, .84);
+  --ember-surface-solid: #191712;
+  --ember-surface-raised: #242019;
+  --ember-field: #15130f;
+  --ember-overlay: rgba(5, 5, 4, .66);
+  --ember-text: #f3ecdf;
+  --ember-text-secondary: #d3c8b7;
+  --ember-text-muted: #a69c8d;
+  --ember-border: rgba(243, 232, 213, .14);
+  --ember-shadow: 0 28px 78px rgba(0, 0, 0, .38);
+  --ember-code-bg: #090907;
+  --ember-code-surface: #0f0e0b;
+  --ember-code-text: #e7ded0;
+  --ember-code-muted: #9f9484;
+  --ember-danger: #ff8067;
+  --ember-focus: 0 0 0 3px rgba(255, 154, 85, .24), 0 0 0 1px #ff9a55;
+}
+
+:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--ember-focus);
+}
+
+:root[data-density="compact"] {
+  --ember-space-4: 13px;
+  --ember-space-5: 18px;
+  --ember-space-6: 25px;
+  --ember-space-7: 38px;
+  --ember-space-8: 52px;
+}
+
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+:root[data-motion="reduced"] :is(
+  .ember-landing__petals,
+  .ember-home__petals,
+  .ember-projects__petals,
+  .ember-reports__petals,
+  .ember-plans__petals
+) {
+  display: none !important;
+}
+
+@media (forced-colors: active) {
+  :where(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+    box-shadow: none;
+  }
+}

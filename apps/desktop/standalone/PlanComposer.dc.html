@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="{{ copy.lang }}">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <div class="ember-plan-composer">
+    <button type="button" class="ember-plan-composer__backdrop" onClick="{{ closePlan }}" aria-label="{{ copy.closeAria }}"></button>
+
+    <div class="ember-plan-composer__stage">
+      <article
+        class="ember-plan-composer__folio"
+        data-screen-label="New Test Plan"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ember-plan-composer-title"
+        tabindex="-1"
+      >
+        <header class="ember-plan-composer__toolbar">
+          <div class="ember-plan-composer__brand">
+            <span lang="ja" aria-hidden="true">型</span>
+            <div><strong>{{ copy.newTestForm }}</strong><small lang="ja">新しい型</small></div>
+          </div>
+          <button type="button" class="ember-plan-composer__close" onClick="{{ closePlan }}" aria-label="{{ copy.closeAria }}">×</button>
+        </header>
+
+        <div class="ember-plan-composer__body">
+          <section class="ember-plan-composer__identity">
+            <div class="ember-plan-composer__kicker">{{ copy.formKicker }}</div>
+            <h2 id="ember-plan-composer-title">{{ copy.title }}</h2>
+            <p lang="ja">必要な検証だけを選び、一つの型に整える。</p>
+
+            <label class="ember-plan-composer__name">
+              <span>{{ copy.planNameLabel }} / 型の名前</span>
+              <input
+                value="{{ planName }}"
+                onChange="{{ onPlanName }}"
+                placeholder="nightly"
+                aria-label="{{ copy.planNameAria }}"
+              >
+            </label>
+
+            <div class="ember-plan-composer__selection-count">
+              <span>{{ copy.selection }}</span><strong>{{ selectedCountLabel }}</strong>
+            </div>
+
+            <sc-if value="{{ hasPlanErr }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-plan-composer__error" role="alert">{{ planErr }}</div>
+            </sc-if>
+
+            <div class="ember-plan-composer__sdk-note">
+              <span lang="ja">注</span>
+              <p>{{ copy.sdkNote }}</p>
+            </div>
+          </section>
+
+          <section class="ember-plan-composer__check-field" aria-labelledby="ember-plan-checks-title">
+            <header>
+              <div>
+                <span>{{ copy.checksLabel }} / 検証項目</span>
+                <h3 id="ember-plan-checks-title">{{ copy.runnableToday }}</h3>
+              </div>
+              <small>{{ copy.selectToStamp }}</small>
+            </header>
+
+            <div class="ember-plan-composer__checks">
+              <sc-for list="{{ checkBtns }}" as="cb" hint-placeholder-count="7">
+                <button type="button" class="{{ cb.className }}" onClick="{{ cb.flip }}" aria-pressed="{{ cb.pressed }}">
+                  <span class="ember-plan-composer__check-index">{{ cb.index }}</span>
+                  <span class="ember-plan-composer__check-copy"><strong>{{ cb.label }}</strong><small lang="ja">{{ cb.jp }}</small></span>
+                  <span class="ember-plan-composer__check-mark" aria-hidden="true">{{ cb.mark }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+
+        <footer class="ember-plan-composer__footer">
+          <span>{{ copy.localSessionNote }}</span>
+          <div>
+            <button type="button" class="ember-plan-composer__cancel" onClick="{{ closePlan }}">{{ copy.cancel }}</button>
+            <button type="button" class="ember-plan-composer__create" onClick="{{ doCreatePlan }}">
+              <span>{{ copy.createForm }}</span><small lang="ja">型を作る</small><i aria-hidden="true">→</i>
+            </button>
+          </div>
+        </footer>
+      </article>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>

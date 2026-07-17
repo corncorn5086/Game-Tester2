@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { maskSensitive } from './util.js';
 
 /**
  * Local artifact store: .ember/ inside the project keeps run history and
@@ -20,14 +21,14 @@ export class LocalStore {
   saveRun(run) {
     this.ensure();
     const file = join(this.dir, 'runs', `run-${Date.now()}.json`);
-    writeFileSync(file, JSON.stringify(run, null, 2));
+    writeFileSync(file, JSON.stringify(maskSensitive(run), null, 2));
     return file;
   }
 
   saveReport(report) {
     this.ensure();
     const file = join(this.dir, 'reports', `${report.id}.json`);
-    writeFileSync(file, JSON.stringify(report, null, 2));
+    writeFileSync(file, JSON.stringify(maskSensitive(report), null, 2));
     return file;
   }
 
@@ -50,14 +51,34 @@ export class LocalStore {
       .filter((f) => f.endsWith('.json'))
       .sort()
       .map((f) => {
+        const file = join(dir, f);
         try {
-          const r = JSON.parse(readFileSync(join(dir, f), 'utf8'));
-          return { file: join(dir, f), id: r.id, generatedAt: r.generatedAt, bugs: r.metrics?.bugsFound ?? 0, releaseReadiness: r.releaseReadiness ?? null };
-        } catch {
-          return null;
+          const r = JSON.parse(readFileSync(file, 'utf8'));
+          if (!r || typeof r !== 'object' || Array.isArray(r)) {
+            const invalidShape = new TypeError('Report JSON must contain an object.');
+            invalidShape.code = 'REPORT_INVALID_SHAPE';
+            throw invalidShape;
+          }
+          return { file, id: r.id, generatedAt: r.generatedAt, bugs: r.metrics?.bugsFound ?? 0, releaseReadiness: r.releaseReadiness ?? null };
+        } catch (error) {
+          // Keep the file visible to callers. The desktop bridge can then
+          // surface a recoverable corrupt-report row instead of silently
+          // making local history disappear.
+          return {
+            file,
+            id: f.slice(0, -'.json'.length),
+            generatedAt: null,
+            bugs: 0,
+            releaseReadiness: null,
+            kind: 'corrupt-report',
+            loadError: {
+              code: 'REPORT_INVALID',
+              message: 'The local report is unreadable or contains invalid JSON.',
+              systemCode: error?.code ?? null
+            }
+          };
         }
-      })
-      .filter(Boolean);
+      });
   }
 
   /**

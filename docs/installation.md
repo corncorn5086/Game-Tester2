@@ -51,6 +51,9 @@ curl http://localhost:4310/health
 
 Data lives in `backend/data/ember.sqlite` (SQLite). The storage layer is isolated in
 `backend/src/db.js` so it can be swapped for Postgres/Supabase later (`DATABASE_URL` is reserved for that).
+For a public deployment, do not use this application-directory default: mount
+persistent storage, set `EMBER_DATA_DIR`, and follow the
+[provider-neutral production checklist](./production-backend.md).
 
 ### 4. Run the web site
 
@@ -67,11 +70,23 @@ packaged.
 
 ```bash
 # from the repo root, after npm install
-npm run dist:win    -w @ember/desktop     # Windows: NSIS installer + portable .exe
-npm run dist:mac    -w @ember/desktop     # macOS: .dmg
-npm run dist:linux  -w @ember/desktop     # Linux: AppImage
-npm run dist        -w @ember/desktop     # current platform's default target
+npm run dist:win   -w @ember/desktop -- --service-url=https://api.your-ember-domain.example
+npm run dist:mac   -w @ember/desktop -- --service-url=https://api.your-ember-domain.example
+npm run dist:linux -w @ember/desktop -- --service-url=https://api.your-ember-domain.example
+npm run dist       -w @ember/desktop -- --service-url=https://api.your-ember-domain.example
 ```
+
+`--service-url` is the public Ember backend endpoint, not a credential. The
+release script validates that distributed builds use HTTPS, writes the URL to
+the packaged `ember-service.json` resource, then removes the temporary source
+file whether packaging succeeds or fails. A build without this argument, with
+an HTTP remote URL, with embedded credentials, or with query/fragment data
+fails before electron-builder starts.
+
+End users do not set an environment variable or edit a project to connect the
+Desktop app. Packaged authentication and managed-AI requests always use this
+embedded endpoint. Source development deliberately falls back to
+`http://localhost:4310`; run the local backend alongside `npm run dev:desktop`.
 
 Output lands in `apps/desktop/release/`. The Windows build produces a normal
 double-click **`Ember Setup <version>.exe`** installer (choose install folder,

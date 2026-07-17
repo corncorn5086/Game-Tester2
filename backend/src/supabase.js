@@ -11,7 +11,8 @@
  * the SERVICE ROLE key (SUPABASE_SERVICE_ROLE_KEY), which bypasses RLS. The
  * production RLS policy denies the public (anon) key all table access, so the
  * publishable key can no longer read/write app data — including users.
- * password_hash. If only the anon key is set, cloud sync is intentionally
+ * Password verifiers never leave the local auth database. If only the anon key
+ * is set, cloud sync is intentionally
  * denied by the database (recorded in /health), never silently degraded to an
  * insecure state. See docs/security.md.
  */
@@ -131,19 +132,24 @@ export function mirrorEvent(event) {
   );
 }
 
+export function userMirrorPayload(user) {
+  if (!user) return null;
+  return {
+    id: user.id, email: user.email, name: user.name ?? null, username: user.username ?? null,
+    dob: user.dob ?? null, phone: user.phone ?? null,
+    address: user.address ?? null, role: user.role ?? null, user_type: user.user_type ?? null, company: user.company ?? null,
+    goal: user.goal ?? null, language: user.language ?? 'en', country: user.country ?? null,
+    tos_accepted: !!user.tos_accepted, email_verified: !!user.email_verified,
+    phone_verified: !!user.phone_verified, avatar_color: user.avatar_color ?? null,
+    created_at: user.created_at, updated_at: user.updated_at ?? new Date().toISOString(),
+    deleted_at: user.deleted_at ?? null
+  };
+}
+
 export function mirrorUser(user) {
-  if (!user) return;
-  return mirror(() =>
-    upsert('users', [{
-      id: user.id, email: user.email, name: user.name ?? null, username: user.username ?? null,
-      password_hash: user.password_hash, dob: user.dob ?? null, phone: user.phone ?? null,
-      address: user.address ?? null, role: user.role ?? null, user_type: user.user_type ?? null, company: user.company ?? null,
-      goal: user.goal ?? null, language: user.language ?? 'en', country: user.country ?? null,
-      tos_accepted: !!user.tos_accepted, email_verified: !!user.email_verified,
-      phone_verified: !!user.phone_verified, avatar_color: user.avatar_color ?? null,
-      created_at: user.created_at, updated_at: user.updated_at ?? new Date().toISOString()
-    }])
-  );
+  const payload = userMirrorPayload(user);
+  if (!payload) return;
+  return mirror(() => upsert('users', [payload]));
 }
 
 export function mirrorInvite(member) {
@@ -158,15 +164,4 @@ export function mirrorInvite(member) {
 /** Read helpers (used when the caller prefers cloud data). */
 export function cloudTeam() {
   return rest('GET', 'team_members?select=id,workspace_id,email,role,status,invited_at&order=invited_at.asc');
-}
-
-/** Look up a cloud user by email (login fallback: imports the admin account
- *  onto a fresh local install). Returns null when not found/unreachable. */
-export async function cloudUserByEmail(email) {
-  try {
-    const rows = await rest('GET', `users?select=id,email,name,password_hash,created_at&email=eq.${encodeURIComponent(email)}&limit=1`);
-    return rows?.[0] ?? null;
-  } catch {
-    return null;
-  }
 }

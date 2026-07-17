@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <section class="ember-auth" data-screen-label="Auth" aria-labelledby="ember-auth-heading" lang="{{ aLang }}">
+    <div class="ember-auth__backdrop" aria-hidden="true"></div>
+
+    <header class="ember-auth__masthead">
+      <button type="button" class="ember-auth__brand" onClick="{{ aBack }}" aria-label="{{ aBackLabel }}">
+        <span class="ember-auth__brand-index" aria-hidden="true">02</span>
+        <span class="ember-auth__brand-name">EMBER</span>
+        <span class="ember-auth__brand-meta">{{ aMeta }}</span>
+        <span class="ember-auth__brand-jp" lang="ja" aria-hidden="true">炎の知性</span>
+      </button>
+
+      <div class="ember-language" role="group" aria-label="{{ aLanguage }}">
+        <sc-for list="{{ langBtns }}" as="lb" hint-placeholder-count="2">
+          <button type="button" class="{{ lb.className }}" onClick="{{ lb.go }}" aria-pressed="{{ lb.active }}">{{ lb.label }}</button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div class="ember-auth__frame">
+      <aside class="ember-auth__identity">
+        <div class="ember-auth__principles" aria-label="{{ aPrinciplesLabel }}">
+          <sc-for list="{{ authBullets }}" as="b" hint-placeholder-count="3">
+            <div class="ember-auth__principle">
+              <span class="ember-auth__principle-index">{{ b.index }}</span>
+              <span>{{ b.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div class="ember-auth__japanese-mark" lang="ja" aria-hidden="true">
+          <span class="ember-auth__seal">火</span>
+          <span class="ember-auth__vertical-copy">静けさの中の炎</span>
+        </div>
+
+        <div class="ember-auth__orb-stage" role="img" aria-label="{{ aOrbLabel }}">
+          <div class="ember-auth__orb-aura" aria-hidden="true"></div>
+          <div class="ember-auth__orb-ring" aria-hidden="true"></div>
+          <molten-core aria-hidden="true"></molten-core>
+          <div class="ember-auth__orb-caption" aria-hidden="true">
+            <span>{{ aCoreStateLabel }}</span>
+            <strong>{{ aCoreState }}</strong>
+          </div>
+        </div>
+
+        <div class="ember-auth__copy">
+          <div class="ember-auth__kicker">{{ aKicker }}</div>
+          <p class="ember-auth__jp-line" lang="ja">静けさの中に、意志が宿る。</p>
+          <h1 id="ember-auth-heading" class="ember-auth__headline">{{ aHeadline }}</h1>
+          <p class="ember-auth__subhead">{{ aSub }}</p>
+        </div>
+      </aside>
+
+      <main class="ember-auth__form-shell" aria-labelledby="ember-auth-form-title">
+        <div class="ember-auth__form-jp" lang="ja" aria-hidden="true">品質を守る炎</div>
+        <div class="ember-auth__form">
+          <div class="ember-auth__form-eyebrow">
+            <span class="ember-auth__form-state" aria-hidden="true"></span>
+            <span>{{ aKicker }}</span>
+          </div>
+          <h2 id="ember-auth-form-title" class="ember-auth__form-title">{{ aFormTitle }}</h2>
+
+          <form class="ember-auth__fields" onSubmit="{{ doAuth }}" noValidate="{{ authNoValidate }}" aria-busy="{{ authBusy }}">
+            <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-auth__field">
+                <label for="ember-auth-name">{{ aLName }}</label>
+                <input
+                  id="ember-auth-name"
+                  name="name"
+                  value="{{ aName }}"
+                  onChange="{{ onAName }}"
+                  placeholder="{{ aPhName }}"
+                  autocomplete="name"
+                  disabled="{{ authBusy }}"
+                  aria-invalid="{{ hasAuthErr }}"
+                  aria-describedby="{{ aErrorRef }}"
+                >
+              </div>
+            </sc-if>
+
+            <div class="ember-auth__field">
+              <label for="ember-auth-email">{{ aLEmail }}</label>
+              <input
+                id="ember-auth-email"
+                name="email"
+                type="email"
+                value="{{ aEmail }}"
+                onChange="{{ onAEmail }}"
+                placeholder="you@studio.dev"
+                autocomplete="{{ aEmailAuto }}"
+                inputmode="email"
+                disabled="{{ authBusy }}"
+                aria-invalid="{{ hasAuthErr }}"
+                aria-describedby="{{ aErrorRef }}"
+              >
+            </div>
+
+            <div class="ember-auth__field">
+              <div class="ember-auth__label-row">
+                <label for="ember-auth-password">{{ aLPass }}</label>
+                <sc-if value="{{ isSignin }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" class="ember-auth__forgot" onClick="{{ forgot }}" disabled="{{ authBusy }}">{{ aForgot }}</button>
+                </sc-if>
+              </div>
+              <input
+                id="ember-auth-password"
+                name="password"
+                type="password"
+                value="{{ aPass }}"
+                onChange="{{ onAPass }}"
+                onKeyDown="{{ onAuthPasswordKey }}"
+                placeholder="••••••••"
+                autocomplete="{{ aPassAuto }}"
+                disabled="{{ authBusy }}"
+                aria-invalid="{{ hasAuthErr }}"
+                aria-describedby="{{ aErrorRef }}"
+              >
+            </div>
+
+            <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+              <p class="ember-auth__password-rules"><span lang="ja" aria-hidden="true">規</span>{{ aPassRules }}</p>
+              <label class="{{ authTosClass }}">
+                <input type="checkbox" checked="{{ authTosAccepted }}" onChange="{{ onAuthTos }}" disabled="{{ authBusy }}" aria-invalid="{{ authTosInvalid }}">
+                <span class="ember-auth__consent-box" aria-hidden="true">{{ authTosMark }}</span>
+                <span>{{ aTosAccept }}</span>
+              </label>
+            </sc-if>
+
+            <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+              <div id="ember-auth-error" class="ember-auth__error" role="alert" aria-live="assertive">{{ authErr }}</div>
+            </sc-if>
+
+            <button type="submit" class="{{ authSubmitClass }}" disabled="{{ authBusy }}" aria-busy="{{ authBusy }}">
+              <span>{{ aSubmit }}</span>
+              <span class="ember-auth__submit-mark" aria-hidden="true">{{ aSubmitMark }}</span>
+            </button>
+
+            <div class="ember-auth__swap">
+              <span>{{ aSwapQ }}</span>
+              <button type="button" onClick="{{ toggleMode }}" disabled="{{ authBusy }}">{{ aSwapA }}</button>
+            </div>
+
+            <div class="ember-auth__local-rule" aria-hidden="true"></div>
+            <button type="button" class="ember-auth__local" onClick="{{ localOnly }}" disabled="{{ authBusy }}">
+              <span>
+                <strong>{{ aLocal }}</strong>
+                <small>{{ aLocalSub }}</small>
+              </span>
+              <span class="ember-auth__local-mark" aria-hidden="true">&rarr;</span>
+            </button>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <footer class="ember-auth__footer">
+      <span>{{ aPlatform }}</span>
+      <span>{{ aBuild }}</span>
+    </footer>
+  </section>
+</x-dc>
+</body>
+</html>

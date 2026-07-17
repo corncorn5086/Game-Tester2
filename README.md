@@ -96,7 +96,8 @@ Full reference: [docs/config.md](docs/config.md) · CLI reference: [docs/cli.md]
 - **Bug records** — severity, category, source, evidence, repro steps, reproducibility confidence, regression risk, status.
 - **QA reports** — executive summary + professional metrics (bugs found, crash risk, failed checks, severity breakdown, build health, logs analyzed, files scanned, commands executed…), JSON & Markdown export, run-over-run regression diff (fixed / still present / new).
 - **Backend** — full REST API with SQLite storage, real auth (scrypt + session tokens), report ingestion into a shared triage board, notifications, usage metrics counted from the database.
-- **Desktop app (v3 design)** — the Ember Desktop v3 design running as a native Electron app: onboarding/auth screens, Command Center, Projects, Connect, Agent, Analyze, Run, Bugs, Reports and Settings, with the animated molten-core orb. It is served over a local HTTP loopback with React/ReactDOM/Babel and the 3D runtime **vendored locally** (`apps/desktop/standalone/vendor/`), so it renders offline with no CDN dependency. This is a visual/interactive design build; the real agent core (scans, reports) is exposed through the CLI and backend.
+- **Managed AI** — optional authenticated backend review using Ember's server-side provider account. Customers never enter or receive an OpenAI/Anthropic key; the EXE contains no provider credential. Deterministic local reports remain available when the managed service is offline.
+- **Desktop app (v3 design)** — the Ember Desktop v3 design running as a native Electron app: onboarding/auth screens, live QA workbench, Projects, test plans, Reports and Settings, with the animated molten-core orb. It is served over a local HTTP loopback with React/ReactDOM/Babel and the 3D runtime **vendored locally** (`apps/desktop/standalone/vendor/`), so the core local analysis renders and runs without a CDN dependency.
 
 ## Data modes — no fake results
 
@@ -111,7 +112,7 @@ Full reference: [docs/config.md](docs/config.md) · CLI reference: [docs/cli.md]
 - **Billing**: Free / Pro ($29) / Studio ($99) / Enterprise plans; full API surface; **Stripe is not wired yet** — checkout returns an explicit 501 until `STRIPE_*` keys are set in `.env` ([docs/billing.md](docs/billing.md)).
 - **Team**: workspaces, roles (owner/admin/developer/qa/viewer), invites, public report share links ([docs/team.md](docs/team.md)).
 - **Export/import**: reports (JSON/Markdown; PDF planned), bugs, settings, config, test plans — plus backend `/exports` & `/imports`.
-- **Security**: local-only mode, secret masking, secret detection in code, no keys in the repo ([docs/security.md](docs/security.md)).
+- **Security**: local-only mode, secret masking, secret detection in code, and backend-only provider credentials ([docs/security.md](docs/security.md)).
 
 Copy `.env.example` to `.env` for backend configuration. Never commit real keys.
 

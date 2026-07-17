@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="{{ copy.lang }}">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <section class="ember-reports" data-screen-label="Reports" aria-labelledby="ember-reports-title">
+    <div class="ember-reports__garden" aria-hidden="true"></div>
+    <div class="ember-reports__mist" aria-hidden="true"></div>
+    <div class="ember-reports__petals" aria-hidden="true">
+      <i></i><i></i><i class="is-leaf"></i>
+    </div>
+
+    <div class="ember-reports__page">
+      <header class="ember-reports__intro">
+        <div class="ember-reports__intro-copy">
+          <div class="ember-reports__eyebrow">
+            <span lang="ja" aria-hidden="true">録</span>
+            {{ copy.eyebrow }}
+          </div>
+          <h1 id="ember-reports-title">{{ copy.title }}<span>.</span></h1>
+          <p lang="ja">証拠を重ね、次の一手を静かに選ぶ。</p>
+        </div>
+
+        <div class="ember-reports__count" aria-live="polite">
+          <span>{{ copy.localEvidence }}</span>
+          <strong>{{ reportCountLabel }}</strong>
+        </div>
+      </header>
+
+      <sc-if value="{{ noReports }}" hint-placeholder-val="true">
+        <article class="ember-reports__empty" aria-labelledby="ember-reports-empty-title">
+          <div class="ember-reports__empty-mark" aria-hidden="true">
+            <span lang="ja">録</span>
+            <i></i>
+          </div>
+
+          <div class="ember-reports__empty-copy">
+            <div class="ember-reports__state-kicker">{{ copy.emptyKicker }} <span lang="ja">未記録</span></div>
+            <h2 id="ember-reports-empty-title">{{ copy.emptyTitle }}</h2>
+            <p>{{ copy.emptyBody }}</p>
+
+            <sc-if value="{{ hasProject }}" hint-placeholder-val="false">
+              <button type="button" class="ember-reports__empty-action" onClick="{{ emptyAction }}">
+                <span>{{ reportsEmptyActionLabel }}</span>
+                <i aria-hidden="true">→</i>
+              </button>
+            </sc-if>
+          </div>
+
+          <aside class="ember-reports__empty-note" aria-label="{{ copy.includedAria }}">
+            <span>01</span>
+            <p>{{ copy.fileLineEvidence }}</p>
+            <span>02</span>
+            <p>{{ copy.severityBreakdown }}</p>
+            <span>03</span>
+            <p>{{ copy.stabilityScore }}</p>
+          </aside>
+        </article>
+      </sc-if>
+
+      <sc-if value="{{ hasReports }}" hint-placeholder-val="false">
+        <section class="ember-reports__archive" aria-labelledby="ember-reports-ledger-title">
+          <header class="ember-reports__archive-head">
+            <div>
+              <span>{{ copy.latestFirst }}</span>
+              <h2 id="ember-reports-ledger-title">{{ copy.ledgerTitle }}</h2>
+            </div>
+
+            <nav class="ember-reports__filters" aria-label="{{ copy.ledgerTitle }}">
+              <sc-for list="{{ reportFilters }}" as="filter" hint-placeholder-count="3">
+                <button type="button" class="ember-reports__filter {{ filter.className }}" onClick="{{ filter.go }}" aria-pressed="{{ filter.pressed }}">{{ filter.label }}</button>
+              </sc-for>
+            </nav>
+          </header>
+
+          <div class="ember-reports__list" role="list">
+            <sc-for list="{{ reportRows }}" as="report" hint-placeholder-count="4">
+              <article class="ember-reports__report-item" role="listitem">
+                <button
+                  type="button"
+                  class="ember-reports__report {{ report.className }}"
+                  onClick="{{ report.open }}"
+                  aria-label="{{ report.ariaLabel }}"
+                  disabled="{{ report.disabled }}"
+                >
+                  <span class="ember-reports__report-mark" aria-hidden="true">余</span>
+
+                  <span class="ember-reports__report-copy">
+                    <strong>{{ report.title }}</strong>
+                    <small>{{ report.projectLabel }} · {{ report.profileLabel }} · {{ report.dateLabel }}</small>
+                  </span>
+
+                  <span class="ember-reports__report-facts">
+                    <span>{{ report.bugsLabel }}</span>
+                    <span>{{ report.severityLabel }}</span>
+                    <span>{{ report.readinessLabel }}</span>
+                  </span>
+
+                  <span class="ember-reports__open-mark" aria-hidden="true">→</span>
+                </button>
+              </article>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ noFilteredReports }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-reports__filtered-empty" role="status">{{ copy.filterEmpty }}</div>
+          </sc-if>
+
+          <footer class="ember-reports__archive-foot">
+            <span>{{ reportCountLabel }}</span>
+            <span lang="ja">すべての記録は、この端末に。</span>
+          </footer>
+        </section>
+      </sc-if>
+
+      <footer class="ember-reports__footnote">
+        <span>{{ copy.footnote }}</span>
+        <span lang="ja">記録を読み、次の火を整える。</span>
+      </footer>
+    </div>
+  </section>
+</x-dc>
+</body>
+</html>
