@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <section class="ember-projects" data-screen-label="Projects" aria-labelledby="ember-projects-title">
+    <div class="ember-projects__garden" aria-hidden="true"></div>
+    <div class="ember-projects__mist" aria-hidden="true"></div>
+    <div class="ember-projects__petals" aria-hidden="true">
+      <i></i><i></i><i class="is-leaf"></i><i></i>
+    </div>
+
+    <div class="ember-projects__page">
+      <header class="ember-projects__intro">
+        <div class="ember-projects__intro-copy">
+          <div class="ember-projects__eyebrow">
+            <span aria-hidden="true">帳</span>
+            {{ copy.eyebrow }}
+          </div>
+          <h1 id="ember-projects-title">{{ copy.title }}<span>.</span></h1>
+          <p lang="ja">遊びの世界を、静かな火床へ迎える。</p>
+        </div>
+
+        <button type="button" class="ember-projects__add" onClick="{{ openConnect }}">
+          <span>{{ copy.connectProject }}</span>
+          <i aria-hidden="true">＋</i>
+        </button>
+      </header>
+
+      <sc-if value="{{ noProjects }}" hint-placeholder-val="true">
+        <article class="ember-projects__empty" aria-labelledby="ember-projects-empty-title">
+          <div class="ember-projects__empty-index" aria-hidden="true">
+            <span>00</span>
+            <small lang="ja">未登録</small>
+          </div>
+
+          <div class="ember-projects__empty-copy">
+            <div class="ember-projects__state-kicker">{{ copy.emptyKicker }} <span lang="ja">最初の一作</span></div>
+            <h2 id="ember-projects-empty-title">{{ copy.emptyTitle }}</h2>
+            <p>
+              {{ copy.emptyBodyBeforeConfig }}
+              <code>ember.config.json</code> {{ copy.emptyBodyAfterConfig }}
+            </p>
+
+            <button type="button" class="ember-projects__primary" onClick="{{ openConnect }}">
+              <span>{{ copy.chooseFolder }}</span>
+              <i aria-hidden="true">→</i>
+            </button>
+          </div>
+
+          <aside class="ember-projects__empty-note" aria-label="{{ copy.supportedEnginesAria }}">
+            <span lang="ja" aria-hidden="true">火床</span>
+            <div>
+              <small>{{ copy.supportedEnginesLabel }}</small>
+              <strong>UNITY · UNREAL · GODOT · WEB · CUSTOM</strong>
+            </div>
+          </aside>
+        </article>
+      </sc-if>
+
+      <sc-if value="{{ hasProjects }}" hint-placeholder-val="false">
+        <section class="ember-projects__registry" aria-label="{{ copy.registryFooterLabel }}">
+          <header class="ember-projects__registry-head">
+            <div>
+              <span>{{ copy.activeKicker }}</span>
+              <h2>{{ copy.registryFooterLabel }}</h2>
+            </div>
+            <p lang="ja">一作ずつ、確かな記録として。</p>
+          </header>
+
+          <div class="ember-projects__list" role="list">
+            <sc-for list="{{ projectRows }}" as="project" hint-placeholder-count="3">
+              <article class="ember-projects__project {{ project.className }}" role="listitem">
+                <div class="ember-projects__folio-number" aria-hidden="true">
+                  <span>火</span>
+                  <i></i>
+                </div>
+
+                <div class="ember-projects__project-copy">
+                  <div class="ember-projects__project-title">
+                    <h3>{{ project.name }}</h3>
+                    <sc-if value="{{ project.activeLabel }}" hint-placeholder-val="false">
+                      <span>{{ project.activeLabel }}</span>
+                    </sc-if>
+                  </div>
+                  <p title="{{ project.path }}">{{ project.path }}</p>
+                </div>
+
+                <div class="ember-projects__engine">
+                  <small>{{ copy.engineLabel }}</small>
+                  <strong>{{ project.engine }}</strong>
+                </div>
+
+                <div class="ember-projects__project-state">
+                  <i aria-hidden="true"></i>
+                  <span>{{ project.statusLabel }}</span>
+                </div>
+
+                <div class="ember-projects__project-actions">
+                  <button type="button" class="ember-projects__open" onClick="{{ project.select }}">
+                    <span>{{ project.openLabel }}</span><i aria-hidden="true">→</i>
+                  </button>
+                  <button type="button" class="ember-projects__remove" onClick="{{ project.askRemove }}" disabled="{{ project.removeDisabled }}">
+                    {{ project.removeLabel }}
+                  </button>
+                </div>
+
+                <sc-if value="{{ project.confirming }}" hint-placeholder-val="false">
+                  <div class="ember-projects__remove-confirm" role="alert" aria-live="assertive">
+                    <p>{{ project.removeConfirmText }}</p>
+                    <div>
+                      <button type="button" class="ember-projects__cancel-remove" onClick="{{ project.cancelRemove }}">{{ project.cancelLabel }}</button>
+                      <button type="button" class="ember-projects__confirm-remove" onClick="{{ project.confirmRemove }}">{{ project.removeConfirmLabel }}</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </article>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <footer class="ember-projects__footnote">
+        <span>{{ copy.registryFooterLabel }}</span>
+        <span lang="ja">静かな火床、確かな記録。</span>
+      </footer>
+    </div>
+  </section>
+</x-dc>
+</body>
+</html>

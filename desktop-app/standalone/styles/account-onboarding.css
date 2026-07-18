@@ -1,0 +1,137 @@
+/* Account personalization — a calm, local-first continuation of the temple scene. */
+.ember-account-onboarding {
+  --account-ink: #211d19;
+  --account-muted: #766d64;
+  --account-line: rgba(63, 45, 30, .15);
+  --account-paper: #e4d4bd;
+  --account-copper: #a94d27;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 3.5vw, 48px);
+  color: var(--account-ink);
+  font-family: "Bricolage Grotesque", "Segoe UI Variable", "Segoe UI", sans-serif;
+}
+
+.ember-account-onboarding__scene,
+.ember-account-onboarding__veil { position: absolute; inset: 0; z-index: 0; }
+.ember-account-onboarding__scene {
+  background: #1a1512 url("../assets/temple-bonsai-welcome-v2.png") center / cover no-repeat;
+  transform: scale(1.03);
+  animation: emberAccountScene 24s ease-in-out infinite alternate;
+}
+.ember-account-onboarding__veil {
+  z-index: 1;
+  background: radial-gradient(circle at 66% 10%, rgba(242, 154, 90, .22), transparent 35%), linear-gradient(110deg, rgba(13, 11, 9, .64), rgba(25, 19, 14, .22) 56%, rgba(13, 11, 9, .49));
+}
+.ember-account-onboarding__panel {
+  position: relative;
+  z-index: 2;
+  width: min(1100px, 100%);
+  max-height: min(780px, calc(100vh - 36px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 229, 195, .48);
+  border-radius: 28px;
+  background: var(--account-paper);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, .42), 0 2px 0 rgba(255, 239, 213, .42) inset;
+  animation: emberAccountIn .48s cubic-bezier(.2,.8,.2,1) both;
+}
+.ember-account-onboarding__head {
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 260px) 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 0 30px;
+  border-bottom: 1px solid var(--account-line);
+}
+.ember-account-onboarding__brand { display: flex; align-items: center; gap: 9px; letter-spacing: .18em; font-size: 11px; font-weight: 800; }
+.ember-account-onboarding__brand > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #3d2a20; color: #fff7eb; font-size: 16px; letter-spacing: 0; }
+.ember-account-onboarding__brand small { color: var(--account-copper); font: 700 9px/1 "JetBrains Mono", monospace; letter-spacing: .12em; }
+.ember-account-onboarding__progress { display: grid; gap: 8px; text-align: center; color: var(--account-muted); font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.ember-account-onboarding__progress > i { overflow: hidden; display: block; height: 3px; border-radius: 99px; background: rgba(39, 28, 20, .11); }
+.ember-account-onboarding__progress b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #74351e, #b85a30); transition: width .42s cubic-bezier(.2,.8,.2,1); }
+.ember-account-onboarding__head > p { margin: 0; justify-self: end; color: var(--account-muted); font: 500 10px/1.35 "JetBrains Mono", monospace; letter-spacing: .04em; text-align: right; }
+.ember-account-onboarding__body { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); min-height: 0; }
+.ember-account-onboarding__copy { position: relative; overflow: hidden; padding: clamp(32px, 5vw, 64px) clamp(26px, 4vw, 52px); color: #fffaf2; background: linear-gradient(160deg, #2d211a 0%, #432717 74%, #7b3216 150%); }
+.ember-account-onboarding__copy::after { content: ""; position: absolute; width: 310px; height: 310px; right: -164px; bottom: -174px; border: 1px solid rgba(248, 191, 133, .4); border-radius: 50%; box-shadow: 0 0 0 42px rgba(248, 191, 133, .05), 0 0 0 84px rgba(248, 191, 133, .03); }
+.ember-account-onboarding__copy > * { position: relative; z-index: 1; }
+.ember-account-onboarding__copy > span { display: block; margin-bottom: 17px; color: #f5b581; font: 700 9px/1.3 "JetBrains Mono", monospace; letter-spacing: .16em; }
+.ember-account-onboarding__copy h1 { max-width: 390px; margin: 0; font: 400 clamp(34px, 4vw, 58px)/.98 "Iowan Old Style", "Palatino Linotype", Georgia, serif; letter-spacing: -.045em; }
+.ember-account-onboarding__copy p { max-width: 320px; margin: 24px 0 0; color: rgba(255,250,242,.73); font-size: 14px; line-height: 1.65; }
+.ember-account-onboarding__content { overflow-y: auto; padding: clamp(29px, 4vw, 50px); background: linear-gradient(135deg, #ecdfca, #d9c3a5); scrollbar-color: rgba(169, 71, 32, .45) transparent; }
+.ember-account-onboarding__content h2 { margin: 23px 0 10px; color: #504338; font-size: 10px; line-height: 1; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.ember-account-onboarding__content h2:first-child { margin-top: 0; }
+.ember-account-onboarding__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ember-account-onboarding__fields label,
+.ember-account-onboarding__priority { display: grid; gap: 7px; }
+.ember-account-onboarding__fields label > span,
+.ember-account-onboarding__priority > span,
+.ember-account-onboarding__split-label span { color: #5c5148; font-size: 11px; font-weight: 700; }
+.ember-account-onboarding__fields em { color: #94887d; font-style: normal; font-weight: 500; }
+.ember-account-onboarding__fields input,
+.ember-account-onboarding__priority input { box-sizing: border-box; width: 100%; height: 42px; border: 1px solid var(--account-line); border-radius: 11px; outline: none; background: #f0e5d4; color: var(--account-ink); padding: 0 12px; font: 500 13px "Bricolage Grotesque", "Segoe UI", sans-serif; transition: border-color .18s, box-shadow .18s, background .18s; }
+.ember-account-onboarding__fields input::placeholder,
+.ember-account-onboarding__priority input::placeholder { color: #aea59c; }
+.ember-account-onboarding__fields input:focus,
+.ember-account-onboarding__priority input:focus { border-color: var(--account-copper); background: #f7ead9; box-shadow: 0 0 0 3px rgba(217,107,50,.12); }
+.ember-account-onboarding__split-label { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 19px; }
+.ember-account-onboarding__split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+.ember-account-onboarding__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ember-account-onboarding__chip,
+.ember-account-onboarding__choice { min-height: 35px; border: 1px solid rgba(63,45,30,.14); border-radius: 10px; background: #e8dac4; color: #51463d; padding: 7px 10px; cursor: pointer; font: 600 11.5px/1.2 "Bricolage Grotesque", "Segoe UI", sans-serif; transition: border-color .18s, background .18s, color .18s, transform .18s, box-shadow .18s; }
+.ember-account-onboarding__chip:hover,
+.ember-account-onboarding__choice:hover { border-color: rgba(217,107,50,.58); transform: translateY(-1px); }
+.ember-account-onboarding__chip.is-selected,
+.ember-account-onboarding__choice.is-selected { border-color: #7e3a20; background: linear-gradient(135deg, #71321d, #a84b27); box-shadow: 0 7px 18px rgba(112,50,29,.2); color: #fff8ed; }
+.ember-account-onboarding__fields--two { margin-top: 20px; }
+.ember-account-onboarding__goals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ember-account-onboarding__goals .ember-account-onboarding__chip { min-height: 40px; text-align: left; }
+.ember-account-onboarding__priority { margin-top: 24px; }
+.ember-account-onboarding__visual-group { display: grid; grid-template-columns: 114px 1fr; gap: 12px; align-items: start; padding: 15px 0; border-bottom: 1px solid var(--account-line); }
+.ember-account-onboarding__visual-group h2 { margin: 8px 0 0; }
+.ember-account-onboarding__visual-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.ember-account-onboarding__choice { display: inline-flex; align-items: center; gap: 7px; min-width: 92px; justify-content: center; }
+.ember-account-onboarding__choice i { width: 8px; height: 8px; border-radius: 50%; background: #eee4d8; }
+.ember-account-onboarding__choice.is-selected i { background: #ffd7a4; box-shadow: 0 0 0 3px rgba(255,230,203,.18); }
+.ember-account-onboarding__toggle { display: flex; width: 100%; margin-top: 20px; padding: 14px 0; align-items: center; justify-content: space-between; border: 0; border-top: 1px solid var(--account-line); border-bottom: 1px solid var(--account-line); background: transparent; color: var(--account-ink); text-align: left; cursor: pointer; }
+.ember-account-onboarding__toggle strong { display: block; font-size: 13px; }.ember-account-onboarding__toggle small { color: var(--account-muted); font-size: 11px; }.ember-account-onboarding__toggle > i { width: 38px; height: 22px; padding: 3px; border-radius: 99px; background: #c7bcb0; transition: background .2s; }.ember-account-onboarding__toggle b { display: block; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.24); transition: transform .2s; }.ember-account-onboarding__toggle[aria-pressed="true"] > i { background: var(--account-copper); }.ember-account-onboarding__toggle[aria-pressed="true"] b { transform: translateX(16px); }
+.ember-account-onboarding__privacy-list { display: grid; gap: 10px; }.ember-account-onboarding__privacy-list article { padding: 18px; border: 1px solid var(--account-line); border-radius: 15px; background: rgba(246,234,216,.42); }.ember-account-onboarding__privacy-list h2 { margin: 0; color: var(--account-ink); font-size: 13px; letter-spacing: 0; text-transform: none; }.ember-account-onboarding__privacy-list p { margin: 6px 0 13px; color: var(--account-muted); font-size: 12px; line-height: 1.5; }
+.ember-account-onboarding__discovery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; margin: 0; list-style: none; counter-reset: none; }.ember-account-onboarding__discovery li { display: grid; grid-template-columns: 25px 1fr 14px; align-items: center; gap: 8px; min-height: 70px; padding: 13px; border: 1px solid var(--account-line); border-radius: 14px; background: rgba(246,234,216,.46); }.ember-account-onboarding__discovery span { color: var(--account-copper); font: 700 10px "JetBrains Mono", monospace; }.ember-account-onboarding__discovery strong { font-size: 12px; line-height: 1.28; }.ember-account-onboarding__discovery i { color: #9b8878; font-style: normal; }
+.ember-account-onboarding__plan { padding: 30px; border: 1px solid rgba(169,71,32,.26); border-radius: 18px; background: linear-gradient(135deg, rgba(255,250,242,.95), rgba(252,239,222,.72)); }.ember-account-onboarding__plan > span { color: var(--account-copper); font: 800 10px "JetBrains Mono", monospace; letter-spacing: .11em; text-transform: uppercase; }.ember-account-onboarding__plan h2 { margin: 12px 0; color: var(--account-ink); font: 400 36px/1 "Iowan Old Style", Georgia, serif; letter-spacing: -.04em; text-transform: none; }.ember-account-onboarding__plan p { color: var(--account-muted); font-size: 13px; line-height: 1.6; }.ember-account-onboarding__plan ul { display: grid; gap: 9px; padding: 17px 0 0; margin: 18px 0 0; border-top: 1px solid var(--account-line); list-style: none; color: #4e443c; font-size: 12px; }
+.ember-account-onboarding__project { display: grid; grid-template-columns: 125px 1fr; gap: 24px; align-items: center; min-height: 260px; padding: 28px; border: 1px solid rgba(169,71,32,.24); border-radius: 18px; background: radial-gradient(circle at 20% 0%, rgba(242,154,90,.2), transparent 46%), #e8d6bb; }.ember-account-onboarding__folder { display: grid; place-items: center; width: 118px; height: 118px; border-radius: 26px; background: linear-gradient(145deg, #e9864a, #9e421d); color: #fff8ec; box-shadow: 0 18px 32px rgba(141,59,24,.22); }.ember-account-onboarding__folder svg { width: 56px; height: 56px; }.ember-account-onboarding__project ul { display: grid; gap: 16px; padding: 0; margin: 0; list-style: none; color: #544940; font-size: 13px; }.ember-account-onboarding__project li { display: flex; gap: 10px; align-items: start; }.ember-account-onboarding__project li i { color: var(--account-copper); font-style: normal; font-weight: 800; }
+.ember-account-onboarding__footer { min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-top: 1px solid var(--account-line); background: #d7bd99; }.ember-account-onboarding__back, .ember-account-onboarding__next { min-height: 42px; border-radius: 12px; padding: 0 17px; font: 700 12px "Bricolage Grotesque", "Segoe UI", sans-serif; cursor: pointer; transition: transform .18s, box-shadow .18s, background .18s; }.ember-account-onboarding__back { border: 1px solid transparent; background: transparent; color: #5f5145; }.ember-account-onboarding__back:disabled { opacity: .35; cursor: default; }.ember-account-onboarding__back:not(:disabled):hover { border-color: var(--account-line); background: #ead8c1; }.ember-account-onboarding__next { min-width: 148px; border: 1px solid #78371f; background: linear-gradient(135deg, #71311c, #a64b28); color: #fff8ed; box-shadow: 0 10px 20px rgba(112,50,29,.22); }.ember-account-onboarding__next:hover { transform: translateY(-1px); box-shadow: 0 14px 24px rgba(112,50,29,.3); }.ember-account-onboarding__next i { margin-left: 7px; font-style: normal; }
+:root[data-theme="dark"] .ember-account-onboarding { --account-paper: rgba(30, 26, 22, .985); --account-ink: #f5eadc; --account-muted: #c4b6a7; --account-line: rgba(255,239,215,.14); }
+:root[data-theme="dark"] .ember-account-onboarding__content { background: rgba(24, 21, 18, .9); }
+:root[data-theme="dark"] .ember-account-onboarding__fields label > span,
+:root[data-theme="dark"] .ember-account-onboarding__priority > span,
+:root[data-theme="dark"] .ember-account-onboarding__split-label span,
+:root[data-theme="dark"] .ember-account-onboarding__content h2 { color: #d9cab8; }
+:root[data-theme="dark"] .ember-account-onboarding__fields input,
+:root[data-theme="dark"] .ember-account-onboarding__priority input { border-color: rgba(255,239,215,.18); background: rgba(255,255,255,.055); color: #fffaf2; }
+:root[data-theme="dark"] .ember-account-onboarding__fields input::placeholder,
+:root[data-theme="dark"] .ember-account-onboarding__priority input::placeholder { color: #aa9d91; }
+:root[data-theme="dark"] .ember-account-onboarding__chip,
+:root[data-theme="dark"] .ember-account-onboarding__choice { border-color: rgba(255,239,215,.2); background: rgba(255,255,255,.045); color: #f1e6d8; }
+:root[data-theme="dark"] .ember-account-onboarding__choice i { background: #8f8276; }
+:root[data-theme="dark"] .ember-account-onboarding__toggle,
+:root[data-theme="dark"] .ember-account-onboarding__footer { background: rgba(30, 26, 22, .97); }
+:root[data-theme="dark"] .ember-account-onboarding__toggle strong,
+:root[data-theme="dark"] .ember-account-onboarding__privacy-list h2,
+:root[data-theme="dark"] .ember-account-onboarding__plan h2 { color: #fff4e8; }
+:root[data-theme="dark"] .ember-account-onboarding__privacy-list article,
+:root[data-theme="dark"] .ember-account-onboarding__discovery li { background: rgba(255,255,255,.035); }
+:root[data-theme="dark"] .ember-account-onboarding__privacy-list p,
+:root[data-theme="dark"] .ember-account-onboarding__project li,
+:root[data-theme="dark"] .ember-account-onboarding__plan p { color: #d0c0af; }
+:root[data-theme="dark"] .ember-account-onboarding__back { color: #dfd0bf; }
+.ember-account-onboarding :focus-visible { outline: 3px solid rgba(217,107,50,.46); outline-offset: 2px; }
+@keyframes emberAccountIn { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } } @keyframes emberAccountScene { from { transform: scale(1.03) translate3d(0,0,0); } to { transform: scale(1.08) translate3d(-.6%,-.5%,0); } }
+@media (max-width: 760px) { .ember-account-onboarding { padding: 10px; }.ember-account-onboarding__panel { max-height: calc(100vh - 20px); border-radius: 20px; }.ember-account-onboarding__head { grid-template-columns: 1fr auto; padding: 0 18px; }.ember-account-onboarding__head > p { display: none; }.ember-account-onboarding__progress { text-align: right; }.ember-account-onboarding__body { grid-template-columns: 1fr; overflow-y: auto; }.ember-account-onboarding__copy { padding: 26px 24px; }.ember-account-onboarding__copy h1 { font-size: 36px; }.ember-account-onboarding__copy p { margin-top: 12px; }.ember-account-onboarding__content { overflow: visible; padding: 24px; }.ember-account-onboarding__footer { padding: 0 18px; }.ember-account-onboarding__split, .ember-account-onboarding__split-label { grid-template-columns: 1fr; }.ember-account-onboarding__fields, .ember-account-onboarding__goals, .ember-account-onboarding__discovery { grid-template-columns: 1fr; }.ember-account-onboarding__visual-group { grid-template-columns: 1fr; gap: 7px; }.ember-account-onboarding__project { grid-template-columns: 1fr; }.ember-account-onboarding__folder { width: 90px; height: 90px; } }
+@media (prefers-reduced-motion: reduce) { .ember-account-onboarding__scene, .ember-account-onboarding__panel { animation: none; } }

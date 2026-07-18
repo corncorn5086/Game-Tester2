@@ -1,0 +1,430 @@
+/* First-run temple sequence: layered 2D depth, never a heavy 3D scene. */
+.ember-temple-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  overflow: hidden;
+  background: #11100e;
+  color: #fffaf3;
+  isolation: isolate;
+}
+
+.ember-temple-intro::before,
+.ember-temple-intro::after {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  content: "";
+  pointer-events: none;
+}
+.ember-temple-intro::before {
+  background:
+    radial-gradient(circle at 50% 52%, rgba(245, 102, 26, .22), transparent 13%),
+    linear-gradient(90deg, rgba(8, 8, 7, .58), rgba(14, 12, 10, .18) 58%, rgba(8, 8, 7, .34)),
+    linear-gradient(180deg, rgba(8, 8, 7, .42), rgba(14, 12, 10, .08) 50%, rgba(8, 8, 7, .5));
+  animation: emberTempleLight 4.2s ease both;
+}
+.ember-temple-intro::after {
+  z-index: 20;
+  background: radial-gradient(circle at 50% 48%, rgba(255,250,241,.18), transparent 45%);
+  opacity: 0;
+}
+
+.ember-temple-intro__scene {
+  position: absolute;
+  inset: -4%;
+  z-index: 0;
+  background: url("../assets/temple-bonsai-welcome-v2.png") center / cover no-repeat;
+  filter: saturate(.74) contrast(1.06) brightness(.68);
+  opacity: 1;
+  transform: scale(1.035);
+  will-change: transform, opacity;
+  animation: emberTempleApproach 4.2s cubic-bezier(.2,.7,.25,1) both;
+}
+
+.ember-temple-intro__mist {
+  position: absolute;
+  z-index: 2;
+  width: 125%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(238, 228, 208, .18), rgba(238, 228, 208, .07) 48%, transparent 73%);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: emberTempleMist 4.1s ease-in-out both;
+}
+.ember-temple-intro__mist--far { top: 26%; left: -17%; animation-delay: .2s; }
+.ember-temple-intro__mist--near { bottom: 4%; right: -19%; opacity: 0; animation-delay: .8s; animation-direction: reverse; }
+
+.ember-temple-intro__gate {
+  position: absolute;
+  z-index: 5;
+  bottom: -5%;
+  left: 50%;
+  width: min(46vw, 610px);
+  height: min(61vh, 590px);
+  overflow: hidden;
+  border: 1px solid rgba(245, 195, 129, .16);
+  border-bottom: 0;
+  border-radius: 360px 360px 0 0 / 170px 170px 0 0;
+  background: linear-gradient(90deg, rgba(17, 14, 11, .9), rgba(70, 32, 15, .56) 48%, rgba(17, 14, 11, .9));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .38), 0 -22px 80px rgba(0, 0, 0, .26);
+  transform: translateX(-50%) scale(.88);
+  transform-origin: center bottom;
+  animation: emberTempleGateApproach 5.9s cubic-bezier(.2,.75,.2,1) both;
+}
+.ember-temple-intro__gate::before {
+  position: absolute;
+  top: 9%;
+  right: 7%;
+  left: 7%;
+  height: 14%;
+  border-top: 5px solid rgba(12, 10, 8, .72);
+  border-bottom: 2px solid rgba(246, 196, 133, .22);
+  content: "";
+}
+.ember-temple-intro__door {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 78%;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.18) 1px, transparent 1px) 0 0 / 28% 100%,
+    linear-gradient(180deg, rgba(114, 55, 27, .95), rgba(25, 17, 12, .98));
+  box-shadow: inset 0 0 0 1px rgba(250, 193, 123, .13);
+  will-change: transform;
+  animation: emberTempleDoorOpen 1.45s 2.05s cubic-bezier(.18,.78,.24,1) both;
+}
+.ember-temple-intro__door--left { left: 0; transform-origin: left center; }
+.ember-temple-intro__door--right { right: 0; transform: scaleX(-1); transform-origin: right center; animation-name: emberTempleDoorOpenRight; }
+.ember-temple-intro__threshold {
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  left: 50%;
+  width: 66%;
+  height: 69%;
+  background: radial-gradient(ellipse at 50% 80%, rgba(252, 130, 36, .9), rgba(193, 61, 13, .48) 34%, transparent 68%);
+  opacity: 0;
+  transform: translateX(-50%) scale(.46);
+  animation: emberTempleThreshold 2.3s 1.9s ease-out both;
+}
+
+.ember-temple-intro__lantern {
+  position: absolute;
+  z-index: 9;
+  top: 47%;
+  width: 22px;
+  height: 43px;
+  border: 1px solid rgba(248, 211, 153, .54);
+  border-radius: 4px 4px 7px 7px;
+  background: radial-gradient(circle at 50% 58%, #ffd38d, #e8681f 44%, #532111 76%);
+  box-shadow: 0 0 28px rgba(241, 115, 33, .58);
+  opacity: 0;
+  transform: translateY(7px) scale(.8);
+  animation: emberTempleLantern .9s both;
+}
+.ember-temple-intro__lantern::before {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  width: 1px;
+  height: 17px;
+  background: rgba(238, 211, 174, .55);
+  content: "";
+}
+.ember-temple-intro__lantern--left { left: calc(50% - min(32vw, 430px)); animation-delay: 1.48s; }
+.ember-temple-intro__lantern--right { right: calc(50% - min(32vw, 430px)); animation-delay: 1.73s; }
+
+/* The temple artwork contains hand-built lanterns and its own open gate.
+   Keeping the old CSS props here would create a fake duplicate in front. */
+.ember-temple-intro__gate,
+.ember-temple-intro__lantern { display: none; }
+
+.ember-temple-intro__core {
+  position: absolute;
+  z-index: 12;
+  top: 52%;
+  left: 50%;
+  width: clamp(124px, 17vw, 224px);
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.08);
+  transform-origin: center;
+  will-change: transform, opacity;
+  animation: emberTempleCore 1.45s .72s cubic-bezier(.16,1,.3,1) both;
+}
+.ember-temple-intro__core > molten-core { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 24px rgba(255, 103, 28, .74)); }
+
+/* The message is the bridge: it begins in the temple and resolves as the
+   same editorial headline on the welcome page beneath it. */
+.ember-temple-intro__copy {
+  position: absolute;
+  z-index: 16;
+  bottom: clamp(98px, 14vh, 148px);
+  left: 7.5%;
+  width: min(57vw, 790px);
+  pointer-events: none;
+}
+.ember-temple-intro__eyebrow {
+  display: block;
+  color: rgba(255, 197, 142, .9);
+  font-family: var(--ember-font-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: emberTempleCopyUp .52s 2.06s var(--ember-ease-out) both;
+}
+.ember-temple-intro__eyebrow::before { display: inline-block; width: 28px; height: 1px; margin: 0 10px 3px 0; background: currentColor; content: ""; }
+.ember-temple-intro__copy h1 {
+  max-width: 790px;
+  margin: 15px 0 0;
+  color: #fffaf3;
+  font-family: var(--ember-font-editorial);
+  font-size: clamp(48px, 5.9vw, 88px);
+  font-weight: 500;
+  letter-spacing: -.05em;
+  line-height: .92;
+  text-shadow: 0 4px 28px rgba(0,0,0,.38);
+}
+.ember-temple-intro__title-line { display: block; overflow: hidden; white-space: nowrap; }
+.ember-temple-intro__title-line > span,
+.ember-temple-intro__title-heat {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 105%, 0);
+  will-change: transform, opacity;
+  animation: emberTempleTitleUp .72s var(--ember-ease-out) forwards;
+}
+.ember-temple-intro__title-line > span { margin-right: .18em; }
+.ember-temple-intro__title-line > span:nth-child(1) { animation-delay: 2.24s; }
+.ember-temple-intro__title-line > span:nth-child(2) { animation-delay: 2.35s; }
+.ember-temple-intro__title-line > span:nth-child(3) { animation-delay: 2.46s; }
+.ember-temple-intro__title-heat {
+  margin-top: .04em;
+  color: #ff9a59;
+  font-weight: 500;
+  animation-delay: 2.82s;
+}
+
+.ember-temple-intro__embers { position: absolute; inset: 0; z-index: 13; pointer-events: none; }
+.ember-temple-intro__embers i {
+  position: absolute;
+  bottom: 35%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffb469;
+  box-shadow: 0 0 10px rgba(255, 101, 24, .75);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: emberTempleEmber 2.2s .82s ease-out infinite;
+}
+.ember-temple-intro__embers i:nth-child(1) { --ember-x: -138px; --ember-y: -106px; --ember-size: 4px; animation-delay: .88s; }
+.ember-temple-intro__embers i:nth-child(2) { --ember-x: -70px; --ember-y: -186px; --ember-size: 3px; animation-delay: 1.14s; }
+.ember-temple-intro__embers i:nth-child(3) { --ember-x: 112px; --ember-y: -128px; --ember-size: 5px; animation-delay: .98s; }
+.ember-temple-intro__embers i:nth-child(4) { --ember-x: 154px; --ember-y: -62px; --ember-size: 3px; animation-delay: 1.22s; }
+.ember-temple-intro__embers i:nth-child(5) { --ember-x: -181px; --ember-y: -38px; --ember-size: 3px; animation-delay: 1.16s; }
+.ember-temple-intro__embers i:nth-child(6) { --ember-x: 32px; --ember-y: -216px; --ember-size: 4px; animation-delay: 1.04s; }
+.ember-temple-intro__embers i { width: var(--ember-size); height: var(--ember-size); }
+
+.ember-temple-intro__wordmark {
+  position: absolute;
+  z-index: 15;
+  top: clamp(24px, 4vh, 42px);
+  left: 7.5%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: emberTempleBrand .56s 1.68s var(--ember-ease-out) both;
+}
+.ember-temple-intro__wordmark strong { color: #fffaf3; font-family: var(--ember-font-display); font-size: clamp(19px, 2vw, 28px); letter-spacing: .38em; }
+.ember-temple-intro__mark {
+  position: relative;
+  display: block;
+  width: 21px;
+  height: 27px;
+  border-radius: 55% 45% 58% 42% / 68% 54% 46% 32%;
+  background: linear-gradient(145deg, #ffd79a 8%, #f36a21 48%, #922c0b 100%);
+  box-shadow: 0 0 20px rgba(244, 105, 29, .58);
+  transform: rotate(38deg);
+}
+.ember-temple-intro__mark::after { position: absolute; top: 7px; right: 6px; width: 7px; height: 11px; border-radius: 60% 40% 58% 42%; background: #fff3dc; content: ""; }
+
+/* The destination screen is mounted just below the temple in the last 720 ms.
+   Only opacity and transforms animate, so this remains cheap on the GPU. */
+.ember-temple-intro.is-leaving {
+  pointer-events: none;
+  will-change: opacity, transform;
+  animation: emberTempleExit .72s cubic-bezier(.22,.72,.24,1) both;
+}
+.ember-temple-intro.is-leaving .ember-temple-intro__copy { animation: emberTempleCopyDepart .78s cubic-bezier(.22,.72,.24,1) both; }
+.ember-temple-intro.is-leaving .ember-temple-intro__core { animation: emberTempleCoreDepart .78s cubic-bezier(.22,.72,.24,1) both; }
+.ember-temple-intro.is-leaving .ember-temple-intro__wordmark { animation: emberTempleBrandDepart .68s cubic-bezier(.22,.72,.24,1) both; }
+
+/* Returning users get a short recognisable doorway, then the real app. */
+.ember-temple-intro.is-short::before { animation: emberTempleLightShort 2.35s ease both; }
+.ember-temple-intro.is-short .ember-temple-intro__scene { animation: emberTempleApproachShort 2.35s ease both; }
+.ember-temple-intro.is-short .ember-temple-intro__mist,
+.ember-temple-intro.is-short .ember-temple-intro__gate,
+.ember-temple-intro.is-short .ember-temple-intro__lantern,
+.ember-temple-intro.is-short .ember-temple-intro__embers { display: none; }
+.ember-temple-intro.is-short .ember-temple-intro__core { animation: emberTempleCoreShort 1.25s .08s var(--ember-ease-out) both; }
+.ember-temple-intro.is-short .ember-temple-intro__wordmark { animation: emberTempleBrand .5s .38s var(--ember-ease-out) both; }
+.ember-temple-intro.is-short .ember-temple-intro__eyebrow { animation: emberTempleCopyUp .44s .52s var(--ember-ease-out) both; }
+.ember-temple-intro.is-short .ember-temple-intro__title-line > span { animation-duration: .54s; }
+.ember-temple-intro.is-short .ember-temple-intro__title-line > span:nth-child(1) { animation-delay: .68s; }
+.ember-temple-intro.is-short .ember-temple-intro__title-line > span:nth-child(2) { animation-delay: .77s; }
+.ember-temple-intro.is-short .ember-temple-intro__title-line > span:nth-child(3) { animation-delay: .86s; }
+.ember-temple-intro.is-short .ember-temple-intro__title-heat { animation-duration: .58s; animation-delay: 1.18s; }
+
+/* The completed temple is the welcome page. It uses the final frame of the
+   sequence, so the hand-off never opens a second, competing landing screen. */
+.ember-temple-intro--welcome,
+.ember-temple-intro--welcome *,
+.ember-temple-intro--welcome::before,
+.ember-temple-intro--welcome::after { animation: none !important; }
+.ember-temple-intro--welcome::before { opacity: .2; }
+.ember-temple-intro--welcome .ember-temple-intro__scene { opacity: 1; transform: scale(1.14); }
+.ember-temple-intro--welcome .ember-temple-intro__mist--far { opacity: .16; transform: translate3d(10%, 3%, 0); }
+.ember-temple-intro--welcome .ember-temple-intro__mist--near { opacity: .1; transform: translate3d(-5%, -2%, 0); }
+.ember-temple-intro--welcome .ember-temple-intro__gate { opacity: 1; transform: translateX(-50%) scale(1.08); }
+.ember-temple-intro--welcome .ember-temple-intro__door--left { transform: translateX(-87%) perspective(500px) rotateY(13deg); }
+.ember-temple-intro--welcome .ember-temple-intro__door--right { transform: translateX(87%) scaleX(-1) perspective(500px) rotateY(13deg); }
+.ember-temple-intro--welcome .ember-temple-intro__threshold { opacity: 1; transform: translateX(-50%) scale(1.16); }
+.ember-temple-intro--welcome .ember-temple-intro__lantern { opacity: 1; transform: none; }
+.ember-temple-intro--welcome .ember-temple-intro__core { opacity: 1; transform: translate(-50%, -50%); }
+.ember-temple-intro--welcome .ember-temple-intro__gate,
+.ember-temple-intro--welcome .ember-temple-intro__lantern { display: none; }
+.ember-temple-intro--welcome .ember-temple-intro__copy { z-index: 16; }
+.ember-temple-intro--welcome .ember-temple-intro__eyebrow,
+.ember-temple-intro--welcome .ember-temple-intro__title-line > span,
+.ember-temple-intro--welcome .ember-temple-intro__title-heat,
+.ember-temple-intro--welcome .ember-temple-intro__wordmark { opacity: 1; transform: none; }
+.ember-temple-intro--welcome .ember-temple-intro__title-line > span,
+.ember-temple-intro--welcome .ember-temple-intro__title-heat { will-change: auto; }
+
+.ember-temple-intro__welcome-actions {
+  position: absolute;
+  right: 7.5%;
+  bottom: clamp(93px, 13.5vh, 142px);
+  z-index: 18;
+  width: min(29vw, 390px);
+}
+.ember-temple-intro__welcome-actions > p {
+  margin: 0;
+  color: rgba(255, 247, 237, .84);
+  font-family: var(--ember-font-ui);
+  font-size: clamp(13px, 1.12vw, 16px);
+  line-height: 1.62;
+  text-shadow: 0 1px 16px rgba(0,0,0,.25);
+}
+.ember-temple-intro__welcome-actions > div { display: flex; align-items: center; margin-top: 20px; gap: 10px; }
+.ember-temple-intro__primary,
+.ember-temple-intro__secondary {
+  min-height: 46px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--ember-font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform .2s var(--ember-ease-out), background .2s ease, border-color .2s ease;
+}
+.ember-temple-intro__primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 7px 0 19px;
+  border: 1px solid #f2772e;
+  background: #f2772e;
+  color: #fffaf3;
+  gap: 13px;
+  box-shadow: 0 12px 26px rgba(0,0,0,.2);
+}
+.ember-temple-intro__primary i {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: 16px;
+  font-style: normal;
+}
+.ember-temple-intro__secondary { padding: 0 18px; border: 1px solid rgba(255,247,237,.42); background: rgba(20,16,12,.24); color: #fffaf3; }
+.ember-temple-intro__primary:hover,
+.ember-temple-intro__secondary:hover { transform: translateY(-2px); }
+.ember-temple-intro__primary:hover { background: #ff8c49; border-color: #ff8c49; }
+.ember-temple-intro__secondary:hover { border-color: rgba(255,193,134,.9); background: rgba(20,16,12,.48); }
+.ember-temple-intro__language { position: absolute; z-index: 22; top: 28px; right: 32px; }
+.ember-temple-intro--welcome .ember-language {
+  border-color: rgba(255, 238, 216, .28);
+  background: rgba(18, 14, 11, .66);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.32);
+  backdrop-filter: blur(14px) saturate(120%);
+}
+.ember-temple-intro--welcome .ember-language::before {
+  background: #d96b32;
+  box-shadow: 0 5px 16px rgba(0,0,0,.25);
+}
+.ember-temple-intro--welcome .ember-language__button { color: rgba(255, 247, 237, .66); }
+.ember-temple-intro--welcome .ember-language__button:hover { color: #fffaf3; }
+.ember-temple-intro--welcome .ember-language__button.is-active { color: #fffaf3; }
+
+@keyframes emberTempleApproach { from { opacity: .72; transform: scale(1.035); } 72% { opacity: .94; } to { opacity: 1; transform: scale(1.14); } }
+@keyframes emberTempleGateApproach { from { opacity: .72; transform: translateX(-50%) scale(.84); } to { opacity: 1; transform: translateX(-50%) scale(1.08); } }
+@keyframes emberTempleLight { 0%, 25% { opacity: 1; } 60% { opacity: .62; } to { opacity: .18; } }
+@keyframes emberTempleMist { 0% { opacity: 0; transform: translate3d(-3%, 0, 0); } 30% { opacity: .72; } to { opacity: .16; transform: translate3d(10%, 3%, 0); } }
+@keyframes emberTempleLantern { from { opacity: 0; transform: translateY(7px) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes emberTempleDoorOpen { from { transform: translateX(0); } to { transform: translateX(-87%) perspective(500px) rotateY(13deg); } }
+@keyframes emberTempleDoorOpenRight { from { transform: scaleX(-1); } to { transform: translateX(87%) scaleX(-1) perspective(500px) rotateY(13deg); } }
+@keyframes emberTempleThreshold { 0% { opacity: 0; transform: translateX(-50%) scale(.42); } 35% { opacity: .28; } to { opacity: 1; transform: translateX(-50%) scale(1.16); } }
+@keyframes emberTempleCore { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.08); } 24% { opacity: 1; } 68% { transform: translate(-50%, -50%) scale(1.13); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes emberTempleEmber { 0% { opacity: 0; transform: translate3d(-50%,0,0) scale(.55); } 20% { opacity: .9; } to { opacity: 0; transform: translate3d(calc(var(--ember-x) - 50%), var(--ember-y), 0) scale(1); } }
+@keyframes emberTempleCopyUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes emberTempleTitleUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes emberTempleBrand { to { opacity: 1; transform: translateY(0); } }
+@keyframes emberTempleExit { to { opacity: 0; } }
+@keyframes emberTempleCopyDepart { to { opacity: 0; transform: translate3d(-18px, 8px, 0); } }
+@keyframes emberTempleCoreDepart { to { opacity: 0; transform: translate(-50%, -53%) scale(1.82); } }
+@keyframes emberTempleBrandDepart { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes emberTempleApproachShort { from { opacity: .72; transform: scale(1.03); } to { opacity: 1; transform: scale(1.08); } }
+@keyframes emberTempleLightShort { to { opacity: .23; } }
+@keyframes emberTempleCoreShort { from { opacity: 0; transform: translate(-50%, -50%) scale(.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(.94); } }
+
+:root[data-window-active="false"] .ember-temple-intro * { animation-play-state: paused !important; }
+@media (max-width: 720px) {
+  .ember-temple-intro__gate { width: min(76vw, 520px); height: 54vh; }
+  .ember-temple-intro__lantern--left { left: 11%; }
+  .ember-temple-intro__lantern--right { right: 11%; }
+  .ember-temple-intro__copy { right: 24px; bottom: 18vh; left: 24px; width: auto; }
+  .ember-temple-intro__copy h1 { font-size: clamp(38px, 10vw, 58px); }
+  .ember-temple-intro__title-line { white-space: normal; }
+  .ember-temple-intro__welcome-actions { right: 24px; bottom: 54px; left: 24px; width: auto; }
+  .ember-temple-intro__language { top: 18px; right: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ember-temple-intro *, .ember-temple-intro::before, .ember-temple-intro::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+  .ember-temple-intro__gate, .ember-temple-intro__mist, .ember-temple-intro__lantern, .ember-temple-intro__embers { display: none; }
+  .ember-temple-intro__core { opacity: 1; transform: translate(-50%, -50%) scale(.74); }
+}
+
+/* Keep Japanese culture in the art and atmosphere, not in every control. */
+.ember-landing__brand-jp,
+.ember-landing__japanese-rail,
+.ember-landing__jp-line,
+.ember-auth__brand-jp,
+.ember-auth__japanese-mark,
+.ember-auth__jp-line,
+.ember-auth__form-jp { display: none; }
+
+.ember-landing__meta,
+.ember-landing__orb-hint,
+.ember-landing__status,
+.ember-landing__kicker,
+.ember-landing__action-label { display: none; }
+.ember-landing__petal:nth-child(n + 8) { display: none; }

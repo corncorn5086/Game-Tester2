@@ -1,0 +1,297 @@
+/* Home — a calm worktable inside the Japanese garden.
+   The scenery stays at the edges: it should frame the work, never sit behind it. */
+.ember-home {
+  background:
+    radial-gradient(circle at 92% 7%, rgba(235, 140, 99, .09), transparent 22%),
+    linear-gradient(180deg, #fffefa 0%, #fcfaf4 100%);
+}
+
+.ember-home__garden {
+  background-position: 72% center;
+  filter: saturate(.46) contrast(.94) brightness(1.08);
+  opacity: .13;
+}
+
+.ember-home__wash {
+  background:
+    linear-gradient(90deg, rgba(255,254,250,.985) 0%, rgba(255,254,250,.96) 43%, rgba(255,254,250,.7) 71%, rgba(255,254,250,.88) 100%),
+    linear-gradient(180deg, rgba(255,254,250,.52), rgba(255,254,250,.96) 80%);
+}
+
+.ember-home__page {
+  width: min(100%, 1280px);
+  padding-top: clamp(38px, 6vh, 70px);
+}
+
+/* First project: large, simple words, one orb, and room to breathe. */
+.ember-home__first {
+  min-height: min(470px, 62vh);
+  padding: clamp(28px, 4vw, 54px);
+  border: 1px solid rgba(42, 36, 29, .1);
+  border-radius: 30px;
+  background: linear-gradient(105deg, rgba(255,255,252,.94), rgba(255,255,252,.68));
+  box-shadow: 0 20px 55px rgba(62, 45, 25, .055);
+  gap: clamp(38px, 6vw, 86px);
+}
+
+.ember-home__first-copy { max-width: 650px; }
+.ember-home__welcome { color: var(--ember-heat-text); font-size: 10px; letter-spacing: .18em; }
+.ember-home__jp-note,
+.ember-home__identity-caption span:last-child,
+.ember-home__run-kicker b,
+.ember-home__work-plan > header span[lang="ja"],
+.ember-home__journal > header span[lang="ja"] { display: none; }
+
+.ember-home__first h1 {
+  max-width: 620px;
+  margin-top: 14px;
+  color: #1f1d19;
+  font-size: clamp(48px, 5.15vw, 70px);
+  letter-spacing: -.055em;
+  line-height: .98;
+}
+
+.ember-home__lead {
+  max-width: 555px;
+  color: #5f5a52;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.ember-home__primary {
+  min-height: 54px;
+  border-color: #201e1a;
+  background: #201e1a;
+  box-shadow: 0 9px 20px rgba(39, 30, 20, .09);
+}
+
+.ember-home__primary > i { font-family: inherit; }
+.ember-home__text-action { font-size: 12.5px; }
+.ember-home__privacy-note { margin-top: 18px; }
+
+.ember-home__identity {
+  min-height: 350px;
+  overflow: hidden;
+  border: 1px solid rgba(59, 45, 30, .11);
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(252,247,238,.92), rgba(255,254,250,.52)),
+    radial-gradient(circle at 62% 40%, rgba(238,132,67,.13), transparent 48%);
+}
+
+.ember-home__identity::before {
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(168, 100, 62, .11) 50%, transparent 50.2%),
+    linear-gradient(0deg, transparent 49.8%, rgba(168, 100, 62, .09) 50%, transparent 50.2%);
+}
+
+.ember-home__enso { width: 276px; border-color: rgba(185, 71, 18, .24); }
+.ember-home__orb { width: 212px; }
+.ember-home__orb-glow { filter: blur(16px); }
+.ember-home__identity-caption { right: 20px; bottom: 16px; color: rgba(79, 68, 55, .75); }
+
+.ember-home__journey {
+  margin-top: 18px;
+  padding: 25px 26px;
+  border: 1px solid rgba(42, 36, 29, .1);
+  border-radius: 22px;
+  background: rgba(255,255,252,.72);
+  box-shadow: 0 12px 35px rgba(62, 45, 25, .035);
+}
+
+.ember-home__journey h2 { color: #26221d; font-size: 22px; }
+.ember-home__journey-mark { color: rgba(190, 82, 25, .62); }
+.ember-home__journey strong { color: #2a2620; }
+.ember-home__journey p { color: #706960; }
+
+/* The onboarding answers become a quiet brief, not another dashboard. */
+.ember-home__personal-brief {
+  display: grid;
+  grid-template-columns: minmax(250px, .92fr) minmax(0, 1.08fr);
+  gap: 34px;
+  margin-top: 18px;
+  padding: 26px 28px;
+  border: 1px solid rgba(91, 59, 31, .16);
+  border-radius: 22px;
+  background: linear-gradient(118deg, rgba(232,217,194,.86), rgba(247,239,226,.72));
+  box-shadow: 0 12px 35px rgba(62, 45, 25, .04);
+}
+.ember-home__personal-brief header > span,
+.ember-home__personal-recommendation > span {
+  color: #9d4826;
+  font-family: var(--ember-font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+.ember-home__personal-brief h2 {
+  margin: 9px 0 0;
+  color: #2a211a;
+  font-family: var(--ember-font-editorial);
+  font-size: clamp(23px, 2.4vw, 31px);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  line-height: 1.06;
+}
+.ember-home__personal-brief p { max-width: 510px; margin: 11px 0 0; color: #65594e; font-size: 12.5px; line-height: 1.58; }
+.ember-home__personal-values { display: grid; align-self: center; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid rgba(80, 56, 35, .13); border-radius: 15px; background: rgba(255,249,239,.46); overflow: hidden; }
+.ember-home__personal-values > div { min-width: 0; min-height: 94px; display: grid; align-content: center; gap: 8px; padding: 15px; }
+.ember-home__personal-values > div + div { border-left: 1px solid rgba(80, 56, 35, .13); }
+.ember-home__personal-values span { color: #887a6e; font-family: var(--ember-font-mono); font-size: 8.5px; font-weight: 700; letter-spacing: .11em; }
+.ember-home__personal-values strong { overflow: hidden; color: #312820; font-size: 12px; line-height: 1.35; text-overflow: ellipsis; }
+
+.ember-home__personal-recommendation {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 13px;
+  padding: 14px 17px;
+  border: 1px solid rgba(169, 77, 39, .2);
+  border-radius: 15px;
+  background: linear-gradient(100deg, rgba(238,220,196,.68), rgba(255,252,246,.44));
+}
+.ember-home__personal-recommendation > span { padding-top: 3px; }
+.ember-home__personal-recommendation strong { color: #4a3b30; font-size: 12.5px; font-weight: 590; line-height: 1.55; }
+
+/* Project-ready Home: clear, wooden-table surfaces rather than a grid dashboard. */
+.ember-home__project,
+.ember-home__recent,
+.ember-home__finished,
+.ember-home__recovery { position: relative; }
+
+.ember-home__project::before,
+.ember-home__finished::before {
+  position: absolute;
+  top: -22px;
+  left: -36px;
+  width: 132px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(202, 85, 28, .52), transparent);
+  content: "";
+}
+
+.ember-home__project-head { padding: 16px 0 27px; }
+.ember-home__project-icon { border-radius: 50%; background: #211f1b; }
+.ember-home__test-start,
+.ember-home__mode,
+.ember-home__mode-options,
+.ember-home__deep-ai,
+.ember-home__recent-empty,
+.ember-home__finished-head,
+.ember-home__severity,
+.ember-home__important,
+.ember-home__ai-proof {
+  border-color: rgba(42, 36, 29, .12);
+  background: rgba(255,255,252,.8);
+  box-shadow: 0 13px 34px rgba(62, 45, 25, .04);
+}
+
+.ember-home__test-start { border-radius: 25px; }
+.ember-home__mode { min-height: 138px; border-radius: 18px; }
+.ember-home__mode.is-selected { background: #fffdf7; }
+.ember-home__deep-ai { border-radius: 20px; }
+.ember-home__recent { padding: 25px 0 0; }
+.ember-home__recent-empty > span { display: none; }
+
+:root[data-theme="dark"] .ember-home__personal-brief {
+  border-color: rgba(255,206,164,.18);
+  background: linear-gradient(118deg, rgba(62,43,30,.88), rgba(37,30,23,.82));
+}
+:root[data-theme="dark"] .ember-home__personal-brief h2,
+:root[data-theme="dark"] .ember-home__personal-values strong,
+:root[data-theme="dark"] .ember-home__personal-recommendation strong { color: #f5e7d7; }
+:root[data-theme="dark"] .ember-home__personal-brief p { color: rgba(245,231,215,.69); }
+:root[data-theme="dark"] .ember-home__personal-values { border-color: rgba(255,226,195,.14); background: rgba(255,255,255,.035); }
+:root[data-theme="dark"] .ember-home__personal-values > div + div { border-color: rgba(255,226,195,.14); }
+:root[data-theme="dark"] .ember-home__personal-values span { color: rgba(245,224,200,.55); }
+:root[data-theme="dark"] .ember-home__personal-recommendation { border-color: rgba(255,180,120,.2); background: rgba(75,48,30,.5); }
+
+/* A test is a focused session, deliberately darker only while it runs.
+   No petals or garden compete with live evidence. */
+.ember-home:has(.ember-home__running) {
+  color: #f8f1e6;
+  background:
+    radial-gradient(circle at 86% 13%, rgba(207, 83, 18, .2), transparent 24%),
+    radial-gradient(circle at 22% 98%, rgba(113, 60, 31, .24), transparent 34%),
+    linear-gradient(145deg, #17130f, #221a13 58%, #17140f);
+}
+
+.ember-home:has(.ember-home__running)::after,
+.ember-home:has(.ember-home__running) .ember-home__garden,
+.ember-home:has(.ember-home__running) .ember-home__wash,
+.ember-home:has(.ember-home__running) .ember-home__petals { display: none; }
+
+.ember-home:has(.ember-home__running) .ember-home__page { padding-top: clamp(34px, 5vh, 58px); }
+.ember-home__running { width: min(100%, 1180px); }
+.ember-home__run-head h1 { color: #fff9ef; }
+.ember-home__run-head p,
+.ember-home__engine-state small,
+.ember-home__live-action > p,
+.ember-home__live-stats dt,
+.ember-home__work-plan li p,
+.ember-home__journal li p,
+.ember-home__evidence dt,
+.ember-home__evidence small { color: rgba(247, 235, 219, .62); }
+
+.ember-home__run-kicker { color: #ffb374; }
+.ember-home__stop { border-color: rgba(255, 169, 103, .32); background: rgba(255, 119, 42, .08); color: #ffb581; }
+.ember-home__stop:hover { background: rgba(255, 119, 42, .16); }
+
+.ember-home__engine-truth,
+.ember-home__engine-state,
+.ember-home__live-core,
+.ember-home__work-plan,
+.ember-home__evidence,
+.ember-home__journal,
+.ember-home__technical {
+  border-color: rgba(255, 232, 202, .14);
+  background: rgba(37, 29, 21, .78);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, .17);
+}
+
+.ember-home__engine-truth { background: rgba(8, 7, 5, .26); }
+.ember-home__engine-state { background: rgba(255, 249, 238, .045); }
+.ember-home__engine-state > span { border-color: rgba(255, 224, 191, .2); color: #ffbc86; font-family: var(--ember-font-mono); }
+.ember-home__engine-state strong,
+.ember-home__live-action h2,
+.ember-home__live-stats dd,
+.ember-home__work-plan h2,
+.ember-home__journal h2,
+.ember-home__evidence h2,
+.ember-home__work-plan li > div > strong,
+.ember-home__journal li strong,
+.ember-home__evidence dd { color: #fff8ef; }
+
+.ember-home__live-core { background: linear-gradient(118deg, rgba(43, 30, 20, .96), rgba(29, 23, 18, .91)); }
+.ember-home__live-core::after { border-color: rgba(255, 157, 80, .16); }
+.ember-home__live-orb > span { display: none; }
+.ember-home__live-stats { border-color: rgba(255, 232, 202, .14); }
+.ember-home__live-stats > div + div { border-color: rgba(255, 232, 202, .14); }
+.ember-home__work-plan > header,
+.ember-home__journal > header,
+.ember-home__evidence > header,
+.ember-home__work-plan li + li,
+.ember-home__journal li + li,
+.ember-home__evidence dl > div:nth-child(even),
+.ember-home__evidence dl > div:nth-child(n+3) { border-color: rgba(255, 232, 202, .13); }
+.ember-home__work-plan li.is-active { background: rgba(238, 104, 32, .11); }
+.ember-home__work-plan li > em { background: rgba(255,255,255,.08); color: rgba(255,241,224,.7); }
+.ember-home__technical > button { color: rgba(255,241,224,.82); }
+
+@media (max-width: 760px) {
+  .ember-home__page { padding-top: 24px; }
+  .ember-home__first { padding: 28px 24px; border-radius: 24px; }
+  .ember-home__identity { min-height: 230px; }
+  .ember-home__journey { padding: 20px; }
+  .ember-home__personal-brief { grid-template-columns: 1fr; gap: 20px; padding: 22px; }
+  .ember-home__personal-values { grid-template-columns: 1fr; }
+  .ember-home__personal-values > div { min-height: 62px; }
+  .ember-home__personal-values > div + div { border-top: 1px solid rgba(80,56,35,.13); border-left: 0; }
+  .ember-home__personal-recommendation { grid-template-columns: 1fr; gap: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-home__garden { filter: saturate(.42) contrast(.94); }
+}

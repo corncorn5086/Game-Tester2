@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <div class="ember-onboarding" data-screen-label="Add Project" role="dialog" aria-modal="true" aria-labelledby="ember-onboarding-title" tabindex="-1">
+    <button type="button" class="ember-onboarding__scrim" onClick="{{ closeWizard }}" aria-label="{{ copy.close }}" tabindex="-1" disabled="{{ wizardBusy }}"></button>
+
+    <section class="ember-onboarding__panel">
+      <header class="ember-onboarding__head">
+        <div class="ember-onboarding__brand"><span aria-hidden="true">火</span><strong>EMBER</strong></div>
+        <div class="ember-onboarding__progress" aria-label="{{ progressAria }}">
+          <sc-for list="{{ wizardSteps }}" as="step" hint-placeholder-count="3">
+            <span class="{{ step.className }}"><i aria-hidden="true"></i><b>{{ step.label }}</b></span>
+          </sc-for>
+        </div>
+        <button type="button" class="ember-onboarding__close" onClick="{{ closeWizard }}" aria-label="{{ copy.close }}" disabled="{{ wizardBusy }}">×</button>
+      </header>
+
+      <div class="ember-onboarding__body">
+        <sc-if value="{{ wizardIsMethod }}" hint-placeholder-val="{{ true }}">
+          <div class="ember-onboarding__intro">
+            <span>{{ copy.stepOne }}</span>
+            <h1 id="ember-onboarding-title">{{ copy.methodTitle }}</h1>
+            <p>{{ copy.methodBody }}</p>
+          </div>
+
+          <button type="button" class="ember-onboarding__method" onClick="{{ chooseProjectFolder }}">
+            <span class="ember-onboarding__method-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7.5h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-11Z"></path><path d="M3 9.5v-4a2 2 0 0 1 2-2h4l2 2h5"></path></svg>
+            </span>
+            <span class="ember-onboarding__method-copy">
+              <span>{{ copy.recommended }}</span>
+              <strong>{{ copy.chooseFolder }}</strong>
+              <small>{{ copy.chooseFolderBody }}</small>
+            </span>
+            <i aria-hidden="true">→</i>
+          </button>
+
+          <div class="ember-onboarding__local-note">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path></svg>
+            <span><strong>{{ copy.localTitle }}</strong>{{ copy.localBody }}</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ wizardIsValidating }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-onboarding__validation" aria-live="polite" aria-busy="true">
+            <div class="ember-onboarding__scanner" aria-hidden="true"><span></span><i></i></div>
+            <span>{{ copy.stepTwo }}</span>
+            <h1 id="ember-onboarding-title">{{ copy.validatingTitle }}</h1>
+            <p>{{ selectedPath }}</p>
+            <ol>
+              <sc-for list="{{ validationChecks }}" as="check" hint-placeholder-count="3">
+                <li class="{{ check.className }}"><i aria-hidden="true">{{ check.mark }}</i><span>{{ check.label }}</span></li>
+              </sc-for>
+            </ol>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ wizardIsInvalid }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-onboarding__invalid" aria-live="assertive">
+            <span class="ember-onboarding__invalid-mark" aria-hidden="true">!</span>
+            <span>{{ copy.validationFailed }}</span>
+            <h1 id="ember-onboarding-title">{{ validationErrorTitle }}</h1>
+            <p>{{ validationErrorBody }}</p>
+            <div class="ember-onboarding__path" title="{{ selectedPath }}">{{ selectedPath }}</div>
+            <sc-if value="{{ hasValidationHint }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-onboarding__hint"><strong>{{ copy.whatToDo }}</strong><span>{{ validationHint }}</span></div>
+            </sc-if>
+            <div class="ember-onboarding__footer-actions">
+              <button type="button" class="ember-onboarding__secondary" onClick="{{ closeWizard }}">{{ copy.cancel }}</button>
+              <button type="button" class="ember-onboarding__primary" onClick="{{ chooseProjectFolder }}">{{ copy.chooseAnother }}</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ wizardIsConfirm }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-onboarding__confirm">
+            <div class="ember-onboarding__intro">
+              <span>{{ copy.stepThree }}</span>
+              <h1 id="ember-onboarding-title">{{ copy.detectedTitle }}</h1>
+              <p>{{ copy.detectedBody }}</p>
+            </div>
+
+            <div class="ember-onboarding__project-card">
+              <span class="ember-onboarding__project-icon" aria-hidden="true">{{ candidateInitial }}</span>
+              <div><strong>{{ candidateName }}</strong><span>{{ candidateEngine }}</span></div>
+              <span class="ember-onboarding__recognized"><i aria-hidden="true"></i>{{ copy.recognized }}</span>
+            </div>
+
+            <dl class="ember-onboarding__details">
+              <div><dt>{{ copy.projectPath }}</dt><dd title="{{ candidatePath }}">{{ candidatePath }}</dd></div>
+              <div><dt>{{ copy.projectType }}</dt><dd>{{ candidateType }}</dd></div>
+              <div><dt>{{ copy.detectedFiles }}</dt><dd>{{ candidateEvidence }}</dd></div>
+            </dl>
+
+            <section class="ember-onboarding__capabilities" aria-labelledby="ember-capabilities-title">
+              <h2 id="ember-capabilities-title">{{ copy.availableTests }}</h2>
+              <div>
+                <sc-for list="{{ candidateCapabilities }}" as="capability" hint-placeholder-count="3">
+                  <span class="{{ capability.className }}"><i aria-hidden="true">{{ capability.mark }}</i>{{ capability.label }}</span>
+                </sc-for>
+              </div>
+            </section>
+
+            <sc-if value="{{ hasCandidateWarnings }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-onboarding__warnings">
+                <sc-for list="{{ candidateWarnings }}" as="warning" hint-placeholder-count="1">
+                  <p><i aria-hidden="true">!</i><span>{{ warning.text }}</span></p>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <div class="ember-onboarding__permission"><i aria-hidden="true">✓</i><span><strong>{{ copy.permissionTitle }}</strong>{{ copy.permissionBody }}</span></div>
+
+            <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-onboarding__add-error" role="alert">{{ addError }}</div>
+            </sc-if>
+
+            <div class="ember-onboarding__footer-actions">
+              <button type="button" class="ember-onboarding__secondary" onClick="{{ backToMethod }}">{{ copy.back }}</button>
+              <button type="button" class="ember-onboarding__primary" onClick="{{ confirmProject }}">{{ addProjectLabel }}</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ wizardIsAdding }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-onboarding__validation" aria-live="polite" aria-busy="true">
+            <div class="ember-onboarding__scanner is-writing" aria-hidden="true"><span></span><i></i></div>
+            <span>{{ copy.finalizing }}</span>
+            <h1 id="ember-onboarding-title">{{ copy.addingTitle }}</h1>
+            <p>{{ candidateName }}</p>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </div>
+</x-dc>
+</body>
+</html>

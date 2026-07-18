@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <div class="ember-settings" role="presentation" lang="{{ copy.lang }}">
+    <button type="button" class="ember-settings__backdrop" onClick="{{ closeSheet }}" aria-label="{{ copy.close }}" tabindex="-1"></button>
+
+    <section class="ember-settings__folio" data-screen-label="Settings" role="dialog" aria-modal="true" aria-labelledby="ember-settings-title" tabindex="-1">
+      <header class="ember-settings__header">
+        <div class="ember-settings__brand">
+          <span aria-hidden="true">設</span>
+          <div>
+            <strong>{{ copy.settings }}</strong>
+            <small lang="ja">環境を整える</small>
+          </div>
+        </div>
+
+        <div class="ember-settings__heading">
+          <sc-if value="{{ sheetIsRoot }}" hint-placeholder-val="{{ true }}">
+            <p>{{ copy.kicker }}</p>
+            <h1 id="ember-settings-title">{{ copy.title }}</h1>
+          </sc-if>
+          <sc-if value="{{ sheetNotRoot }}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="ember-settings__back" onClick="{{ sheetBack }}">← {{ copy.back }}</button>
+            <h1 id="ember-settings-title">{{ sheetTitle }}</h1>
+          </sc-if>
+        </div>
+
+        <button type="button" class="ember-settings__close" onClick="{{ closeSheet }}" aria-label="{{ copy.close }}">×</button>
+      </header>
+
+      <div class="ember-settings__scroll">
+        <sc-if value="{{ sheetIsRoot }}" hint-placeholder-val="{{ true }}">
+          <div class="ember-settings__identity">
+            <div class="ember-settings__avatar">{{ userInitials }}</div>
+            <div>
+              <strong>{{ userName }}</strong>
+              <span>{{ userEmail }}</span>
+            </div>
+            <small>{{ copy.localPlan }}</small>
+          </div>
+
+          <div class="ember-settings__groups">
+            <sc-for list="{{ sheetGroups }}" as="g" hint-placeholder-count="4">
+              <section class="ember-settings__group">
+                <h2>{{ g.label }}</h2>
+                <div>
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                    <button type="button" onClick="{{ it.go }}">
+                      <span>{{ it.label }}</span><i aria-hidden="true">›</i>
+                    </button>
+                  </sc-for>
+                </div>
+              </section>
+            </sc-for>
+          </div>
+
+          <button type="button" class="ember-settings__danger" onClick="{{ signOut }}">{{ copy.signOut }}</button>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsProfile }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page">
+            <div class="ember-settings__profile-mark">{{ userInitials }}</div>
+            <label class="ember-settings__field">
+              <span>{{ copy.fullName }}</span>
+              <input value="{{ pName }}" onChange="{{ onPName }}" autocomplete="name">
+            </label>
+            <label class="ember-settings__field">
+              <span>{{ copy.email }}</span>
+              <input value="{{ pEmail }}" onChange="{{ onPEmail }}" type="email" autocomplete="email" disabled="{{ profileEmailDisabled }}">
+            </label>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsPassword }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page">
+            <label class="ember-settings__field">
+              <span>{{ copy.currentPassword }}</span>
+              <input type="password" value="{{ pw1 }}" onChange="{{ onPw1 }}" placeholder="••••••••" autocomplete="current-password">
+            </label>
+            <label class="ember-settings__field">
+              <span>{{ copy.newPassword }}</span>
+              <input type="password" value="{{ pw2 }}" onChange="{{ onPw2 }}" placeholder="{{ copy.passwordHint }}" autocomplete="new-password">
+            </label>
+            <label class="ember-settings__field">
+              <span>{{ copy.confirmPassword }}</span>
+              <input type="password" value="{{ pw3 }}" onChange="{{ onPw3 }}" placeholder="{{ copy.repeatPassword }}" autocomplete="new-password">
+            </label>
+            <sc-if value="{{ hasPwErr }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-settings__error" role="alert">{{ pwErr }}</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsSecurity }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page ember-settings__page--cards">
+            <article class="ember-settings__card ember-settings__card--split">
+              <div><h2>{{ copy.localProtection }}</h2><p>{{ copy.localProtectionDesc }}</p></div>
+              <strong class="ember-settings__status">{{ copy.active }}</strong>
+            </article>
+            <article class="ember-settings__card"><h2>{{ copy.activeSession }}</h2><p>{{ copy.activeSessionDesc }}</p></article>
+            <article class="ember-settings__card"><h2>{{ copy.secretMasking }}</h2><p>{{ copy.secretMaskingDesc }}</p></article>
+            <button type="button" class="ember-settings__danger" onClick="{{ signOut }}">{{ copy.signOutEverywhere }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsPrefs }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page">
+            <section class="ember-settings__section">
+              <header><span>{{ copy.appearance }}</span><small lang="ja">外観</small></header>
+              <div class="ember-settings__themes">
+                <sc-for list="{{ themeChoices }}" as="th" hint-placeholder-count="2">
+                  <button type="button" class="{{ th.className }}" onClick="{{ th.go }}" aria-pressed="{{ th.pressed }}">
+                    <span class="{{ th.previewClass }}"></span>
+                    <strong>{{ th.label }}</strong>
+                    <small>{{ th.status }}</small>
+                  </button>
+                </sc-for>
+              </div>
+            </section>
+
+            <section class="ember-settings__section">
+              <header><span>{{ copy.seasonalAtmosphere }}</span><small lang="ja">四季</small></header>
+              <p class="ember-settings__section-note">{{ copy.seasonalAtmosphereDesc }}</p>
+              <div class="ember-settings__seasons">
+                <sc-for list="{{ seasonChoices }}" as="sn" hint-placeholder-count="4">
+                  <button type="button" class="{{ sn.className }}" onClick="{{ sn.go }}" aria-pressed="{{ sn.pressed }}">
+                    <span class="ember-settings__season-art"><i lang="ja">{{ sn.kanji }}</i></span>
+                    <strong>{{ sn.label }}</strong>
+                    <small>{{ sn.desc }}</small>
+                  </button>
+                </sc-for>
+              </div>
+            </section>
+
+            <section class="ember-settings__section">
+              <header><span>{{ copy.orbStyle }}</span><small lang="ja">炎色</small></header>
+              <p class="ember-settings__section-note">{{ copy.orbStyleDesc }}</p>
+              <div class="ember-settings__orb-choices">
+                <sc-for list="{{ orbChoices }}" as="orb" hint-placeholder-count="5">
+                  <button type="button" class="{{ orb.className }}" onClick="{{ orb.go }}" aria-pressed="{{ orb.pressed }}">
+                    <span aria-hidden="true"></span><strong>{{ orb.label }}</strong>
+                  </button>
+                </sc-for>
+              </div>
+            </section>
+
+            <section class="ember-settings__section">
+              <header><span>{{ copy.language }}</span><small lang="ja">言語</small></header>
+              <div class="ember-settings__languages">
+                <sc-for list="{{ settingsLangBtns }}" as="lb" hint-placeholder-count="2">
+                  <button type="button" class="{{ lb.className }}" onClick="{{ lb.go }}" aria-pressed="{{ lb.pressed }}">{{ lb.full }}</button>
+                </sc-for>
+              </div>
+            </section>
+
+            <section class="ember-settings__section">
+              <header><span>{{ copy.generalNotifications }}</span><small lang="ja">通知</small></header>
+              <div class="ember-settings__toggle-list">
+                <sc-for list="{{ toggles }}" as="tg" hint-placeholder-count="5">
+                  <article class="ember-settings__toggle-row">
+                    <div><strong>{{ tg.label }}</strong><p>{{ tg.desc }}</p></div>
+                    <button type="button" class="{{ tg.className }}" onClick="{{ tg.flip }}" aria-pressed="{{ tg.pressed }}" aria-label="{{ tg.label }}"><span></span></button>
+                  </article>
+                </sc-for>
+              </div>
+              <button type="button" class="ember-settings__secondary ember-settings__replay-intro" onClick="{{ replayTempleIntro }}">{{ copy.replayIntro }}</button>
+            </section>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsPrivacy }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page ember-settings__page--cards">
+            <article class="ember-settings__card ember-settings__card--split">
+              <div><h2>{{ copy.localOnly }}</h2><p>{{ copy.localOnlyDesc }}</p></div>
+              <button type="button" class="{{ localToggleClass }}" onClick="{{ flipLocal }}" aria-pressed="{{ localPressed }}" aria-label="{{ copy.localOnly }}"><span></span></button>
+            </article>
+            <article class="ember-settings__card"><h2>{{ copy.telemetry }}</h2><p>{{ copy.telemetryDesc }}</p></article>
+            <article class="ember-settings__card"><h2>{{ copy.secretDetection }}</h2><p>{{ copy.secretDetectionDesc }}</p></article>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsAI }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page ember-settings__page--ai">
+            <article class="ember-settings__ai-managed">
+              <span class="ember-settings__ai-managed-mark" lang="ja" aria-hidden="true">守</span>
+              <div>
+                <p>{{ copy.aiManagedEyebrow }}</p>
+                <h2>{{ copy.aiManagedTitle }}</h2>
+                <p>{{ copy.aiManagedDesc }}</p>
+              </div>
+              <strong>{{ copy.aiNoKeyBadge }}</strong>
+            </article>
+
+            <article class="{{ aiStatusClass }}" aria-live="polite">
+              <span aria-hidden="true">{{ aiStatusMark }}</span>
+              <div><strong>{{ aiStatusTitle }}</strong><p>{{ aiStatusDetail }}</p></div>
+            </article>
+
+            <section class="ember-settings__section">
+              <header><span>{{ copy.aiRouteTitle }}</span><small lang="ja">安全経路</small></header>
+              <p class="ember-settings__section-note">{{ copy.aiRouteDesc }}</p>
+              <ol class="ember-settings__ai-route" aria-label="{{ copy.aiRouteTitle }}">
+                <li><span lang="ja" aria-hidden="true">端</span><div><strong>{{ copy.aiRouteDevice }}</strong><small>{{ copy.aiRouteDeviceDesc }}</small></div></li>
+                <li><span lang="ja" aria-hidden="true">門</span><div><strong>{{ copy.aiRouteGateway }}</strong><small>{{ copy.aiRouteGatewayDesc }}</small></div></li>
+                <li><span lang="ja" aria-hidden="true">知</span><div><strong>{{ copy.aiRouteProvider }}</strong><small>{{ copy.aiRouteProviderDesc }}</small></div></li>
+              </ol>
+            </section>
+
+            <article class="ember-settings__ai-truth">
+              <span lang="ja" aria-hidden="true">実</span>
+              <div><h2>{{ copy.aiTruthTitle }}</h2><p>{{ copy.aiTruthDesc }}</p></div>
+            </article>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetIsSupport }}" hint-placeholder-val="{{ false }}">
+          <div class="ember-settings__page ember-settings__page--cards">
+            <article class="ember-settings__card"><h2>{{ copy.documentation }}</h2><p>{{ copy.documentationDesc }}</p></article>
+            <article class="ember-settings__card"><h2>{{ copy.contact }}</h2><p class="ember-settings__accent">hello@ember.dev</p></article>
+            <article class="ember-settings__card ember-settings__card--split"><h2>{{ copy.version }}</h2><code>IGNITION 0.2.0 · AGENT CORE 0.2.0</code></article>
+            <button type="button" class="ember-settings__secondary" onClick="{{ reportProblem }}">{{ copy.reportProblem }}</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ sheetNotRoot }}" hint-placeholder-val="{{ false }}">
+        <footer class="ember-settings__actions">
+          <div><span>{{ saveMark }}</span><strong>{{ saveStateLabel }}</strong></div>
+          <button type="button" onClick="{{ saveSettingsPage }}" disabled="{{ settingsActionDisabled }}" aria-busy="{{ settingsActionBusy }}"><i lang="ja" aria-hidden="true">保存</i>{{ saveActionLabel }}</button>
+        </footer>
+      </sc-if>
+    </section>
+  </div>
+</x-dc>
+</body>
+</html>

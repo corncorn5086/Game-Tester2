@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <main class="ember-home" data-screen-label="Home">
+    <div class="ember-home__garden" aria-hidden="true"></div>
+    <div class="ember-home__wash" aria-hidden="true"></div>
+    <div class="ember-home__petals" aria-hidden="true">
+      <i></i><i></i><i class="is-leaf"></i><i></i><i class="is-leaf"></i>
+    </div>
+
+    <div class="ember-home__page">
+      <sc-if value="{{ isWorkspaceLoading }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__loading" aria-live="polite" aria-busy="true">
+          <div class="ember-home__loading-orb" aria-hidden="true"><molten-core></molten-core></div>
+          <span>{{ copy.loadingSession }}</span>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ hasWorkspaceError }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__workspace-error" role="alert" aria-live="assertive">
+          <span aria-hidden="true">!</span>
+          <div><strong>{{ copy.workspaceErrorTitle }}</strong><p>{{ workspaceError }}</p></div>
+          <button type="button" onClick="{{ retryWorkspace }}">{{ copy.retryWorkspace }}</button>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isFirstUse }}" hint-placeholder-val="{{ true }}">
+        <section class="ember-home__first" aria-labelledby="ember-first-title">
+          <div class="ember-home__first-copy">
+            <p class="ember-home__welcome">{{ copy.welcome }}</p>
+            <p class="ember-home__jp-note" lang="ja" aria-hidden="true">静かな火から、確かな一歩へ。</p>
+            <h1 id="ember-first-title">{{ copy.firstTitle }}</h1>
+            <p class="ember-home__lead">{{ copy.firstBody }}</p>
+
+            <div class="ember-home__first-actions">
+              <button type="button" class="ember-home__primary" onClick="{{ openConnect }}">
+                <span>{{ copy.addGame }}</span>
+                <i aria-hidden="true">→</i>
+              </button>
+              <button type="button" class="ember-home__text-action" onClick="{{ showHow }}">
+                {{ copy.howItWorks }}
+              </button>
+            </div>
+            <p class="ember-home__privacy-note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+              {{ copy.localPromise }}
+            </p>
+          </div>
+
+          <aside class="ember-home__identity" aria-label="{{ copy.coreAria }}">
+            <div class="ember-home__enso" aria-hidden="true"></div>
+            <div class="ember-home__orb">
+              <div class="ember-home__orb-glow" aria-hidden="true"></div>
+              <molten-core aria-hidden="true"></molten-core>
+            </div>
+            <div class="ember-home__identity-caption" aria-hidden="true">
+              <span>EMBER</span><i></i><span lang="ja">火の知性</span>
+            </div>
+          </aside>
+        </section>
+
+        <sc-if value="{{ hasPersonalBrief }}" hint-placeholder-val="{{ false }}">
+          <section class="ember-home__personal-brief" aria-labelledby="ember-personal-brief-title">
+            <header>
+              <span>{{ personalKicker }}</span>
+              <h2 id="ember-personal-brief-title">{{ personalTitle }}</h2>
+              <p>{{ personalBody }}</p>
+            </header>
+            <div class="ember-home__personal-values">
+              <sc-for list="{{ personalValues }}" as="value" hint-placeholder-count="3">
+                <div><span>{{ value.label }}</span><strong>{{ value.value }}</strong></div>
+              </sc-for>
+            </div>
+          </section>
+        </sc-if>
+
+        <section class="ember-home__journey" aria-labelledby="ember-journey-title">
+          <header>
+            <span>{{ copy.journeyKicker }}</span>
+            <h2 id="ember-journey-title">{{ copy.journeyTitle }}</h2>
+          </header>
+          <ol>
+            <sc-for list="{{ journeySteps }}" as="step" hint-placeholder-count="3">
+              <li>
+                <span class="ember-home__journey-mark" aria-hidden="true">{{ step.number }}</span>
+                <div><strong>{{ step.title }}</strong><p>{{ step.description }}</p></div>
+              </li>
+            </sc-for>
+          </ol>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isProjectReady }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__project" aria-labelledby="ember-project-title">
+          <header class="ember-home__project-head">
+            <div class="ember-home__project-identity">
+              <span class="ember-home__project-icon" aria-hidden="true">{{ projectInitial }}</span>
+              <div>
+                <span class="ember-home__ready-label"><i aria-hidden="true"></i>{{ copy.readyToTest }}</span>
+                <h1 id="ember-project-title">{{ projectName }}</h1>
+                <p>{{ projectEngine }} · {{ copy.onThisDevice }}</p>
+              </div>
+            </div>
+            <button type="button" class="ember-home__switch" onClick="{{ goProjects }}">{{ copy.changeProject }}</button>
+          </header>
+
+          <div class="ember-home__test-start">
+            <div class="ember-home__start-copy">
+              <span>{{ copy.nextStep }}</span>
+              <h2>{{ copy.chooseTest }}</h2>
+              <p>{{ copy.chooseTestBody }}</p>
+            </div>
+            <div class="ember-home__mini-orb" aria-hidden="true"><molten-core></molten-core></div>
+          </div>
+
+          <sc-if value="{{ hasPersonalBrief }}" hint-placeholder-val="{{ false }}">
+            <aside class="ember-home__personal-recommendation" aria-label="{{ personalKicker }}">
+              <span>{{ personalProjectLabel }}</span>
+              <strong>{{ personalRecommendation }}</strong>
+            </aside>
+          </sc-if>
+
+          <div class="ember-home__modes" role="radiogroup" aria-label="{{ copy.testModesAria }}">
+            <sc-for list="{{ modeCards }}" as="mode" hint-placeholder-count="3">
+              <button
+                type="button"
+                class="{{ mode.className }}"
+                onClick="{{ mode.select }}"
+                role="radio"
+                aria-checked="{{ mode.selected }}"
+                tabindex="{{ mode.tabIndex }}"
+                onKeyDown="{{ mode.onKeyDown }}"
+              >
+                <span class="ember-home__mode-radio" aria-hidden="true"><i></i></span>
+                <span class="ember-home__mode-copy">
+                  <span class="ember-home__mode-label">{{ mode.label }}</span>
+                  <strong>{{ mode.title }}</strong>
+                  <small>{{ mode.description }}</small>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ showModeOptions }}" hint-placeholder-val="{{ false }}">
+            <section class="ember-home__mode-options" aria-labelledby="ember-mode-options-title">
+              <div>
+                <span>{{ modeOptionsKicker }}</span>
+                <h3 id="ember-mode-options-title">{{ modeOptionsTitle }}</h3>
+              </div>
+              <div class="ember-home__profiles">
+                <sc-for list="{{ profileOptions }}" as="profile" hint-placeholder-count="2">
+                  <button type="button" class="{{ profile.className }}" onClick="{{ profile.select }}" aria-pressed="{{ profile.selected }}">
+                    <strong>{{ profile.label }}</strong><small>{{ profile.description }}</small>
+                  </button>
+                </sc-for>
+              </div>
+            </section>
+          </sc-if>
+
+          <section class="ember-home__deep-ai" aria-labelledby="ember-deep-ai-title">
+            <div class="ember-home__deep-ai-copy">
+              <span class="ember-home__deep-ai-seal" aria-hidden="true">AI</span>
+              <div>
+                <div class="ember-home__deep-ai-titleline">
+                  <h3 id="ember-deep-ai-title">{{ copy.deepAiTitle }}</h3>
+                  <span>{{ copy.deepAiOptional }}</span>
+                </div>
+                <p>{{ copy.deepAiBody }}</p>
+                <div class="{{ aiPreflightClass }}"><i aria-hidden="true"></i><strong>{{ aiPreflightLabel }}</strong><span>{{ aiPreflightDetail }}</span></div>
+              </div>
+            </div>
+            <button type="button" class="{{ deepAISwitchClass }}" role="switch" aria-checked="{{ deepAIAriaChecked }}" aria-disabled="{{ deepAIAriaDisabled }}" aria-label="{{ copy.deepAiToggle }}" onClick="{{ toggleDeepAI }}">
+              <i aria-hidden="true"></i><span>{{ deepAIStateLabel }}</span>
+            </button>
+          </section>
+
+          <div class="ember-home__launch-row">
+            <button type="button" class="ember-home__primary ember-home__primary--run" onClick="{{ startTest }}">
+              <span>{{ copy.startTest }}</span><i aria-hidden="true">→</i>
+            </button>
+            <p>{{ selectedTestSummary }}</p>
+          </div>
+        </section>
+
+        <section class="ember-home__recent" aria-labelledby="ember-recent-title">
+          <header>
+            <h2 id="ember-recent-title">{{ copy.recentActivity }}</h2>
+            <sc-if value="{{ hasRecentReports }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ goReports }}">{{ copy.seeAllReports }} →</button>
+            </sc-if>
+          </header>
+          <sc-if value="{{ noRecentReports }}" hint-placeholder-val="{{ true }}">
+            <div class="ember-home__recent-empty">
+              <span aria-hidden="true">余</span>
+              <div><strong>{{ copy.noTestsYet }}</strong><p>{{ copy.firstReportHere }}</p></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasRecentReports }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-home__recent-list">
+              <sc-for list="{{ recentReports }}" as="report" hint-placeholder-count="2">
+                <button type="button" onClick="{{ report.open }}">
+                  <span><strong>{{ report.title }}</strong><small>{{ report.meta }}</small></span>
+                  <span class="{{ report.scoreClass }}">{{ report.score }}</span>
+                  <i aria-hidden="true">→</i>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isRunActive }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__running" aria-labelledby="ember-running-title">
+          <header class="ember-home__run-head">
+            <div>
+              <span class="ember-home__run-kicker"><i aria-hidden="true"></i>{{ copy.forgeLive }} <b lang="ja">{{ copy.forgeLiveJp }}</b></span>
+              <h1 id="ember-running-title">{{ projectName }}</h1>
+              <p>{{ runProfileLabel }} · {{ runElapsed }}</p>
+            </div>
+            <button type="button" class="ember-home__stop" onClick="{{ stopTest }}">{{ copy.stopTest }}</button>
+          </header>
+
+          <div class="ember-home__engine-truth" aria-label="{{ copy.testProgress }}">
+            <div class="ember-home__engine-state is-local">
+              <span aria-hidden="true">01</span>
+              <div><strong>{{ copy.localAnalysisActive }}</strong><small>{{ localStatusDetail }}</small></div>
+              <i aria-hidden="true"></i>
+            </div>
+            <div class="{{ aiRunClass }}">
+              <span aria-hidden="true">AI</span>
+              <div><strong>{{ aiRunLabel }}</strong><small>{{ aiRunDetail }}</small></div>
+              <i aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <section class="ember-home__live-core" aria-labelledby="ember-live-action">
+            <div class="ember-home__live-orb" aria-hidden="true">
+              <i class="ember-home__live-orbit"></i>
+              <molten-core></molten-core>
+              <span lang="ja">鍛</span>
+            </div>
+            <div class="ember-home__live-action">
+              <span>{{ copy.currentWork }}</span>
+              <h2 id="ember-live-action">{{ runCurrentAction }}</h2>
+              <p>{{ runCurrentDetail }}</p>
+              <div class="ember-home__measured-progress">
+                <div><span>{{ copy.measuredProgress }}</span><strong>{{ runProgressText }}</strong></div>
+                <sc-if value="{{ runProgressKnown }}" hint-placeholder-val="{{ true }}">
+                  <div class="ember-home__progress-track" role="progressbar" aria-label="{{ copy.overallProgress }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ runProgress }}"><i style="width:{{ runProgressWidth }};"></i></div>
+                </sc-if>
+                <sc-if value="{{ runProgressIndeterminate }}" hint-placeholder-val="{{ false }}">
+                  <div class="ember-home__progress-track is-indeterminate" role="progressbar" aria-label="{{ copy.overallProgress }}"><i></i></div>
+                </sc-if>
+              </div>
+            </div>
+            <dl class="ember-home__live-stats">
+              <div><dt>{{ copy.elapsedTime }}</dt><dd>{{ runElapsed }}</dd></div>
+              <div><dt>{{ copy.checksCompleted }}</dt><dd>{{ runChecks }}</dd></div>
+              <div><dt>{{ copy.issuesSoFar }}</dt><dd>{{ runIssues }}</dd></div>
+            </dl>
+          </section>
+
+          <div class="ember-home__workbench">
+            <section class="ember-home__work-plan" aria-labelledby="ember-run-work-title">
+              <header><div><span lang="ja">工程</span><h2 id="ember-run-work-title">{{ copy.selectedChecks }}</h2></div><strong>{{ runWorkCount }}</strong></header>
+              <ol>
+                <sc-for list="{{ runWorkItems }}" as="item" hint-placeholder-count="4">
+                  <li class="{{ item.className }}">
+                    <span class="ember-home__work-mark"><small>{{ item.ordinal }}</small><i aria-hidden="true">{{ item.mark }}</i></span>
+                    <div><strong>{{ item.label }}</strong><p>{{ item.detail }}</p><sc-if value="{{ item.hasPath }}" hint-placeholder-val="{{ false }}"><code>{{ item.path }}</code></sc-if></div>
+                    <em>{{ item.status }}</em>
+                  </li>
+                </sc-for>
+              </ol>
+            </section>
+
+            <div class="ember-home__observatory">
+              <section class="ember-home__evidence" aria-labelledby="ember-evidence-title">
+                <header><span aria-hidden="true">•</span><h2 id="ember-evidence-title">{{ copy.evidenceLedger }}</h2></header>
+                <dl>
+                  <sc-for list="{{ evidenceRows }}" as="evidence" hint-placeholder-count="4">
+                    <div><dt>{{ evidence.label }}</dt><dd>{{ evidence.value }}</dd><small>{{ evidence.detail }}</small></div>
+                  </sc-for>
+                </dl>
+              </section>
+
+              <section class="ember-home__journal" aria-labelledby="ember-journal-title">
+                <header><div><span lang="ja">作業記録</span><h2 id="ember-journal-title">{{ copy.workJournal }}</h2></div><strong>{{ journalCount }}</strong></header>
+                <sc-if value="{{ noJournalEvents }}" hint-placeholder-val="{{ true }}">
+                  <p class="ember-home__journal-empty"><i aria-hidden="true"></i>{{ copy.waitingForEngine }}</p>
+                </sc-if>
+                <sc-if value="{{ hasJournalEvents }}" hint-placeholder-val="{{ false }}">
+                  <ol role="log" aria-live="polite">
+                    <sc-for list="{{ journalEvents }}" as="event" hint-placeholder-count="5">
+                      <li class="{{ event.className }}">
+                        <i aria-hidden="true">{{ event.mark }}</i>
+                        <div><span><strong>{{ event.check }}</strong><time>{{ event.time }}</time></span><p>{{ event.message }}</p><sc-if value="{{ event.hasPath }}" hint-placeholder-val="{{ false }}"><code>{{ event.path }}</code></sc-if></div>
+                      </li>
+                    </sc-for>
+                  </ol>
+                </sc-if>
+              </section>
+            </div>
+          </div>
+
+          <section class="ember-home__technical">
+            <button type="button" onClick="{{ toggleTechnical }}" aria-expanded="{{ technicalExpanded }}">
+              <span>{{ copy.technicalOutput }}</span><i aria-hidden="true">{{ technicalMark }}</i>
+            </button>
+            <sc-if value="{{ technicalOn }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-home__technical-log" role="log" aria-live="polite">
+                <sc-for list="{{ technicalEvents }}" as="event" hint-placeholder-count="4">
+                  <p class="{{ event.className }}"><time>{{ event.time }}</time><b>{{ event.check }}</b><span>{{ event.message }}</span></p>
+              </sc-for>
+              </div>
+            </sc-if>
+          </section>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isRunComplete }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__finished" aria-labelledby="ember-finished-title">
+          <header class="ember-home__finished-head">
+            <div class="ember-home__finished-seal" aria-hidden="true">✓</div>
+            <div>
+              <span>{{ copy.testComplete }}</span>
+              <h1 id="ember-finished-title">{{ completedTitle }}</h1>
+              <p>{{ completedSummary }}</p>
+            </div>
+            <div class="{{ readinessClass }}"><strong>{{ readinessScore }}</strong><span>{{ readinessLabel }}</span></div>
+          </header>
+
+          <dl class="ember-home__severity" aria-label="{{ copy.issuesBySeverity }}">
+            <sc-for list="{{ severityRows }}" as="severity" hint-placeholder-count="4">
+              <div class="{{ severity.className }}"><dt>{{ severity.label }}</dt><dd>{{ severity.count }}</dd></div>
+            </sc-for>
+          </dl>
+
+          <sc-if value="{{ hasCompletedAI }}" hint-placeholder-val="false">
+            <section class="{{ completedAIClass }}" aria-labelledby="ember-ai-proof-title">
+              <header>
+                <span aria-hidden="true">AI</span>
+                <div>
+                  <small>{{ copy.aiProofKicker }}</small>
+                  <h2 id="ember-ai-proof-title">{{ copy.aiProofTitle }}</h2>
+                  <p>{{ completedAIStatus }}</p>
+                </div>
+                <code>{{ completedAIProof }}</code>
+              </header>
+
+              <sc-if value="{{ hasCompletedAISummary }}" hint-placeholder-val="false">
+                <article class="ember-home__ai-summary">
+                  <h3>{{ copy.aiExecutiveSummary }}</h3>
+                  <p>{{ completedAISummary }}</p>
+                </article>
+              </sc-if>
+
+              <sc-if value="{{ hasCompletedAITriages }}" hint-placeholder-val="false">
+                <div class="ember-home__ai-triages">
+                  <h3>{{ copy.aiTriages }}</h3>
+                  <div>
+                    <sc-for list="{{ completedAITriages }}" as="triage" hint-placeholder-count="3">
+                      <article>
+                        <header><strong>{{ triage.title }}</strong><span>{{ triage.priority }}</span></header>
+                        <sc-if value="{{ triage.hasRootCause }}" hint-placeholder-val="true">
+                          <p><b>{{ copy.aiRootCause }}</b>{{ triage.rootCause }}</p>
+                        </sc-if>
+                        <sc-if value="{{ triage.hasFix }}" hint-placeholder-val="true">
+                          <p><b>{{ copy.aiSuggestedFix }}</b>{{ triage.fix }}</p>
+                        </sc-if>
+                        <code>{{ triage.proof }}</code>
+                      </article>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </section>
+          </sc-if>
+
+          <section class="ember-home__important" aria-labelledby="ember-important-title">
+            <header><h2 id="ember-important-title">{{ copy.mostImportant }}</h2><span>{{ completedChecksLabel }}</span></header>
+            <sc-if value="{{ noTopIssues }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-home__important-empty">{{ copy.noIssueSignals }}</div>
+            </sc-if>
+            <sc-if value="{{ hasTopIssues }}" hint-placeholder-val="{{ false }}">
+              <div class="ember-home__issue-list">
+                <sc-for list="{{ topIssues }}" as="issue" hint-placeholder-count="3">
+                  <article><span class="{{ issue.badgeClass }}">{{ issue.severity }}</span><div><h3>{{ issue.title }}</h3><p>{{ issue.evidence }}</p></div></article>
+                </sc-for>
+              </div>
+            </sc-if>
+          </section>
+
+          <div class="ember-home__finished-actions">
+            <button type="button" class="ember-home__primary" onClick="{{ openCompletedReport }}"><span>{{ copy.openAftermath }}</span><i aria-hidden="true">→</i></button>
+            <button type="button" class="ember-home__secondary" onClick="{{ rerunTest }}">{{ copy.runAgain }}</button>
+            <button type="button" class="ember-home__text-action" onClick="{{ editTestPlan }}">{{ copy.editPlan }}</button>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isRunRecovery }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-home__recovery" aria-labelledby="ember-recovery-title">
+          <span class="ember-home__recovery-mark" aria-hidden="true">{{ recoveryMark }}</span>
+          <div>
+            <p>{{ recoveryKicker }}</p>
+            <h1 id="ember-recovery-title">{{ recoveryTitle }}</h1>
+            <span>{{ recoveryBody }}</span>
+          </div>
+          <div class="ember-home__recovery-actions">
+            <button type="button" class="ember-home__primary" onClick="{{ retryTest }}"><span>{{ copy.tryAgain }}</span><i aria-hidden="true">→</i></button>
+            <button type="button" class="ember-home__secondary" onClick="{{ returnToProject }}">{{ copy.backToProject }}</button>
+          </div>
+        </section>
+      </sc-if>
+    </div>
+  </main>
+</x-dc>
+</body>
+</html>

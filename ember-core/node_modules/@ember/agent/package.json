@@ -1,0 +1,24 @@
+{
+  "name": "@ember/agent",
+  "version": "0.2.0",
+  "description": "Ember Agent — installable local QA agent for game projects. Scans code, analyzes logs, runs configured test commands and produces professional QA reports.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "ember": "bin/ember.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('@ember/agent: nothing to build (plain ESM, run bin/ember.js directly)')\"",
+    "test": "node test/agent.test.js"
+  },
+  "dependencies": {
+    "@ember/shared": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

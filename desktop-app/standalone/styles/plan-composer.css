@@ -1,0 +1,235 @@
+.ember-plan-composer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  color: var(--ember-ink-950);
+  font-family: var(--ember-font-jp-sans);
+}
+
+.ember-plan-composer__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background:
+    radial-gradient(circle at 66% 36%, rgba(255, 253, 248, .5), transparent 38%),
+    rgba(81, 70, 55, .3);
+  cursor: default;
+  backdrop-filter: blur(9px) saturate(84%);
+  animation: emberPlanBackdropIn .28s ease both;
+}
+
+.ember-plan-composer__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: clamp(18px, 3vh, 30px) 22px;
+  place-items: center;
+  pointer-events: none;
+}
+
+.ember-plan-composer__folio {
+  position: relative;
+  width: min(780px, 94vw);
+  max-height: 92vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(92, 77, 58, .22);
+  border-radius: 22px;
+  background:
+    linear-gradient(90deg, rgba(233, 222, 203, .26), transparent 8% 92%, rgba(233, 222, 203, .2)),
+    var(--ember-paper-0);
+  box-shadow: 0 70px 180px rgba(29, 23, 17, .32), inset 0 1px 0 rgba(255, 255, 255, .94);
+  pointer-events: auto;
+  scrollbar-color: rgba(79, 75, 67, .24) transparent;
+  scrollbar-width: thin;
+  animation: emberPlanFolioIn .42s var(--ember-ease-out) both;
+}
+
+.ember-plan-composer__folio::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.27'/%3E%3C/svg%3E");
+  content: "";
+  mix-blend-mode: multiply;
+  opacity: .03;
+  pointer-events: none;
+}
+
+.ember-plan-composer__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 17px 10px 20px;
+  border-bottom: 1px solid rgba(61, 55, 46, .14);
+  background: rgba(251, 248, 240, .93);
+  backdrop-filter: blur(18px) saturate(112%);
+}
+
+.ember-plan-composer__brand { display: flex; align-items: center; gap: 11px; }
+.ember-plan-composer__brand > span { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(185, 71, 18, .48); background: var(--ember-heat-text); color: var(--ember-paper-0); font-family: var(--ember-font-jp-brush); font-size: 16px; }
+.ember-plan-composer__brand > div { display: grid; }
+.ember-plan-composer__brand strong { font-family: var(--ember-font-mono); font-size: 8px; letter-spacing: .14em; }
+.ember-plan-composer__brand small { margin-top: 2px; color: rgba(79, 75, 67, .5); font-family: var(--ember-font-jp-brush); font-size: 9px; letter-spacing: .15em; }
+
+.ember-plan-composer__close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(61, 55, 46, .15);
+  border-radius: 50%;
+  background: rgba(255, 253, 248, .62);
+  color: var(--ember-ink-700);
+  cursor: pointer;
+  font-size: 16px;
+  transition: border-color .25s ease, color .25s ease, transform .25s var(--ember-ease-out);
+}
+
+.ember-plan-composer__close:hover { border-color: rgba(185, 71, 18, .45); color: var(--ember-heat-text); transform: rotate(5deg); }
+
+.ember-plan-composer__body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  padding: 36px 42px 34px;
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+  gap: 38px;
+}
+
+.ember-plan-composer__body::before { position: absolute; top: 0; bottom: 0; left: 24px; width: 1px; background: rgba(185, 71, 18, .14); content: ""; }
+.ember-plan-composer__identity { min-width: 0; }
+.ember-plan-composer__kicker { color: var(--ember-heat-text); font-family: var(--ember-font-mono); font-size: 7px; letter-spacing: .14em; }
+
+.ember-plan-composer__identity h2 {
+  margin: 11px 0 0;
+  font-family: var(--ember-font-jp-display);
+  font-size: clamp(29px, 3.4vw, 40px);
+  font-weight: 500;
+  letter-spacing: -.037em;
+  line-height: 1.03;
+}
+
+.ember-plan-composer__identity > p { margin: 13px 0 0; color: rgba(79, 75, 67, .58); font-family: var(--ember-font-jp-brush); font-size: 10px; letter-spacing: .13em; line-height: 1.7; }
+
+.ember-plan-composer__name { display: grid; margin-top: 26px; }
+.ember-plan-composer__name > span { color: rgba(79, 75, 67, .55); font-family: var(--ember-font-mono); font-size: 7px; letter-spacing: .12em; }
+.ember-plan-composer__name input { width: 100%; min-height: 46px; margin-top: 7px; padding: 0 13px; border: 1px solid rgba(61, 55, 46, .16); border-radius: 9px; background: rgba(243, 237, 223, .48); color: var(--ember-ink-950); font: 500 14px var(--ember-font-jp-sans); outline: none; transition: border-color .25s ease, background .25s ease, box-shadow .25s ease; }
+.ember-plan-composer__name input:focus { border-color: rgba(185, 71, 18, .56); background: var(--ember-paper-0); box-shadow: 0 0 0 3px rgba(185, 71, 18, .09); }
+.ember-plan-composer__name input::placeholder { color: rgba(79, 75, 67, .36); }
+
+.ember-plan-composer__selection-count { display: flex; align-items: center; justify-content: space-between; margin-top: 13px; padding: 8px 0; border-top: 1px solid rgba(61, 55, 46, .11); border-bottom: 1px solid rgba(61, 55, 46, .11); }
+.ember-plan-composer__selection-count span,
+.ember-plan-composer__selection-count strong { font-family: var(--ember-font-mono); font-size: 6.5px; letter-spacing: .1em; }
+.ember-plan-composer__selection-count span { color: rgba(79, 75, 67, .48); }
+.ember-plan-composer__selection-count strong { color: var(--ember-heat-text); font-weight: 600; }
+
+.ember-plan-composer__error { margin-top: 12px; padding: 9px 11px; border-left: 2px solid #a83c26; background: rgba(168, 60, 38, .055); color: #983921; font-size: 10.5px; line-height: 1.45; animation: emberPlanErrorIn .25s ease both; }
+
+.ember-plan-composer__sdk-note { display: grid; margin-top: 17px; padding: 13px 13px 12px; border: 1px solid rgba(137, 104, 56, .18); background: rgba(229, 196, 142, .15); grid-template-columns: 27px 1fr; gap: 8px; }
+.ember-plan-composer__sdk-note > span { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid rgba(185, 71, 18, .42); color: var(--ember-heat-text); font-family: var(--ember-font-jp-brush); font-size: 10px; transform: rotate(-2deg); }
+.ember-plan-composer__sdk-note p { margin: 0; color: rgba(79, 75, 67, .64); font-size: 8.5px; line-height: 1.55; }
+
+.ember-plan-composer__check-field { min-width: 0; padding-left: 28px; border-left: 1px solid rgba(61, 55, 46, .13); }
+.ember-plan-composer__check-field > header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 13px; border-bottom: 1px solid rgba(61, 55, 46, .13); gap: 12px; }
+.ember-plan-composer__check-field > header span { color: var(--ember-heat-text); font-family: var(--ember-font-mono); font-size: 7px; letter-spacing: .13em; }
+.ember-plan-composer__check-field > header h3 { margin: 5px 0 0; font-family: var(--ember-font-jp-display); font-size: 21px; font-weight: 500; letter-spacing: -.02em; }
+.ember-plan-composer__check-field > header > small { color: rgba(79, 75, 67, .44); font-family: var(--ember-font-mono); font-size: 5.7px; letter-spacing: .1em; white-space: nowrap; }
+
+.ember-plan-composer__checks { display: grid; margin-top: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+
+.ember-plan-composer__check {
+  position: relative;
+  display: grid;
+  min-height: 58px;
+  align-items: center;
+  padding: 8px 35px 8px 9px;
+  overflow: hidden;
+  border: 1px solid rgba(61, 55, 46, .13);
+  border-radius: 9px;
+  background: rgba(255, 253, 248, .6);
+  color: var(--ember-ink-950);
+  cursor: pointer;
+  grid-template-columns: 22px minmax(0, 1fr);
+  text-align: left;
+  transition: border-color .25s ease, background .25s ease, transform .25s var(--ember-ease-out);
+}
+
+.ember-plan-composer__check:hover { border-color: rgba(185, 71, 18, .34); background: var(--ember-paper-0); transform: translateY(-1px); }
+.ember-plan-composer__check.is-selected { border-color: rgba(185, 71, 18, .47); background: rgba(185, 71, 18, .055); }
+.ember-plan-composer__check-index { color: rgba(79, 75, 67, .4); font-family: var(--ember-font-mono); font-size: 6px; letter-spacing: .06em; }
+.ember-plan-composer__check-copy { display: grid; min-width: 0; }
+.ember-plan-composer__check-copy strong { overflow: hidden; font-size: 10.5px; font-weight: 600; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.ember-plan-composer__check-copy small { margin-top: 3px; color: rgba(79, 75, 67, .48); font-family: var(--ember-font-jp-sans); font-size: 7px; letter-spacing: .1em; }
+.ember-plan-composer__check-mark { position: absolute; top: 50%; right: 9px; display: grid; width: 23px; height: 23px; place-items: center; border: 1px solid rgba(61, 55, 46, .16); color: transparent; font-family: var(--ember-font-mono); font-size: 8px; transform: translateY(-50%) rotate(-3deg); transition: border-color .25s ease, background .25s ease, color .25s ease, transform .25s var(--ember-ease-out); }
+.ember-plan-composer__check.is-selected .ember-plan-composer__check-mark { border-color: var(--ember-heat-text); background: var(--ember-heat-text); color: #fff; transform: translateY(-50%) rotate(-3deg) scale(1.03); }
+
+.ember-plan-composer__footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 17px 12px 42px;
+  border-top: 1px solid rgba(61, 55, 46, .14);
+  background: rgba(243, 237, 223, .38);
+  gap: 20px;
+}
+
+.ember-plan-composer__footer > span { color: rgba(79, 75, 67, .44); font-family: var(--ember-font-mono); font-size: 6px; letter-spacing: .11em; }
+.ember-plan-composer__footer > div { display: flex; align-items: center; gap: 8px; }
+
+.ember-plan-composer__cancel,
+.ember-plan-composer__create { min-height: 42px; border: 0; cursor: pointer; font-family: var(--ember-font-jp-sans); }
+.ember-plan-composer__cancel { padding: 0 14px; border-radius: var(--ember-radius-pill); background: transparent; color: rgba(79, 75, 67, .62); font-size: 11px; font-weight: 600; }
+.ember-plan-composer__cancel:hover { color: var(--ember-ink-950); }
+.ember-plan-composer__create { display: grid; min-width: 164px; align-items: center; padding: 4px 5px 4px 16px; border-radius: var(--ember-radius-pill); background: var(--ember-ink-950); box-shadow: 0 12px 26px rgba(36, 35, 31, .16); color: var(--ember-paper-0); grid-template-columns: 1fr auto; text-align: left; transition: box-shadow .25s ease, transform .25s var(--ember-ease-out); }
+.ember-plan-composer__create > span { font-size: 11.5px; font-weight: 650; }
+.ember-plan-composer__create > small { color: rgba(255, 253, 248, .58); font-family: var(--ember-font-jp-brush); font-size: 7px; letter-spacing: .1em; grid-column: 1; }
+.ember-plan-composer__create > i { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: var(--ember-heat-600); color: #fff; font-size: 12px; font-style: normal; grid-column: 2; grid-row: 1 / 3; }
+.ember-plan-composer__create:hover { box-shadow: 0 16px 32px rgba(36, 35, 31, .22); transform: translateY(-2px); }
+
+@keyframes emberPlanBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes emberPlanFolioIn { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes emberPlanErrorIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 760px) {
+  .ember-plan-composer__body { grid-template-columns: 1fr; gap: 28px; }
+  .ember-plan-composer__check-field { padding: 24px 0 0; border-top: 1px solid rgba(61, 55, 46, .13); border-left: 0; }
+}
+
+@media (max-width: 560px) {
+  .ember-plan-composer__stage { padding: 0; }
+  .ember-plan-composer__folio { width: 100%; max-height: 100%; border: 0; border-radius: 0; }
+  .ember-plan-composer__body { padding: 30px 24px 28px 31px; }
+  .ember-plan-composer__body::before { left: 13px; }
+  .ember-plan-composer__checks { grid-template-columns: 1fr; }
+  .ember-plan-composer__footer { align-items: flex-start; flex-direction: column; padding: 14px 18px 18px 31px; }
+  .ember-plan-composer__footer > div { width: 100%; }
+  .ember-plan-composer__create { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-plan-composer__backdrop,
+  .ember-plan-composer__folio,
+  .ember-plan-composer__error { animation: none !important; }
+}
+
+@media (prefers-contrast: more) {
+  .ember-plan-composer__backdrop { background: rgba(0, 0, 0, .68); backdrop-filter: none; }
+  .ember-plan-composer__folio { border-color: #241f19; background: #fffdf8; }
+  .ember-plan-composer__folio::after { display: none; }
+  .ember-plan-composer__toolbar,
+  .ember-plan-composer__check-field,
+  .ember-plan-composer__check,
+  .ember-plan-composer__footer { border-color: rgba(36, 31, 25, .48); }
+}

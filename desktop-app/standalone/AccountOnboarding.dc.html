@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body>
+<x-dc>
+  <main class="ember-account-onboarding" data-screen-label="Account personalization" aria-labelledby="ember-account-onboarding-title">
+    <div class="ember-account-onboarding__scene" aria-hidden="true"></div>
+    <div class="ember-account-onboarding__veil" aria-hidden="true"></div>
+    <section class="ember-account-onboarding__panel">
+      <header class="ember-account-onboarding__head">
+        <div class="ember-account-onboarding__brand"><span aria-hidden="true">火</span><strong>EMBER</strong><small>{{ copy.local }}</small></div>
+        <div class="ember-account-onboarding__progress" aria-label="Onboarding progress">
+          <span>{{ copy.step }} {{ step }} {{ copy.of }} 9</span>
+          <i><b style="width:{{ progress }};"></b></i>
+        </div>
+        <p>{{ copy.saved }}</p>
+      </header>
+
+      <div class="ember-account-onboarding__body">
+        <div class="ember-account-onboarding__copy">
+          <span>{{ copy.eyebrow }}</span>
+          <sc-if value="{{ isIdentity }}" hint-placeholder-val="{{ true }}"><h1 id="ember-account-onboarding-title">{{ copy.identityTitle }}</h1><p>{{ copy.identityBody }}</p></sc-if>
+          <sc-if value="{{ isProfessional }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.professionalTitle }}</h1><p>{{ copy.professionalBody }}</p></sc-if>
+          <sc-if value="{{ isEnvironment }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.environmentTitle }}</h1><p>{{ copy.environmentBody }}</p></sc-if>
+          <sc-if value="{{ isGoals }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.goalsTitle }}</h1><p>{{ copy.goalsBody }}</p></sc-if>
+          <sc-if value="{{ isVisual }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.visualTitle }}</h1><p>{{ copy.visualBody }}</p></sc-if>
+          <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.privacyTitle }}</h1><p>{{ copy.privacyBody }}</p></sc-if>
+          <sc-if value="{{ isDiscovery }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.discoveryTitle }}</h1><p>{{ copy.discoveryBody }}</p></sc-if>
+          <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.planTitle }}</h1><p>{{ copy.planBody }}</p></sc-if>
+          <sc-if value="{{ isProject }}" hint-placeholder-val="{{ false }}"><h1 id="ember-account-onboarding-title">{{ copy.projectTitle }}</h1><p>{{ copy.projectBody }}</p></sc-if>
+        </div>
+
+        <div class="ember-account-onboarding__content">
+          <sc-if value="{{ isIdentity }}" hint-placeholder-val="{{ true }}">
+            <div class="ember-account-onboarding__fields">
+              <sc-for list="{{ identityFields }}" as="field" hint-placeholder-count="7">
+                <label><span>{{ field.label }} <em>{{ field.optional }}</em></span><input value="{{ field.value }}" onChange="{{ field.change }}" placeholder="{{ field.placeholder }}" autocomplete="off"></label>
+              </sc-for>
+            </div>
+            <div class="ember-account-onboarding__split-label"><span>Language</span><span>Communication</span></div>
+            <div class="ember-account-onboarding__split">
+              <div class="ember-account-onboarding__chips"><sc-for list="{{ languageOptions }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+              <div class="ember-account-onboarding__chips"><sc-for list="{{ communicationOptions }}" as="option" hint-placeholder-count="3"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isProfessional }}" hint-placeholder-val="{{ false }}">
+            <h2>Role</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ roleOptions }}" as="option" hint-placeholder-count="9"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <div class="ember-account-onboarding__fields ember-account-onboarding__fields--two"><sc-for list="{{ professionalFields }}" as="field" hint-placeholder-count="2"><label><span>{{ field.label }}</span><input value="{{ field.value }}" onChange="{{ field.change }}" placeholder="{{ field.placeholder }}" autocomplete="organization"></label></sc-for></div>
+            <h2>Work style</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ workOptions }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <h2>Experience</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ experienceOptions }}" as="option" hint-placeholder-count="4"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <h2>Games you make</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ gameTypeOptions }}" as="option" hint-placeholder-count="8"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+          </sc-if>
+
+          <sc-if value="{{ isEnvironment }}" hint-placeholder-val="{{ false }}">
+            <h2>Engine</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ engineOptions }}" as="option" hint-placeholder-count="6"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <h2>Target platforms</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ platformOptions }}" as="option" hint-placeholder-count="6"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <div class="ember-account-onboarding__fields ember-account-onboarding__fields--two"><sc-for list="{{ environmentFields }}" as="field" hint-placeholder-count="2"><label><span>{{ field.label }}</span><input value="{{ field.value }}" onChange="{{ field.change }}" placeholder="{{ field.placeholder }}"></label></sc-for></div>
+            <h2>Project status</h2><div class="ember-account-onboarding__chips"><sc-for list="{{ projectOptions }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+          </sc-if>
+
+          <sc-if value="{{ isGoals }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-account-onboarding__goals"><sc-for list="{{ goalOptions }}" as="option" hint-placeholder-count="16"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div>
+            <label class="ember-account-onboarding__priority"><span>{{ copy.primaryPriority }}</span><input value="{{ priority }}" onChange="{{ priorityChange }}" placeholder="e.g. Catch crashes before release"></label>
+          </sc-if>
+
+          <sc-if value="{{ isVisual }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-account-onboarding__visual-group"><h2>Appearance</h2><div class="ember-account-onboarding__visual-options"><sc-for list="{{ themeOptions }}" as="option" hint-placeholder-count="3"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}"><i aria-hidden="true"></i>{{ option.label }}</button></sc-for></div></div>
+            <div class="ember-account-onboarding__visual-group"><h2>Season</h2><div class="ember-account-onboarding__visual-options"><sc-for list="{{ seasonOptions }}" as="option" hint-placeholder-count="4"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div></div>
+            <div class="ember-account-onboarding__visual-group"><h2>Density</h2><div class="ember-account-onboarding__visual-options"><sc-for list="{{ densityOptions }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div></div>
+            <div class="ember-account-onboarding__visual-group"><h2>Motion</h2><div class="ember-account-onboarding__visual-options"><sc-for list="{{ motionOptions }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div></div>
+            <button type="button" class="ember-account-onboarding__toggle" onClick="{{ toggleNotifications }}" aria-pressed="{{ notificationOn }}"><span><strong>{{ copy.notifications }}</strong><small>{{ notificationStatus }}</small></span><i><b></b></i></button>
+          </sc-if>
+
+          <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-account-onboarding__privacy-list"><sc-for list="{{ privacyOptions }}" as="item" hint-placeholder-count="3"><article><div><h2>{{ item.label }}</h2><p>{{ item.detail }}</p></div><div class="ember-account-onboarding__chips"><sc-for list="{{ item.choices }}" as="option" hint-placeholder-count="2"><button type="button" class="{{ option.className }}" aria-pressed="{{ option.selected }}" onClick="{{ option.choose }}">{{ option.label }}</button></sc-for></div></article></sc-for></div>
+          </sc-if>
+
+          <sc-if value="{{ isDiscovery }}" hint-placeholder-val="{{ false }}">
+            <ol class="ember-account-onboarding__discovery"><sc-for list="{{ discoveryCards }}" as="card" hint-placeholder-count="6"><li><span>{{ card.number }}</span><strong>{{ card.title }}</strong><i aria-hidden="true">→</i></li></sc-for></ol>
+          </sc-if>
+
+          <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
+            <article class="ember-account-onboarding__plan"><span>{{ copy.planStatus }}</span><h2>{{ copy.local }}</h2><p>{{ copy.noCheckout }}</p><ul><li>✓ Local project validation</li><li>✓ Test plans and reports</li><li>✓ Deep AI stays opt-in</li></ul></article>
+          </sc-if>
+
+          <sc-if value="{{ isProject }}" hint-placeholder-val="{{ false }}">
+            <article class="ember-account-onboarding__project"><div class="ember-account-onboarding__folder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.45"><path d="M3 7.5h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-11Z"></path><path d="M3 9.5v-4a2 2 0 0 1 2-2h4l2 2h5"></path></svg></div><ul><sc-for list="{{ projectBullets }}" as="item" hint-placeholder-count="4"><li><i aria-hidden="true">✓</i>{{ item.text }}</li></sc-for></ul></article>
+          </sc-if>
+        </div>
+      </div>
+
+      <footer class="ember-account-onboarding__footer">
+        <button type="button" class="ember-account-onboarding__back" onClick="{{ goBack }}" disabled="{{ backDisabled }}">← {{ copy.back }}</button>
+        <sc-if value="{{ showNext }}" hint-placeholder-val="{{ true }}"><button type="button" class="ember-account-onboarding__next" onClick="{{ goNext }}">{{ copy.next }} <i aria-hidden="true">→</i></button></sc-if>
+        <sc-if value="{{ isProject }}" hint-placeholder-val="{{ false }}"><button type="button" class="ember-account-onboarding__next" onClick="{{ complete }}">{{ copy.finish }} <i aria-hidden="true">→</i></button></sc-if>
+      </footer>
+    </section>
+  </main>
+</x-dc>
+</body>
+</html>

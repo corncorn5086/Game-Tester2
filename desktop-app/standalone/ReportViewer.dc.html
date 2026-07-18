@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="{{ copy.lang }}">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+  <div class="ember-report-viewer">
+    <button type="button" class="ember-report-viewer__backdrop" onClick="{{ closeReport }}" aria-label="{{ copy.closeAria }}"></button>
+
+    <div class="ember-report-viewer__stage">
+      <article
+        class="ember-report-viewer__folio"
+        data-screen-label="Report Viewer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ember-report-viewer-title"
+        tabindex="-1"
+      >
+        <header class="ember-report-viewer__toolbar">
+          <div class="ember-report-viewer__brand">
+            <span lang="ja" aria-hidden="true">余</span>
+            <strong>{{ copy.brandLabel }}</strong>
+            <small>{{ copy.localEvidenceFolio }}</small>
+          </div>
+
+          <div class="ember-report-viewer__actions">
+            <button type="button" onClick="{{ exportJson }}">{{ copy.copyJson }}</button>
+            <button type="button" onClick="{{ exportMd }}">{{ copy.copyMarkdown }}</button>
+            <button type="button" class="ember-report-viewer__close" onClick="{{ closeReport }}" aria-label="{{ copy.closeAria }}">×</button>
+          </div>
+        </header>
+
+        <div class="ember-report-viewer__document">
+          <header class="ember-report-viewer__cover">
+            <div class="ember-report-viewer__cover-copy">
+              <p>{{ rvDate }}</p>
+              <h1 id="ember-report-viewer-title">{{ rvTitle }}</h1>
+              <span lang="ja">火が残した証拠を、静かに読む。</span>
+            </div>
+
+            <div class="ember-report-viewer__score" aria-label="{{ copy.stabilityAria }} {{ rvStability }} {{ copy.outOf100 }}">
+              <span class="ember-report-viewer__score-ring" aria-hidden="true"></span>
+              <small>{{ copy.stability }}</small>
+              <strong>{{ rvStability }}</strong>
+              <em>/ 100</em>
+            </div>
+          </header>
+
+          <dl class="ember-report-viewer__meta" aria-label="{{ copy.metricsAria }}">
+            <sc-for list="{{ rvMeta }}" as="m" hint-placeholder-count="4">
+              <div>
+                <dt>{{ m.label }}</dt>
+                <dd style="color:{{ m.color }};">{{ m.val }}</dd>
+              </div>
+            </sc-for>
+          </dl>
+
+          <div class="ember-report-viewer__body">
+            <section class="ember-report-viewer__findings" aria-labelledby="ember-report-findings-title">
+              <header>
+                <div>
+                  <span>{{ copy.findings }} / 証拠</span>
+                  <h2 id="ember-report-findings-title">{{ copy.fileLineEvidence }}</h2>
+                </div>
+                <p>{{ copy.findingsBody }}</p>
+              </header>
+
+              <div class="ember-report-viewer__finding-list">
+                <sc-for list="{{ rvFindings }}" as="f" hint-placeholder-count="3">
+                  <article class="ember-report-viewer__finding">
+                    <div class="ember-report-viewer__severity" style="color:{{ f.c }}; border-color:{{ f.c }};">{{ f.sev }}</div>
+                    <div>
+                      <h3>{{ f.txt }}</h3>
+                      <p>{{ f.file }}</p>
+                    </div>
+                  </article>
+                </sc-for>
+              </div>
+            </section>
+
+            <aside class="ember-report-viewer__margin" aria-label="{{ copy.severityBlockedAria }}">
+              <section class="ember-report-viewer__breakdown">
+                <header>
+                  <span>{{ copy.severity }}</span>
+                  <small lang="ja">重要度</small>
+                </header>
+                <div>
+                  <sc-for list="{{ rvBars }}" as="bar" hint-placeholder-count="3">
+                    <div class="ember-report-viewer__bar">
+                      <span>{{ bar.label }}</span>
+                      <strong>{{ bar.n }}</strong>
+                      <i><b style="background:{{ bar.color }}; width:{{ bar.w }};"></b></i>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+
+              <sc-if value="{{ hasRvBlockers }}" hint-placeholder-val="false">
+                <section class="ember-report-viewer__blocked">
+                  <span>{{ copy.blockedChecks }}</span>
+                  <small lang="ja">接続待ち</small>
+                  <ul>
+                    <sc-for list="{{ rvBlockers }}" as="blocker" hint-placeholder-count="2">
+                      <li><strong>{{ blocker.title }}</strong><em>{{ blocker.message }}</em></li>
+                    </sc-for>
+                  </ul>
+                </section>
+              </sc-if>
+
+              <div class="ember-report-viewer__seal" lang="ja" aria-hidden="true">余燼<br>報告</div>
+            </aside>
+          </div>
+
+          <sc-if value="{{ hasRvAI }}" hint-placeholder-val="false">
+            <section class="ember-report-viewer__ai" aria-labelledby="ember-report-ai-title">
+              <header>
+                <span lang="ja" aria-hidden="true">知</span>
+                <div><small>{{ copy.aiReview }}</small><h2 id="ember-report-ai-title">{{ copy.aiSummary }}</h2></div>
+                <code>{{ rvAIProof }}</code>
+              </header>
+              <sc-if value="{{ hasRvAISummary }}" hint-placeholder-val="false">
+                <p class="ember-report-viewer__ai-summary">{{ rvAISummary }}</p>
+              </sc-if>
+              <sc-if value="{{ hasRvAITriages }}" hint-placeholder-val="false">
+                <div class="ember-report-viewer__ai-triages">
+                  <h3>{{ copy.aiTriages }}</h3>
+                  <sc-for list="{{ rvAITriages }}" as="triage" hint-placeholder-count="3">
+                    <article>
+                      <header><strong>{{ triage.title }}</strong><span>{{ triage.priority }}</span></header>
+                      <sc-if value="{{ triage.hasRootCause }}" hint-placeholder-val="true"><p><b>{{ copy.aiRootCause }}</b>{{ triage.rootCause }}</p></sc-if>
+                      <sc-if value="{{ triage.hasFix }}" hint-placeholder-val="true"><p><b>{{ copy.aiSuggestedFix }}</b>{{ triage.fix }}</p></sc-if>
+                      <code>{{ triage.proof }}</code>
+                    </article>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </section>
+          </sc-if>
+
+          <footer class="ember-report-viewer__footer">
+            <span>{{ copy.generatedLocally }}</span>
+            <span lang="ja">証拠は端末に保存。AI送信は許可した実行のみ。</span>
+          </footer>
+        </div>
+      </article>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>
