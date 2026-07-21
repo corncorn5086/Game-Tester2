@@ -6,7 +6,7 @@
 <body>
 <x-dc>
   <section class="ember-plans" data-screen-label="Test Plans" aria-labelledby="ember-plans-title">
-    <div class="ember-plans__garden" aria-hidden="true"></div>
+    <div class="ember-plans__garden ember-ambient" aria-hidden="true"></div>
     <div class="ember-plans__mist" aria-hidden="true"></div>
     <div class="ember-plans__petals" aria-hidden="true"><i></i><i></i><i class="is-leaf"></i></div>
 
@@ -14,15 +14,13 @@
       <header class="ember-plans__intro">
         <div class="ember-plans__intro-copy">
           <div class="ember-plans__eyebrow">
-            <span lang="ja" aria-hidden="true">型</span>
             {{ copy.eyebrow }}
           </div>
           <h1 id="ember-plans-title">{{ copy.title }}<span>.</span></h1>
-          <p lang="ja">試験の型を整え、静かに火へ渡す。</p>
-        </div>
+          </div>
 
         <div class="ember-plans__registry-state" aria-live="polite">
-          <span>{{ copy.registryLabel }} / 試験台帳</span>
+          <span>{{ copy.registryLabel }}</span>
           <strong>{{ planCountLabel }}</strong>
         </div>
       </header>
@@ -30,7 +28,7 @@
       <sc-if value="{{ noProject }}" hint-placeholder-val="{{ true }}">
         <article class="ember-plans__empty-folio">
           <div class="ember-plans__empty-copy">
-            <div class="ember-plans__state-kicker">{{ copy.emptyKicker }} <span lang="ja">未接続</span></div>
+            <div class="ember-plans__state-kicker">{{ copy.emptyKicker }}</div>
             <h2>{{ copy.emptyTitle }}</h2>
             <p>{{ copy.emptyBody }}</p>
 
@@ -54,7 +52,6 @@
           </div>
 
           <aside class="ember-plans__empty-tokonoma" aria-label="{{ copy.waitingCoreAria }}">
-            <div class="ember-plans__vertical-jp" lang="ja" aria-hidden="true">すべての型は、火床から始まる。</div>
             <div class="ember-plans__gate-mark" aria-hidden="true"><i></i><span></span><b></b></div>
             <div class="ember-plans__core-stage is-waiting">
               <div class="ember-plans__core-aura" aria-hidden="true"></div>
@@ -62,7 +59,7 @@
               <molten-core aria-hidden="true"></molten-core>
             </div>
             <div class="ember-plans__core-caption">
-              <span>{{ copy.workshopLabel }} / 型の工房</span>
+              <span>{{ copy.workshopLabel }}</span>
               <strong><i aria-hidden="true"></i>{{ copy.waitingProject }}</strong>
             </div>
           </aside>
@@ -74,11 +71,11 @@
           <section class="ember-plans__registry" aria-labelledby="ember-plans-registry-title">
             <header class="ember-plans__registry-head">
               <div>
-                <span>{{ copy.activeWorkshop }} / 現在の工房</span>
+                <span>{{ copy.activeWorkshop }}</span>
                 <h2 id="ember-plans-registry-title">{{ copy.formsFor }} {{ projectName }}</h2>
               </div>
               <button type="button" class="ember-plans__new" onClick="{{ openPlanModal }}">
-                <span>{{ copy.newForm }}</span><i lang="ja" aria-hidden="true">＋</i>
+                <span>{{ copy.newForm }}</span><i aria-hidden="true">+</i>
               </button>
             </header>
 
@@ -97,7 +94,6 @@
                   <div class="ember-plans__form-copy">
                     <div class="ember-plans__form-title">
                       <h3>{{ pl.name }}</h3>
-                      <span lang="ja">{{ pl.tagJp }}</span>
                     </div>
                     <p>{{ pl.desc }}</p>
                     <div class="ember-plans__checks" aria-label="{{ copy.checksInAria }} {{ pl.name }}">
@@ -108,9 +104,8 @@
                   </div>
 
                   <button type="button" class="ember-plans__run" onClick="{{ pl.run }}" aria-label="{{ pl.runAria }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 5 12 7-12 7V5Z"></path></svg>
                     <span>{{ copy.run }}</span>
-                    <small lang="ja">実行</small>
-                    <i aria-hidden="true">火</i>
                   </button>
                 </article>
               </sc-for>
@@ -118,20 +113,19 @@
 
             <footer class="ember-plans__registry-foot">
               <span>{{ registrySummary }}</span>
-              <span lang="ja">型を選び、火を入れる。</span>
+              <span>{{ planCountLabel }}</span>
             </footer>
           </section>
 
           <aside class="ember-plans__margin" aria-label="{{ copy.projectCoreAria }}">
             <section class="ember-plans__core-shrine">
-              <div class="ember-plans__shrine-jp" lang="ja" aria-hidden="true">試験の火</div>
               <div class="ember-plans__core-stage is-ready">
                 <div class="ember-plans__core-aura" aria-hidden="true"></div>
                 <div class="ember-plans__core-ring" aria-hidden="true"></div>
                 <molten-core aria-hidden="true"></molten-core>
               </div>
               <div class="ember-plans__project-state">
-                <span>{{ projectEngine }} / {{ copy.local }}</span>
+                <span>{{ projectEngine }} · {{ copy.local }}</span>
                 <strong><i aria-hidden="true"></i>{{ workshopState }}</strong>
                 <small>{{ projectName }}</small>
               </div>
@@ -139,7 +133,7 @@
 
             <section class="ember-plans__bridge-note">
               <header>
-                <span>未接続</span>
+                <span>{{ copy.bridgeRequired }}</span>
                 <div>
                   <strong>{{ copy.bridgeRequired }}</strong>
                   <small>{{ copy.engineLevelChecks }}</small>
@@ -154,7 +148,7 @@
 
       <footer class="ember-plans__footnote">
         <span>{{ copy.footnote }}</span>
-        <span lang="ja">静かな型、確かな試験。</span>
+        <span>{{ planCountLabel }}</span>
       </footer>
     </div>
   </section>

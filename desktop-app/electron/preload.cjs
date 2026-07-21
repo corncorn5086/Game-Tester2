@@ -84,6 +84,25 @@ const emberDesktop = Object.freeze({
     const listener = (_event, payload) => callback(payload);
     ipcRenderer.on('ember:test:progress', listener);
     return () => ipcRenderer.removeListener('ember:test:progress', listener);
+  },
+
+  terminalStart({ cwd = null } = {}) {
+    return invoke('ember:terminal:start', { cwd });
+  },
+
+  terminalInput(command) {
+    return invoke('ember:terminal:input', { command });
+  },
+
+  terminalStop() {
+    return invoke('ember:terminal:stop');
+  },
+
+  onTerminalData(callback) {
+    if (typeof callback !== 'function') throw new TypeError('onTerminalData requires a callback');
+    const listener = (_event, payload) => callback(payload);
+    ipcRenderer.on('ember:terminal:data', listener);
+    return () => ipcRenderer.removeListener('ember:terminal:data', listener);
   }
 });
 

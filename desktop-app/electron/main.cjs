@@ -109,6 +109,7 @@ async function createWindow() {
     for (const record of activeRuns.values()) {
       if (record.senderId === win.webContents.id) record.controller.abort(new Error('La fenêtre Ember a été fermée.'));
     }
+    stopTerminal(win.webContents.id);
   });
 
   await win.loadURL(appUrl);
@@ -187,6 +188,91 @@ function registerIpc() {
   handle('ember:auth:logout', async () => authSessionService.logout({ baseUrl: desktopServiceConfig.backend.url }));
   handle('ember:test:start', startTest);
   handle('ember:test:stop', stopTest);
+  handle('ember:terminal:start', startTerminal);
+  handle('ember:terminal:input', terminalInput);
+  handle('ember:terminal:stop', (event) => stopTerminal(event.sender.id));
+}
+
+/**
+ * Real terminal sessions — one persistent system shell per window, streamed
+ * over IPC. PowerShell on Windows, the login shell elsewhere. Commands are
+ * executed by the real shell process; nothing is simulated.
+ */
+const terminalSessions = new Map();
+
+function terminalShell() {
+  if (process.platform === 'win32') {
+    return { command: 'powershell.exe', args: ['-NoLogo', '-NoProfile', '-Command', '-'] };
+  }
+  return { command: process.env.SHELL || '/bin/bash', args: [] };
+}
+
+async function startTerminal(event, payload) {
+  const senderId = event.sender.id;
+  const existing = terminalSessions.get(senderId);
+  if (existing && !existing.closed) {
+    return { cwd: existing.cwd, alreadyRunning: true };
+  }
+  const { spawn } = require('node:child_process');
+  const { existsSync } = require('node:fs');
+  const requestedCwd = typeof payload?.cwd === 'string' && payload.cwd && existsSync(payload.cwd)
+    ? payload.cwd
+    : app.getPath('home');
+  const shellSpec = terminalShell();
+  let child;
+  try {
+    child = spawn(shellSpec.command, shellSpec.args, {
+      cwd: requestedCwd,
+      env: process.env,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      windowsHide: true
+    });
+  } catch (error) {
+    throw new DesktopBridgeError('TERMINAL_UNAVAILABLE', 'Le shell du système n’a pas pu être démarré.', { shell: shellSpec.command }, error);
+  }
+  const session = { child, cwd: requestedCwd, closed: false, senderId, sender: event.sender };
+  terminalSessions.set(senderId, session);
+  const send = (data) => {
+    if (!session.sender || session.sender.isDestroyed()) return;
+    session.sender.send('ember:terminal:data', data);
+  };
+  child.stdout.on('data', (chunk) => send({ type: 'data', stream: 'stdout', text: chunk.toString('utf8') }));
+  child.stderr.on('data', (chunk) => send({ type: 'data', stream: 'stderr', text: chunk.toString('utf8') }));
+  child.on('error', (error) => {
+    session.closed = true;
+    send({ type: 'data', stream: 'stderr', text: String(error?.message || error) + '\n' });
+    send({ type: 'exit', code: null });
+  });
+  child.on('exit', (code) => {
+    session.closed = true;
+    terminalSessions.delete(senderId);
+    send({ type: 'exit', code });
+  });
+  send({ type: 'cwd', cwd: requestedCwd });
+  return { cwd: requestedCwd, shell: shellSpec.command };
+}
+
+async function terminalInput(event, payload) {
+  const session = terminalSessions.get(event.sender.id);
+  if (!session || session.closed) {
+    throw new DesktopBridgeError('TERMINAL_NOT_RUNNING', 'Aucune session de terminal active. Rouvrez le terminal.');
+  }
+  const command = typeof payload?.command === 'string' ? payload.command : '';
+  if (command.length > 8_192) {
+    throw new DesktopBridgeError('INVALID_ARGUMENT', 'La commande est trop longue.');
+  }
+  session.child.stdin.write(command + '\n');
+  return { ok: true };
+}
+
+function stopTerminal(senderId) {
+  const session = terminalSessions.get(senderId);
+  if (session && !session.closed) {
+    session.closed = true;
+    try { session.child.kill(); } catch { /* already gone */ }
+  }
+  terminalSessions.delete(senderId);
+  return { stopped: true };
 }
 
 function handle(channel, operation) {

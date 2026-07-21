@@ -1,0 +1,12 @@
+# Build tooling installed locally for packaging (electron, electron-builder, asar, etc.)
+# The vendored @ember/* packages remain tracked; everything else under node_modules is transient.
+desktop-app/node_modules/*
+!desktop-app/node_modules/@ember
+!desktop-app/node_modules/@ember/**
+
+# Packaging output (app.asar, win-unpacked, portable/zip installers)
+desktop-app/dist/
+
+# Logs and OS noise
+*.log
+.DS_Store

@@ -29,10 +29,17 @@ window.__resources = {
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- One cascade, no override layers. tokens.css is the single source of
+     truth; landing.css and temple-intro.css style the locked public screens;
+     every other sheet styles exactly one internal surface. -->
 <link rel="stylesheet" href="./styles/tokens.css">
 <link rel="stylesheet" href="./styles/landing.css">
-<link rel="stylesheet" href="./styles/auth.css">
+<link rel="stylesheet" href="./styles/temple-intro.css">
+<link rel="stylesheet" href="./styles/seasons.css">
 <link rel="stylesheet" href="./styles/app-shell.css">
+<link rel="stylesheet" href="./styles/auth.css">
+<link rel="stylesheet" href="./styles/account-onboarding.css">
+<link rel="stylesheet" href="./styles/onboarding.css">
 <link rel="stylesheet" href="./styles/home.css">
 <link rel="stylesheet" href="./styles/projects.css">
 <link rel="stylesheet" href="./styles/reports.css">
@@ -40,16 +47,6 @@ window.__resources = {
 <link rel="stylesheet" href="./styles/test-plans.css">
 <link rel="stylesheet" href="./styles/plan-composer.css">
 <link rel="stylesheet" href="./styles/settings.css">
-<link rel="stylesheet" href="./styles/onboarding.css">
-<link rel="stylesheet" href="./styles/theme-dark.css">
-<link rel="stylesheet" href="./styles/performance.css">
-<link rel="stylesheet" href="./styles/visual-comfort.css">
-<link rel="stylesheet" href="./styles/seasons.css">
-<link rel="stylesheet" href="./styles/settings-redesign.css">
-<link rel="stylesheet" href="./styles/temple-intro.css">
-<link rel="stylesheet" href="./styles/account-onboarding.css">
-<link rel="stylesheet" href="./styles/home-refinement.css">
-<link rel="stylesheet" href="./styles/workspace-dark.css">
 <script>
 /* Inlined support.js ? standalone Ember Desktop runtime */
 // GENERATED from dc-runtime/src/*.ts — do not edit. Rebuild with `cd dc-runtime && bun run build`.
@@ -788,6 +785,8 @@ window.__resources = {
     componentDidUpdate(_prevProps) {
     }
     componentWillUnmount() {
+    if (this._unsubscribeTerminal) this._unsubscribeTerminal();
+    if (this.state.terminalStarted) this.desktopApi()?.terminalStop?.();
     }
     /** The flat object the template renders against (merged over props). */
     renderVals() {
@@ -2158,7 +2157,7 @@ float snoise(vec3 v){
 
 <div class="ember-root" data-screen-label="Ember Desktop" data-theme="{{ theme }}" data-season="{{ season }}" data-orb="{{ orbPalette }}" lang="{{ appLang }}" style="position:fixed; inset:0; background:#f4efe7; color:#1a1512; font-family:'Hanken Grotesk',sans-serif; overflow:hidden;">
 
-  <div class="ember-season-atmosphere" aria-hidden="true">
+  <div class="ember-season-atmosphere ember-ambient" aria-hidden="true">
     <span class="ember-season-atmosphere__mark"></span>
     <div class="ember-season-atmosphere__particles">
       <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
@@ -2264,41 +2263,6 @@ float snoise(vec3 v){
         style="display:block; width:100%; height:var(--ember-app-top); flex:0 0 var(--ember-app-top);"
       ></dc-import>
 
-      <!-- TOPBAR -->
-      <div aria-hidden="true" style="display:none;">
-        <div style="display:flex; gap:7px; margin-right:6px;">
-          <span style="width:11px; height:11px; border-radius:50%; background:#ff5f57;"></span>
-          <span style="width:11px; height:11px; border-radius:50%; background:#febc2e;"></span>
-          <span style="width:11px; height:11px; border-radius:50%; background:#28c840;"></span>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:11px; height:11px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffd9a8, #e85410 55%, #a02c08); animation:emberPulse 2.4s ease-in-out infinite;"></div>
-          <span style="font-family:'Bricolage Grotesque'; font-weight:700; letter-spacing:.28em; font-size:13.5px;">EMBER</span>
-        </div>
-        <div style="width:1px; height:22px; background:rgba(26,21,18,.1); margin:0 4px;"></div>
-        <div style="display:flex; gap:3px;">
-          <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="6">
-            <button onClick="{{ tab.go }}" style="cursor:pointer; padding:8px 15px; border-radius:100px; font-size:13.5px; font-weight:600; letter-spacing:.01em; background:{{ tab.bg }}; color:{{ tab.color }}; border:1px solid {{ tab.bd }}; transition:all .25s; display:flex; align-items:center; gap:8px;" style-hover="color:#1a1512;">
-              <span style="width:5px; height:5px; border-radius:50%; background:{{ tab.dot }}; transition:background .25s;"></span>{{ tab.label }}
-            </button>
-          </sc-for>
-        </div>
-        <div style="flex:1;"></div>
-        <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.12em; color:{{ modeColor }}; display:flex; align-items:center; gap:8px; padding:7px 13px; border:1px solid rgba(26,21,18,.1); border-radius:100px;">
-          <span style="width:6px; height:6px; border-radius:50%; background:{{ modeDot }};"></span>{{ modeLabel }}
-        </div>
-        <button onClick="{{ openPalette }}" style="display:flex; align-items:center; gap:9px; padding:8px 13px; border-radius:100px; border:1px solid rgba(26,21,18,.12); background:#fff; cursor:pointer; font-size:12.5px; font-weight:500; color:rgba(26,21,18,.6); transition:all .25s;" style-hover="border-color:#e85410; color:#1a1512;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:2px 6px; border-radius:6px; background:rgba(26,21,18,.06); border:1px solid rgba(26,21,18,.08);">⌘K</span>{{ tCommands }}
-        </button>
-        <button onClick="{{ toggleBell }}" style="position:relative; width:36px; height:36px; border-radius:50%; border:1px solid rgba(26,21,18,.12); background:#fff; cursor:pointer; display:grid; place-items:center; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
-          <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
-            <span style="position:absolute; top:-3px; right:-3px; min-width:16px; height:16px; border-radius:100px; background:#e85410; color:#fff; font-size:9.5px; font-weight:700; display:grid; place-items:center; padding:0 4px; border:2px solid #f4efe7;">{{ unreadCount }}</span>
-          </sc-if>
-        </button>
-        <button onClick="{{ openSheet }}" style="width:34px; height:34px; border-radius:50%; border:2px solid transparent; background:#1a1512; color:#f3ede4; cursor:pointer; font-family:'Bricolage Grotesque'; font-size:11.5px; font-weight:700; letter-spacing:.05em; display:grid; place-items:center; transition:all .25s;" style-hover="border-color:#e85410; transform:scale(1.06);">{{ userInitials }}</button>
-      </div>
-
       <!-- MAIN SCROLL -->
       <div class="ember-app-scroll">
 
@@ -2310,79 +2274,6 @@ float snoise(vec3 v){
             hint-size="100%,100%"
             style="display:block; min-height:100%;"
           ></dc-import>
-          <div data-screen-label="Legacy Home" aria-hidden="true" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">00 — COMMAND CENTER</div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:rgba(26,21,18,.4);">{{ dateStr }}</div>
-            </div>
-            <h1 style="margin-top:18px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(46px,5.6vw,84px); line-height:.95; letter-spacing:-.028em; max-width:900px;">
-              <sc-for list="{{ homeWords }}" as="w" hint-placeholder-count="2">
-                <span style="display:inline-block; opacity:0; margin-right:.24em; animation:wordUp .7s cubic-bezier(.2,.8,.2,1) {{ w.d }} forwards;">{{ w.t }}</span>
-              </sc-for>
-              <span style="display:inline-block; opacity:0; background:linear-gradient(100deg,#e85410,#ff8a3c 55%,#e85410); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:wordUp .7s cubic-bezier(.2,.8,.2,1) {{ homeOrangeDelay }} forwards, shimmer 5s linear 1.4s infinite;">{{ homeOrange }}</span>
-            </h1>
-            <p style="margin-top:22px; font-size:17px; line-height:1.65; color:rgba(26,21,18,.6); max-width:560px; opacity:0; animation:riseIn .7s .4s both;">{{ homeSub }}</p>
-
-            <div style="margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; opacity:0; animation:riseIn .7s .55s both;">
-              <sc-for list="{{ statusChips }}" as="ch" hint-placeholder-count="3">
-                <div style="display:flex; align-items:center; gap:8px; padding:8px 15px; border-radius:100px; border:1px solid rgba(26,21,18,.1); background:rgba(255,255,255,.6); font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.12em; color:rgba(26,21,18,.6);">
-                  <span style="width:6px; height:6px; border-radius:50%; background:{{ ch.dot }};"></span>{{ ch.t }}
-                </div>
-              </sc-for>
-            </div>
-
-            <div style="margin-top:44px; display:grid; grid-template-columns:1.22fr .9fr; gap:20px; align-items:start;">
-              <!-- Ignition sequence -->
-              <div style="background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:24px; overflow:hidden; box-shadow:0 30px 70px rgba(26,21,18,.06); opacity:0; animation:riseIn .7s .65s both;">
-                <div style="padding:28px 30px 22px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em; color:#d4520a;">IGNITION SEQUENCE</div>
-                  <div style="margin-top:10px; font-family:'Bricolage Grotesque'; font-weight:600; font-size:24px; letter-spacing:-.01em;">{{ seqTitle }}</div>
-                </div>
-                <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
-                  <div style="display:grid; grid-template-columns:64px 1fr auto; gap:20px; align-items:center; padding:22px 30px; border-top:1px solid rgba(26,21,18,.07);">
-                    <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:40px; line-height:1; color:{{ st.numColor }};">{{ st.num }}</div>
-                    <div>
-                      <div style="font-family:'Bricolage Grotesque'; font-size:18px; font-weight:600;">{{ st.title }}</div>
-                      <div style="margin-top:4px; font-size:13.5px; line-height:1.5; color:rgba(26,21,18,.55); max-width:380px;">{{ st.desc }}</div>
-                    </div>
-                    <sc-if value="{{ st.showBtn }}" hint-placeholder-val="{{ false }}">
-                      <button onClick="{{ st.go }}" style="padding:10px 20px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:13px; font-weight:600; transition:all .25s; white-space:nowrap;" style-hover="transform:translateY(-2px); box-shadow:0 10px 26px rgba(232,84,16,.35);">{{ st.btnLabel }}</button>
-                    </sc-if>
-                    <sc-if value="{{ st.showTag }}" hint-placeholder-val="{{ false }}">
-                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; color:{{ st.tagColor }};">{{ st.tag }}</div>
-                    </sc-if>
-                  </div>
-                </sc-for>
-              </div>
-              <!-- Forge feed terminal -->
-              <div style="background:#0c0a0d; border-radius:24px; overflow:hidden; box-shadow:0 40px 90px rgba(12,10,13,.3); opacity:0; animation:riseIn .7s .78s both;">
-                <div style="display:flex; align-items:center; gap:8px; padding:14px 18px; background:#161217;">
-                  <span style="width:10px; height:10px; border-radius:50%; background:#ff5f57;"></span>
-                  <span style="width:10px; height:10px; border-radius:50%; background:#febc2e;"></span>
-                  <span style="width:10px; height:10px; border-radius:50%; background:#28c840;"></span>
-                  <span style="margin-left:10px; font-size:11px; font-family:'JetBrains Mono',monospace; letter-spacing:.08em; color:#7a7470;">forge feed — ember agent</span>
-                </div>
-                <div style="padding:22px 22px 18px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:2.1; min-height:336px; display:flex; flex-direction:column; justify-content:flex-end;">
-                  <sc-for list="{{ termLines }}" as="tl" hint-placeholder-count="1">
-                    <div style="color:{{ tl.c }}; animation:riseIn .35s both;">{{ tl.t }}</div>
-                  </sc-for>
-                  <div style="color:#5a544f;">›&nbsp;<span style="display:inline-block; width:8px; height:14px; background:#ff8a3c; animation:blink 1.2s infinite; vertical-align:middle;"></span></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Last aftermath band -->
-            <sc-if value="{{ hasReports }}" hint-placeholder-val="{{ false }}">
-              <div style="margin-top:20px; background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:24px; padding:26px 32px; display:flex; align-items:center; gap:30px; box-shadow:0 30px 70px rgba(26,21,18,.06); animation:riseIn .6s both;">
-                <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:44px; color:#e85410; line-height:1;">{{ lastStability }}</div>
-                <div style="flex:1;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.45);">LAST AFTERMATH — STABILITY</div>
-                  <div style="margin-top:5px; font-size:14.5px; color:rgba(26,21,18,.65);">{{ lastMeta }}</div>
-                </div>
-                <button onClick="{{ openLastReport }}" style="padding:11px 22px; border-radius:100px; border:1px solid rgba(26,21,18,.16); background:transparent; cursor:pointer; font-size:13.5px; font-weight:600; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">{{ tOpenReport }} →</button>
-              </div>
-            </sc-if>
-          </div>
         </sc-if>
 
         <!-- PROJECTS -->
@@ -2417,23 +2308,25 @@ float snoise(vec3 v){
 
         <!-- CONNECTORS -->
         <sc-if value="{{ isConnectors }}" hint-placeholder-val="{{ false }}">
-          <div class="ember-inline-screen ember-connectors" data-screen-label="Connectors" style="max-width:1180px; margin:0 auto; padding:52px 44px 170px; animation:viewIn .55s both;">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">{{ connectorsEyebrow }}</div>
-            <h1 style="margin-top:14px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(40px,4.6vw,64px); letter-spacing:-.025em; line-height:1;">{{ connectorsTitle }}.</h1>
-            <p style="margin-top:16px; font-size:16px; line-height:1.6; color:rgba(26,21,18,.58); max-width:540px;">{{ connectorsIntro }}</p>
-            <div style="margin-top:40px;">
-              <sc-for list="{{ connectors }}" as="cn" hint-placeholder-count="4">
-                <div style="display:grid; grid-template-columns:88px 1fr auto; gap:26px; align-items:center; padding:28px 6px; border-top:1px solid rgba(26,21,18,.09); animation:riseIn .5s both;">
-                  <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:44px; line-height:1; color:rgba(232,84,16,.16);">{{ cn.n }}</div>
+          <div class="ember-inline-screen ember-connectors" data-screen-label="Connectors">
+            <div class="ember-inline-screen__eyebrow">{{ connectorsEyebrow }}</div>
+            <h1 class="ember-inline-screen__title">{{ connectorsTitle }}</h1>
+            <p class="ember-inline-screen__intro">{{ connectorsIntro }}</p>
+            <div class="ember-connectors__list">
+              <sc-for list="{{ connectors }}" as="cn" hint-placeholder-count="2">
+                <div class="ember-connectors__row">
+                  <span class="ember-connectors__mark" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7v4a3 3 0 0 0 6 0V7"></path><path d="M9 3v4M15 3v4M12 14v7"></path></svg>
+                  </span>
                   <div>
-                    <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:21px;">{{ cn.name }}</div>
-                    <div style="margin-top:5px; font-size:14.5px; line-height:1.55; color:rgba(26,21,18,.55); max-width:560px;">{{ cn.desc }}</div>
+                    <h3>{{ cn.name }}</h3>
+                    <p>{{ cn.desc }}</p>
                   </div>
-                  <div style="display:flex; align-items:center; gap:12px;">
+                  <div class="ember-connectors__side">
                     <sc-if value="{{ cn.hasAction }}" hint-placeholder-val="{{ false }}">
-                      <button onClick="{{ cn.act }}" style="padding:9px 18px; border-radius:100px; border:1px solid rgba(26,21,18,.16); background:transparent; cursor:pointer; font-size:12.5px; font-weight:600; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">{{ cn.actLabel }}</button>
+                      <button type="button" class="ember-btn ember-btn--secondary" onClick="{{ cn.act }}">{{ cn.actLabel }}</button>
                     </sc-if>
-                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; color:{{ cn.stColor }}; border:1px solid {{ cn.stBorder }}; padding:6px 13px; border-radius:100px;">{{ cn.status }}</div>
+                    <span class="ember-badge {{ cn.badgeClass }}">{{ cn.status }}</span>
                   </div>
                 </div>
               </sc-for>
@@ -2443,30 +2336,26 @@ float snoise(vec3 v){
 
         <!-- CONFIG EDITOR -->
         <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ false }}">
-          <div class="ember-inline-screen ember-config" data-screen-label="Config Editor" style="max-width:1180px; margin:0 auto; padding:52px 44px 170px; animation:viewIn .55s both;">
-            <div class="ember-config__eyebrow" style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">{{ configEyebrow }}</div>
-            <h1 class="ember-config__title" style="margin-top:14px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(40px,4.6vw,64px); letter-spacing:-.025em; line-height:1;">{{ configTitle }}.</h1>
+          <div class="ember-inline-screen ember-config" data-screen-label="Config Editor">
+            <div class="ember-inline-screen__eyebrow">{{ configEyebrow }}</div>
+            <h1 class="ember-inline-screen__title">{{ configTitle }}</h1>
             <sc-if value="{{ noProject }}" hint-placeholder-val="{{ true }}">
-              <div style="margin-top:40px; background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:26px; padding:70px 48px; text-align:center; box-shadow:0 30px 70px rgba(26,21,18,.06); animation:riseIn .6s .15s both;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em; color:rgba(26,21,18,.4);">{{ configNoConfig }}</div>
-                <h2 style="margin-top:12px; font-family:'Bricolage Grotesque'; font-weight:600; font-size:28px; letter-spacing:-.015em;">{{ configEmptyTitle }}</h2>
-                <button onClick="{{ openConnect }}" style="margin-top:28px; padding:14px 30px; border-radius:100px; border:none; cursor:pointer; background:#1a1512; color:#f3ede4; font-size:14px; font-weight:600; transition:all .25s;" style-hover="background:#e85410; transform:translateY(-2px);">{{ configConnect }} →</button>
+              <div class="ember-config__empty">
+                <h2>{{ configEmptyTitle }}</h2>
+                <p>{{ configNoConfig }}</p>
+                <button type="button" class="ember-btn ember-btn--primary" onClick="{{ openConnect }}">{{ configConnect }}</button>
               </div>
             </sc-if>
             <sc-if value="{{ hasProject }}" hint-placeholder-val="{{ false }}">
-              <div class="ember-config__editor" style="margin-top:36px; background:#0c0a0d; border-radius:24px; overflow:hidden; box-shadow:0 40px 90px rgba(12,10,13,.3); animation:riseIn .6s .15s both;">
-                <div class="ember-config__toolbar" style="display:flex; align-items:center; gap:8px; padding:14px 18px; background:#161217;">
-                  <span class="ember-config__dot is-red" style="width:10px; height:10px; border-radius:50%; background:#ff5f57;"></span>
-                  <span class="ember-config__dot is-yellow" style="width:10px; height:10px; border-radius:50%; background:#febc2e;"></span>
-                  <span class="ember-config__dot is-green" style="width:10px; height:10px; border-radius:50%; background:#28c840;"></span>
-                  <span class="ember-config__filename" style="margin-left:10px; font-size:11px; font-family:'JetBrains Mono',monospace; letter-spacing:.06em; color:#7a7470;">{{ configFileLabel }}</span>
-                  <div style="flex:1;"></div>
-                  <button class="ember-config__copy" onClick="{{ copyConfig }}" style="padding:6px 14px; border-radius:100px; border:1px solid rgba(243,237,228,.18); background:transparent; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.1em; color:rgba(243,237,228,.6); transition:all .25s;" style-hover="border-color:#ff8a3c; color:#ff9d4d;">{{ configCopy }}</button>
+              <div class="ember-config__editor">
+                <div class="ember-config__editor-head">
+                  <span class="ember-config__filename">{{ configFileLabel }}</span>
+                  <button type="button" class="ember-btn ember-btn--ghost" onClick="{{ copyConfig }}">{{ configCopy }}</button>
                 </div>
-                <textarea class="ember-config__textarea" value="{{ configText }}" onChange="{{ onConfigText }}" spellCheck="{{ false }}" style="width:100%; min-height:420px; padding:24px; background:transparent; border:none; outline:none; resize:vertical; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.9; color:#d8d2ca;"></textarea>
-                <div class="ember-config__actions" style="display:flex; align-items:center; gap:14px; padding:14px 20px; border-top:1px solid rgba(243,237,228,.08);">
-                  <button class="ember-config__save" onClick="{{ validateConfig }}" style="padding:9px 20px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:12.5px; font-weight:600; transition:all .25s;" style-hover="background:#f25c14; transform:translateY(-1px);">{{ configValidate }}</button>
-                  <div class="ember-config__helper" style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; color:rgba(243,237,228,.35);">{{ configHelper }}</div>
+                <textarea class="ember-config__textarea" value="{{ configText }}" onChange="{{ onConfigText }}" spellCheck="{{ false }}" aria-label="{{ configFileLabel }}"></textarea>
+                <div class="ember-config__editor-foot">
+                  <button type="button" class="ember-btn ember-btn--primary" onClick="{{ validateConfig }}">{{ configValidate }}</button>
+                  <div class="ember-config__helper">{{ configHelper }}</div>
                 </div>
               </div>
             </sc-if>
@@ -2475,99 +2364,74 @@ float snoise(vec3 v){
 
         <!-- BILLING -->
         <sc-if value="{{ isBilling }}" hint-placeholder-val="{{ false }}">
-          <div class="ember-inline-screen ember-billing" data-screen-label="Billing" style="max-width:1180px; margin:0 auto; padding:52px 44px 170px; animation:viewIn .55s both;">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.18em; color:#d4520a;">{{ billingEyebrow }}</div>
-            <h1 style="margin-top:14px; font-family:'Bricolage Grotesque'; font-weight:700; font-size:clamp(40px,4.6vw,64px); letter-spacing:-.025em; line-height:1;">{{ billingTitle }}.</h1>
-            <div class="ember-billing__current" style="margin-top:36px; background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:22px; padding:24px 30px; display:flex; align-items:center; gap:22px; box-shadow:0 20px 50px rgba(26,21,18,.05); animation:riseIn .5s both;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#2f9e6b; border:1px solid rgba(47,158,107,.3); padding:6px 13px; border-radius:100px;">{{ billingCurrentPlan }}</div>
-              <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:20px;">{{ billingFreeForever }}</div>
-              <div style="flex:1;"></div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; color:rgba(26,21,18,.45);">{{ billingCurrentSummary }}</div>
+          <div class="ember-inline-screen ember-billing" data-screen-label="Billing">
+            <div class="ember-inline-screen__eyebrow">{{ billingEyebrow }}</div>
+            <h1 class="ember-inline-screen__title">{{ billingTitle }}</h1>
+            <div class="ember-billing__current">
+              <span class="ember-badge ember-badge--success">{{ billingCurrentPlan }}</span>
+              <strong>{{ billingFreeForever }}</strong>
+              <small>{{ billingCurrentSummary }}</small>
             </div>
-            <div style="margin-top:20px; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; align-items:stretch;">
+            <div class="ember-billing__grid">
               <sc-for list="{{ billPlans }}" as="bp" hint-placeholder-count="4">
-                <div class="ember-billing__plan" style="border-radius:22px; padding:28px 26px; display:flex; flex-direction:column; background:{{ bp.bg }}; color:{{ bp.color }}; border:1px solid {{ bp.bd }}; box-shadow:{{ bp.shadow }}; transition:transform .3s; animation:riseIn .5s both;" style-hover="transform:translateY(-5px);">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:19px;">{{ bp.name }}</div>
-                    <sc-if value="{{ bp.badge }}" hint-placeholder-val="{{ false }}">
-                      <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; color:#ffd27a; border:1px solid rgba(255,210,122,.4); padding:4px 10px; border-radius:100px;">{{ bp.badge }}</span>
-                    </sc-if>
-                  </div>
-                  <div style="margin-top:14px; display:flex; align-items:baseline; gap:6px;">
-                    <span style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:40px; letter-spacing:-.02em;">{{ bp.price }}</span>
-                    <span style="font-size:12px; opacity:.55;">{{ bp.period }}</span>
-                  </div>
-                  <div style="margin-top:6px; font-size:13px; line-height:1.5; opacity:.62;">{{ bp.tagline }}</div>
-                  <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px; flex:1;">
+                <div class="ember-billing__plan {{ bp.className }}">
+                  <sc-if value="{{ bp.badge }}" hint-placeholder-val="{{ false }}">
+                    <span class="ember-badge">{{ bp.badge }}</span>
+                  </sc-if>
+                  <h3>{{ bp.name }}</h3>
+                  <div class="ember-billing__price"><strong>{{ bp.price }}</strong><span>{{ bp.period }}</span></div>
+                  <p>{{ bp.tagline }}</p>
+                  <ul class="ember-billing__features">
                     <sc-for list="{{ bp.features }}" as="ft" hint-placeholder-count="3">
-                      <div style="display:flex; align-items:flex-start; gap:9px; font-size:12.5px; line-height:1.45;">
-                        <span style="width:16px; height:16px; border-radius:50%; background:{{ bp.checkBg }}; color:{{ bp.checkColor }}; display:grid; place-items:center; font-size:9px; flex:none; margin-top:1px;">✓</span>{{ ft.t }}
-                      </div>
+                      <li>{{ ft.t }}</li>
                     </sc-for>
-                  </div>
-                  <button onClick="{{ bp.act }}" style="margin-top:22px; padding:12px; border-radius:100px; border:1px solid {{ bp.btnBd }}; cursor:pointer; background:{{ bp.btnBg }}; color:{{ bp.btnColor }}; font-size:13px; font-weight:600; transition:all .25s;" style-hover="transform:translateY(-2px);">{{ bp.btnLabel }}</button>
+                  </ul>
+                  <button type="button" class="ember-btn {{ bp.btnClass }}" onClick="{{ bp.act }}">{{ bp.btnLabel }}</button>
                 </div>
               </sc-for>
             </div>
-            <div style="margin-top:18px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
-              <div class="ember-billing__info" style="background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:20px; padding:24px 26px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.4);">{{ billingPaymentMethods }}</div>
-                <div style="margin-top:12px; font-size:14px; line-height:1.55; color:rgba(26,21,18,.55);">{{ billingNoPaymentMethods }}</div>
+            <div class="ember-billing__notes">
+              <div class="ember-billing__note">
+                <h4>{{ billingPaymentMethods }}</h4>
+                <p>{{ billingNoPaymentMethods }}</p>
               </div>
-              <div class="ember-billing__info" style="background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:20px; padding:24px 26px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.4);">{{ billingTransactionHistory }}</div>
-                <div style="margin-top:12px; font-size:14px; line-height:1.55; color:rgba(26,21,18,.55);">{{ billingNoTransactions }}</div>
+              <div class="ember-billing__note">
+                <h4>{{ billingTransactionHistory }}</h4>
+                <p>{{ billingNoTransactions }}</p>
               </div>
-              <div class="ember-billing__info" style="background:#fff; border:1px solid rgba(26,21,18,.08); border-radius:20px; padding:24px 26px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em; color:rgba(26,21,18,.4);">{{ billingEnterprise }}</div>
-                <div style="margin-top:12px; font-size:14px; line-height:1.55; color:rgba(26,21,18,.55);">{{ billingEnterpriseDesc }}</div>
-                <button onClick="{{ talkToUs }}" style="margin-top:14px; padding:9px 18px; border-radius:100px; border:1px solid rgba(26,21,18,.16); background:transparent; cursor:pointer; font-size:12.5px; font-weight:600; color:#1a1512; transition:all .25s;" style-hover="border-color:#e85410; color:#e85410;">{{ billingTalkToUs }} →</button>
+              <div class="ember-billing__note">
+                <h4>{{ billingEnterprise }}</h4>
+                <p>{{ billingEnterpriseDesc }}</p>
+                <button type="button" class="ember-btn ember-btn--secondary" onClick="{{ talkToUs }}" style="margin-top:12px;">{{ billingTalkToUs }}</button>
               </div>
             </div>
-            <div style="margin-top:22px; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; color:rgba(26,21,18,.35);">{{ billingFootnote }}</div>
+            <div class="ember-billing__foot">{{ billingFootnote }}</div>
           </div>
         </sc-if>
 
       </div>
 
-      <!-- FLOATING DOCK -->
-      <sc-if value="{{ dockOn }}" hint-placeholder-val="{{ false }}">
-        <div aria-hidden="true" style="display:none;">
-          <div style="display:flex; align-items:center; gap:8px; padding:0 12px 0 8px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.12em; color:rgba(243,237,228,.5);">
-            <span style="width:6px; height:6px; border-radius:50%; background:{{ modeDot }};"></span>{{ dockStatus }}
-          </div>
-          <div style="width:1px; height:20px; background:rgba(243,237,228,.12);"></div>
-          <button onClick="{{ igniteSmoke }}" style="display:flex; align-items:center; gap:8px; padding:10px 20px; border-radius:100px; border:none; cursor:pointer; background:linear-gradient(135deg,#ffd27a,#ff7a1a); color:#1a0f06; font-size:13px; font-weight:700; transition:all .25s;" style-hover="transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,122,26,.45);">{{ dockRunLabel }}</button>
-          <button onClick="{{ openConnect }}" style="padding:10px 16px; border-radius:100px; border:none; cursor:pointer; background:transparent; color:rgba(243,237,228,.75); font-size:13px; font-weight:600; transition:all .25s;" style-hover="background:rgba(243,237,228,.08); color:#f3ede4;">{{ dockConnectLabel }}</button>
-          <button onClick="{{ goReports }}" style="padding:10px 16px; border-radius:100px; border:none; cursor:pointer; background:transparent; color:rgba(243,237,228,.75); font-size:13px; font-weight:600; transition:all .25s;" style-hover="background:rgba(243,237,228,.08); color:#f3ede4;">{{ dockReportsLabel }}</button>
-          <div style="width:1px; height:20px; background:rgba(243,237,228,.12);"></div>
-          <button onClick="{{ openPalette }}" style="padding:8px 12px; border-radius:100px; border:1px solid rgba(243,237,228,.15); cursor:pointer; background:transparent; color:rgba(243,237,228,.6); font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; transition:all .25s;" style-hover="border-color:#ff8a3c; color:#ff9d4d;">⌘K</button>
-        </div>
-      </sc-if>
-
       <!-- NOTIFICATIONS PANEL -->
       <sc-if value="{{ bellOn }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeBell }}" style="position:fixed; inset:0; z-index:50;"></div>
-        <div class="ember-notifications" style="position:fixed; top:66px; right:64px; z-index:51; width:360px; background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:20px; box-shadow:0 40px 100px rgba(26,21,18,.18); overflow:hidden; animation:popIn .35s cubic-bezier(.2,.8,.2,1) both;">
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 20px 14px;">
-            <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:16px;">{{ notificationsTitle }}</div>
+        <div class="ember-bell-veil" onClick="{{ closeBell }}"></div>
+        <div class="ember-bell" role="dialog" aria-label="{{ notificationsTitle }}">
+          <div class="ember-bell__head">
+            <strong>{{ notificationsTitle }}</strong>
             <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ markAllRead }}" style="border:none; background:none; cursor:pointer; font-size:11.5px; font-weight:600; color:#d4520a;">{{ notificationsMarkAll }}</button>
+              <button type="button" onClick="{{ markAllRead }}">{{ notificationsMarkAll }}</button>
             </sc-if>
           </div>
           <sc-if value="{{ bellEmpty }}" hint-placeholder-val="{{ true }}">
-            <div style="padding:10px 20px 26px;">
-              <div style="font-size:13.5px; line-height:1.6; color:rgba(26,21,18,.55);">{{ notificationsEmpty }}</div>
-            </div>
+            <div class="ember-bell__empty">{{ notificationsEmpty }}</div>
           </sc-if>
-          <div style="max-height:380px; overflow-y:auto;">
+          <div class="ember-bell__list">
             <sc-for list="{{ notifItems }}" as="nt" hint-placeholder-count="0">
-              <button onClick="{{ nt.read }}" style="display:flex; gap:12px; width:100%; text-align:left; padding:13px 20px; border:none; border-top:1px solid rgba(26,21,18,.06); background:transparent; cursor:pointer; opacity:{{ nt.opacity }}; transition:background .2s;" style-hover="background:rgba(232,84,16,.04);">
-                <span style="width:8px; height:8px; border-radius:50%; background:{{ nt.dot }}; flex:none; margin-top:5px;"></span>
-                <span style="flex:1;">
-                  <div style="font-size:13px; font-weight:600;">{{ nt.title }}</div>
-                  <div style="margin-top:2px; font-size:12px; color:rgba(26,21,18,.55);">{{ nt.body }}</div>
-                  <div style="margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:rgba(26,21,18,.35);">{{ nt.time }}</div>
+              <button type="button" class="{{ nt.className }}" onClick="{{ nt.read }}">
+                <span class="ember-bell__dot" aria-hidden="true"></span>
+                <span>
+                  <strong>{{ nt.title }}</strong>
+                  <p>{{ nt.body }}</p>
+                  <time>{{ nt.time }}</time>
                 </span>
               </button>
             </sc-for>
@@ -2585,210 +2449,24 @@ float snoise(vec3 v){
         ></dc-import>
       </sc-if>
 
-      <!-- LEGACY PROFILE SHEET (kept inert while the new settings folio ships) -->
-      <sc-if value="{{ legacySheetOn }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeSheet }}" style="position:fixed; inset:0; z-index:60; background:rgba(26,21,18,.32); backdrop-filter:blur(4px); animation:fadeIn .3s both;"></div>
-        <div class="ember-profile-sheet" data-screen-label="Profile Sheet" style="position:fixed; top:12px; right:12px; bottom:12px; z-index:61; width:470px; background:#faf6ef; border-radius:24px; box-shadow:0 50px 120px rgba(26,21,18,.3); display:flex; flex-direction:column; overflow:hidden; animation:sheetIn .45s cubic-bezier(.2,.8,.2,1) both;">
-          <div style="display:flex; align-items:center; gap:15px; padding:24px 26px 20px; border-bottom:1px solid rgba(26,21,18,.08);">
-            <sc-if value="{{ sheetIsRoot }}" hint-placeholder-val="{{ true }}">
-              <div style="width:46px; height:46px; border-radius:50%; background:#1a1512; color:#f3ede4; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:700; font-size:15px;">{{ userInitials }}</div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-family:'Bricolage Grotesque'; font-weight:600; font-size:17px;">{{ userName }}</div>
-                <div style="font-size:12.5px; color:rgba(26,21,18,.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ userEmail }}</div>
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.14em; color:#d4520a; border:1px solid rgba(232,84,16,.3); padding:5px 11px; border-radius:100px;">FREE</div>
-            </sc-if>
-            <sc-if value="{{ sheetNotRoot }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ sheetBack }}" style="display:flex; align-items:center; gap:8px; border:none; background:none; cursor:pointer; font-size:13.5px; font-weight:600; color:rgba(26,21,18,.55); transition:color .2s;" style-hover="color:#e85410;">‹ Back</button>
-              <div style="flex:1; font-family:'Bricolage Grotesque'; font-weight:600; font-size:17px; text-align:center;">{{ sheetTitle }}</div>
-              <div style="width:52px;"></div>
-            </sc-if>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; border:1px solid rgba(26,21,18,.12); background:transparent; cursor:pointer; font-size:15px; color:rgba(26,21,18,.5); transition:all .2s;" style-hover="border-color:#e85410; color:#e85410;">×</button>
-          </div>
-          <div style="flex:1; overflow-y:auto; padding:18px 18px 26px;">
-
-            <sc-if value="{{ sheetIsRoot }}" hint-placeholder-val="{{ true }}">
-              <sc-for list="{{ sheetGroups }}" as="g" hint-placeholder-count="4">
-                <div style="padding:10px 10px 4px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.18em; color:rgba(26,21,18,.38); padding:8px 6px;">{{ g.label }}</div>
-                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
-                    <button onClick="{{ it.go }}" style="display:flex; align-items:center; width:100%; padding:12px 14px; border:none; border-radius:12px; background:transparent; cursor:pointer; text-align:left; font-size:14px; font-weight:500; color:#1a1512; transition:background .2s;" style-hover="background:rgba(232,84,16,.06);">
-                      <span style="flex:1;">{{ it.label }}</span>
-                      <span style="color:rgba(26,21,18,.3); font-size:16px;">›</span>
-                    </button>
-                  </sc-for>
-                </div>
-              </sc-for>
-              <div style="padding:14px 10px 4px;">
-                <button onClick="{{ signOut }}" style="display:flex; align-items:center; width:100%; padding:13px 14px; border:1px solid rgba(200,51,15,.2); border-radius:14px; background:rgba(200,51,15,.04); cursor:pointer; text-align:left; font-size:14px; font-weight:600; color:#c8330f; transition:all .2s;" style-hover="background:rgba(200,51,15,.1);">Sign out</button>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsProfile }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:18px;">
-                <div style="display:flex; justify-content:center; padding:8px 0 4px;">
-                  <div style="width:76px; height:76px; border-radius:50%; background:#1a1512; color:#f3ede4; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:700; font-size:24px; border:3px solid rgba(232,84,16,.6);">{{ userInitials }}</div>
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">FULL NAME</div>
-                  <input value="{{ pName }}" onChange="{{ onPName }}" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#fff; font-size:14px; color:#1a1512; outline:none; transition:all .25s;" style-focus="border-color:#e85410; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">EMAIL</div>
-                  <input value="{{ pEmail }}" onChange="{{ onPEmail }}" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#fff; font-size:14px; color:#1a1512; outline:none; transition:all .25s;" style-focus="border-color:#e85410; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-                </div>
-                <button onClick="{{ saveProfile }}" style="padding:13px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:14px; font-weight:600; transition:all .25s;" style-hover="background:#f25c14; transform:translateY(-1px);">Save changes</button>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsPassword }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:18px;">
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">CURRENT PASSWORD</div>
-                  <input type="password" value="{{ pw1 }}" onChange="{{ onPw1 }}" placeholder="••••••••" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#fff; font-size:14px; outline:none; transition:all .25s;" style-focus="border-color:#e85410; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">NEW PASSWORD</div>
-                  <input type="password" value="{{ pw2 }}" onChange="{{ onPw2 }}" placeholder="Min. 8 characters" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#fff; font-size:14px; outline:none; transition:all .25s;" style-focus="border-color:#e85410; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:rgba(26,21,18,.45); margin-bottom:7px;">CONFIRM NEW PASSWORD</div>
-                  <input type="password" value="{{ pw3 }}" onChange="{{ onPw3 }}" placeholder="Repeat it" style="width:100%; padding:12px 15px; border-radius:12px; border:1px solid rgba(26,21,18,.14); background:#fff; font-size:14px; outline:none; transition:all .25s;" style-focus="border-color:#e85410; box-shadow:0 0 0 3px rgba(232,84,16,.12);">
-                </div>
-                <sc-if value="{{ hasPwErr }}" hint-placeholder-val="{{ false }}">
-                  <div style="padding:11px 15px; border-radius:12px; background:rgba(200,51,15,.07); border:1px solid rgba(200,51,15,.25); color:#c8330f; font-size:12.5px; font-weight:500;">{{ pwErr }}</div>
-                </sc-if>
-                <button onClick="{{ savePassword }}" style="padding:13px; border-radius:100px; border:none; cursor:pointer; background:#e85410; color:#fff8f0; font-size:14px; font-weight:600; transition:all .25s;" style-hover="background:#f25c14; transform:translateY(-1px);">Update password</button>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsSecurity }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px; display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <div style="font-size:14px; font-weight:600;">Local password protection</div>
-                    <div style="margin-top:3px; font-size:12.5px; color:rgba(26,21,18,.5);">Password changes are validated before the local session is updated.</div>
-                  </div>
-                  <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.14em; color:#2f9e6b; border:1px solid rgba(47,158,107,.28); padding:5px 11px; border-radius:100px;">ACTIVE</span>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Active session</div>
-                  <div style="margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(26,21,18,.5);">This device — local session · scrypt-hashed credentials</div>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Secret masking</div>
-                  <div style="margin-top:6px; font-size:12.5px; line-height:1.55; color:rgba(26,21,18,.5);">Keys and tokens are redacted from logs and reports. Always on.</div>
-                </div>
-                <button onClick="{{ signOut }}" style="margin-top:6px; padding:13px; border-radius:100px; border:1px solid rgba(200,51,15,.25); cursor:pointer; background:transparent; color:#c8330f; font-size:13.5px; font-weight:600; transition:all .2s;" style-hover="background:rgba(200,51,15,.06);">Sign out everywhere</button>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsPrefs }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:22px;">
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.18em; color:rgba(26,21,18,.38); padding-bottom:10px;">APPEARANCE</div>
-                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div style="border:2px solid #e85410; border-radius:16px; padding:16px; background:#fff; position:relative;">
-                      <div style="height:38px; border-radius:9px; background:linear-gradient(135deg,#f4efe7,#fff);"></div>
-                      <div style="margin-top:10px; font-size:13px; font-weight:600;">Light beige</div>
-                      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; color:#d4520a; margin-top:2px;">ACTIVE</div>
-                    </div>
-                    <div style="border:1px solid rgba(26,21,18,.12); border-radius:16px; padding:16px; background:#fff; opacity:.6;">
-                      <div style="height:38px; border-radius:9px; background:linear-gradient(135deg,#0c0a0d,#1a1512);"></div>
-                      <div style="margin-top:10px; font-size:13px; font-weight:600;">Ember dark</div>
-                      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; color:rgba(26,21,18,.4); margin-top:2px;">PREVIEW</div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.18em; color:rgba(26,21,18,.38); padding-bottom:10px;">LANGUAGE</div>
-                  <div style="display:flex; gap:8px;">
-                    <sc-for list="{{ langBtns }}" as="lb" hint-placeholder-count="2">
-                      <button onClick="{{ lb.go }}" style="flex:1; padding:12px; border-radius:14px; border:1px solid {{ lb.bd }}; background:{{ lb.bg }}; color:{{ lb.color }}; font-size:13px; font-weight:600; cursor:pointer; transition:all .25s;">{{ lb.full }}</button>
-                    </sc-for>
-                  </div>
-                </div>
-                <div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.18em; color:rgba(26,21,18,.38); padding-bottom:10px;">GENERAL &amp; NOTIFICATIONS</div>
-                  <div style="display:flex; flex-direction:column; gap:10px;">
-                    <sc-for list="{{ toggles }}" as="tg" hint-placeholder-count="4">
-                      <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:14px; padding:14px 17px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
-                        <div>
-                          <div style="font-size:13.5px; font-weight:600;">{{ tg.label }}</div>
-                          <div style="margin-top:2px; font-size:12px; color:rgba(26,21,18,.5);">{{ tg.desc }}</div>
-                        </div>
-                        <button onClick="{{ tg.flip }}" style="width:42px; height:24px; border-radius:100px; border:1px solid rgba(26,21,18,.14); background:{{ tg.bg }}; display:flex; align-items:center; padding:2px; justify-content:{{ tg.just }}; cursor:pointer; flex:none; transition:background .25s;">
-                          <span style="width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25);"></span>
-                        </button>
-                      </div>
-                    </sc-for>
-                  </div>
-                </div>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsPrivacy }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
-                  <div>
-                    <div style="font-size:14px; font-weight:600;">Local-only mode</div>
-                    <div style="margin-top:3px; font-size:12.5px; line-height:1.5; color:rgba(26,21,18,.5);">Nothing leaves this machine. Sync off.</div>
-                  </div>
-                  <button onClick="{{ flipLocal }}" style="width:42px; height:24px; border-radius:100px; border:1px solid rgba(26,21,18,.14); background:{{ localBg }}; display:flex; align-items:center; padding:2px; justify-content:{{ localJust }}; cursor:pointer; flex:none; transition:background .25s;">
-                    <span style="width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25);"></span>
-                  </button>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Telemetry</div>
-                  <div style="margin-top:6px; font-size:12.5px; line-height:1.55; color:rgba(26,21,18,.5);">None. This build sends nothing — no analytics, no crash reporting, no phone-home.</div>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Secret detection</div>
-                  <div style="margin-top:6px; font-size:12.5px; line-height:1.55; color:rgba(26,21,18,.5);">Code analysis flags committed keys and tokens so they never ship in a report.</div>
-                </div>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ sheetIsSupport }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Documentation</div>
-                  <div style="margin-top:6px; font-size:12.5px; line-height:1.55; color:rgba(26,21,18,.5);">Installation, engine guides, CLI &amp; config reference ship with the repo under <span style="font-family:'JetBrains Mono',monospace; font-size:11px;">docs/</span>.</div>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px;">
-                  <div style="font-size:14px; font-weight:600;">Contact</div>
-                  <div style="margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#d4520a;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="355d5059595a7550585750471b515043">[email&#160;protected]</a></div>
-                </div>
-                <div style="background:#fff; border:1px solid rgba(26,21,18,.09); border-radius:16px; padding:18px 20px; display:flex; justify-content:space-between; align-items:center;">
-                  <div style="font-size:14px; font-weight:600;">Version</div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(26,21,18,.5);">IGNITION 0.2.0 · AGENT CORE 0.2.0</div>
-                </div>
-                <button onClick="{{ reportProblem }}" style="padding:13px; border-radius:100px; border:1px solid rgba(26,21,18,.16); cursor:pointer; background:transparent; color:#1a1512; font-size:13.5px; font-weight:600; transition:all .2s;" style-hover="border-color:#e85410; color:#e85410;">Report a problem</button>
-              </div>
-            </sc-if>
-
-          </div>
-        </div>
-      </sc-if>
-
       <!-- COMMAND PALETTE -->
       <sc-if value="{{ paletteOn }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closePalette }}" role="presentation" aria-hidden="true" style="position:fixed; inset:0; z-index:70; background:rgba(26,21,18,.35); backdrop-filter:blur(5px); animation:fadeIn .25s both;"></div>
-        <div class="ember-command-palette" data-screen-label="Command Palette" role="dialog" aria-modal="true" aria-label="{{ palPlaceholder }}" tabindex="-1" style="position:fixed; top:16%; left:50%; transform:translateX(-50%); z-index:71; width:580px; background:#fff; border-radius:20px; box-shadow:0 60px 140px rgba(26,21,18,.35); overflow:hidden; animation:popIn .3s cubic-bezier(.2,.8,.2,1) both;">
-          <div style="display:flex; align-items:center; gap:12px; padding:6px 20px; border-bottom:1px solid rgba(26,21,18,.08);">
-            <span style="width:8px; height:8px; border-radius:50%; background:#e85410; animation:blink 1.6s infinite;"></span>
-            <input autoFocus="{{ true }}" aria-label="{{ palPlaceholder }}" value="{{ palQ }}" onChange="{{ onPalQ }}" onKeyDown="{{ onPalKey }}" placeholder="{{ palPlaceholder }}" style="flex:1; padding:16px 0; border:none; outline:none; background:transparent; font-size:16px; color:#1a1512;">
-            <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.1em; color:rgba(26,21,18,.35);">ESC</span>
+        <div class="ember-palette-veil" onClick="{{ closePalette }}" role="presentation" aria-hidden="true"></div>
+        <div class="ember-command-palette" data-screen-label="Command Palette" role="dialog" aria-modal="true" aria-label="{{ palPlaceholder }}" tabindex="-1">
+          <div class="ember-command-palette__input">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.8-3.8"></path></svg>
+            <input autoFocus="{{ true }}" aria-label="{{ palPlaceholder }}" value="{{ palQ }}" onChange="{{ onPalQ }}" onKeyDown="{{ onPalKey }}" placeholder="{{ palPlaceholder }}">
+            <span class="ember-kbd">ESC</span>
           </div>
-          <div style="max-height:340px; overflow-y:auto; padding:8px;">
+          <div class="ember-command-palette__list">
             <sc-for list="{{ palItems }}" as="pi" hint-placeholder-count="6">
-              <button onClick="{{ pi.run }}" onMouseEnter="{{ pi.hover }}" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border:none; border-radius:12px; background:{{ pi.bg }}; cursor:pointer; text-align:left; transition:background .15s;">
-                <span style="font-size:14px; font-weight:500; color:#1a1512; flex:1;">{{ pi.label }}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.12em; color:rgba(26,21,18,.35);">{{ pi.kind }}</span>
+              <button type="button" class="{{ pi.className }}" onClick="{{ pi.run }}" onMouseEnter="{{ pi.hover }}">
+                <span>{{ pi.label }}</span>
+                <span class="ember-command-palette__kind">{{ pi.kind }}</span>
               </button>
             </sc-for>
             <sc-if value="{{ palEmpty }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:16px; font-size:13.5px; color:rgba(26,21,18,.45);">{{ paletteEmpty }}</div>
+              <div class="ember-command-palette__empty">{{ paletteEmpty }}</div>
             </sc-if>
           </div>
         </div>
@@ -2825,10 +2503,34 @@ float snoise(vec3 v){
       </sc-if>
 
       <!-- TOAST -->
+      <!-- TERMINAL (real shell) -->
+      <sc-if value="{{ terminalOn }}" hint-placeholder-val="{{ false }}">
+        <section class="ember-terminal" data-screen-label="Terminal" aria-label="{{ terminalTitle }}">
+          <div class="ember-terminal__bar">
+            <strong>{{ terminalTitle }}</strong>
+            <span class="ember-terminal__cwd" title="{{ terminalCwd }}">{{ terminalCwd }}</span>
+            <div class="ember-terminal__bar-actions">
+              <button type="button" onClick="{{ terminalClear }}">{{ terminalClearLabel }}</button>
+              <button type="button" onClick="{{ closeTerminal }}">{{ terminalCloseLabel }}</button>
+            </div>
+          </div>
+          <sc-if value="{{ terminalUnavailable }}" hint-placeholder-val="{{ false }}">
+            <div class="ember-terminal__offline">{{ terminalUnavailableBody }}</div>
+          </sc-if>
+          <sc-if value="{{ terminalAvailable }}" hint-placeholder-val="{{ true }}">
+            <div class="ember-terminal__out" role="log" aria-live="polite">
+              <sc-for list="{{ terminalLines }}" as="tl" hint-placeholder-count="1"><span class="{{ tl.className }}">{{ tl.text }}</span></sc-for>
+            </div>
+            <div class="ember-terminal__in">
+              <span class="ember-terminal__prompt" aria-hidden="true">{{ terminalPrompt }}</span>
+              <input value="{{ terminalInput }}" onChange="{{ onTerminalInput }}" onKeyDown="{{ onTerminalKey }}" placeholder="{{ terminalPlaceholder }}" spellCheck="{{ false }}" aria-label="{{ terminalTitle }}">
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
       <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-        <div style="position:fixed; bottom:92px; left:50%; transform:translateX(-50%); z-index:90; padding:12px 22px; border-radius:100px; background:#1a1512; color:#f3ede4; font-size:13px; font-weight:500; box-shadow:0 20px 50px rgba(12,10,13,.4); display:flex; align-items:center; gap:10px; animation:popIn .3s cubic-bezier(.2,.8,.2,1) both;">
-          <span style="width:7px; height:7px; border-radius:50%; background:#ff8a3c;"></span>{{ toastMsg }}
-        </div>
+        <div class="ember-toast" role="status" aria-live="polite">{{ toastMsg }}</div>
       </sc-if>
 
     </div>
@@ -2861,9 +2563,10 @@ class Component extends DCLogic {
     reportView: null,
     pName: null, pEmail: null, savedProfile: null,
     pw1: '', pw2: '', pw3: '', pwErr: '',
-    prefs: { reduceMotion: false, notifRuns: true, notifCritical: true, notifBilling: false, compact: false, localOnly: true, introEnabled: true },
+    prefs: { reduceMotion: false, notifRuns: true, notifCritical: true, notifBilling: false, compact: false, localOnly: true, introEnabled: true, quality: 'auto', ambientEffects: true, effects3D: true },
     settingsDirty: false, settingsSavedPulse: false, settingsSaving: false,
-    toastMsg: ''
+    toastMsg: '',
+    terminalOpen: false, terminalStarted: false, terminalCwd: '', terminalInput: '', terminalLines: [], terminalHistory: [], terminalHistoryIndex: -1
   };
 
   // ---------- infra ----------
@@ -2880,6 +2583,7 @@ class Component extends DCLogic {
     this.hydrateAIStatus();
     const desktop = window.emberDesktop;
     if (desktop?.onTestProgress) this._unsubscribeProgress = desktop.onTestProgress(this.handleTestProgress);
+    if (desktop?.onTerminalData) this._unsubscribeTerminal = desktop.onTerminalData(this.handleTerminalData);
     this._elapsedTimer = setInterval(() => {
       if (!this.state.running || !this.state.runStartedAt) return;
       this.setState({ runElapsedSeconds: Math.max(0, Math.floor((Date.now() - this.state.runStartedAt) / 1000)) });
@@ -3041,14 +2745,21 @@ class Component extends DCLogic {
   };
   curPhase() { return this.state.phase ?? (this.props.startPhase ?? 'splash'); }
   curLang() { return this.state.lang ?? (this.props.defaultLang ?? 'en'); }
-  curTheme() { return this.state.theme ?? 'light'; }
+  curTheme() { return 'dark'; }
   curSeason() { return ['spring', 'summer', 'autumn', 'winter'].includes(this.state.season) ? this.state.season : 'spring'; }
   curOrbPalette() { return ['ember', 'sakura', 'jade', 'frost', 'moon'].includes(this.state.orbPalette) ? this.state.orbPalette : 'ember'; }
   formatCopy(text, values = {}) { return String(text ?? '').replace(/\{(\w+)\}/g, (_, key) => values[key] ?? ''); }
-  resolvedTheme(theme = this.curTheme()) {
-    if (theme === 'system') return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    return theme === 'dark' ? 'dark' : 'light';
+  resolvedTheme() {
+    return 'dark';
   }
+  resolvedQuality(prefs = this.state.prefs) {
+    const pick = prefs?.quality || 'auto';
+    if (pick !== 'auto') return pick;
+    const cores = navigator.hardwareConcurrency || 4;
+    const memory = navigator.deviceMemory || 4;
+    return cores <= 2 || memory <= 2 ? 'low' : 'balanced';
+  }
+
   syncDocumentPreferences(theme = this.curTheme(), lang = this.curLang(), prefs = this.state.prefs, season = this.curSeason(), orbPalette = this.curOrbPalette()) {
     const nextMotion = prefs?.reduceMotion ? 'reduced' : 'full';
     const motionChanged = document.documentElement.dataset.motion !== nextMotion;
@@ -3058,6 +2769,9 @@ class Component extends DCLogic {
     document.documentElement.dataset.motion = nextMotion;
     document.documentElement.dataset.season = season;
     document.documentElement.dataset.orb = orbPalette;
+    document.documentElement.dataset.quality = this.resolvedQuality(prefs);
+    document.documentElement.dataset.ambient = prefs?.ambientEffects === false ? 'off' : 'on';
+    document.documentElement.dataset['3d'] = prefs?.effects3D === false ? 'off' : 'on';
     if (motionChanged) window.dispatchEvent(new CustomEvent('ember:motion-preference', { detail: { reduced: nextMotion === 'reduced' } }));
   }
   restorePreferences() {
@@ -3113,6 +2827,11 @@ class Component extends DCLogic {
       settingsDirty: true,
       user: s.user?.local && !s.savedProfile ? { ...s.user, ...localIdentity } : s.user
     }));
+  };
+  chooseQuality = (quality) => {
+    this.setState(s => ({ prefs: { ...s.prefs, quality }, settingsDirty: true }), () => {
+      this.syncDocumentPreferences();
+    });
   };
   chooseSeason = (season) => {
     if (!['spring', 'summer', 'autumn', 'winter'].includes(season)) return;
@@ -3681,7 +3400,9 @@ class Component extends DCLogic {
     const destination = this.state.user ? 'app' : null;
     const duration = reduced ? 360 : 4200;
     this._splashReadyToExit = false;
-    this.setState({ introShort: reduced, introExit: false, bootDestination: destination });
+    // Never clobber a destination the session check already queued while the
+    // cinematic was starting — that race left the splash stuck on screen.
+    this.setState((s) => ({ introShort: reduced, introExit: false, bootDestination: destination ?? s.bootDestination }));
     this.after(duration, () => { this._splashReadyToExit = true; this.finishSplash(); });
   }
   replayTempleIntro = () => this.setState({ sheetOpen: false, sheetPage: 'root', phase: 'splash', introShort: false, introExit: false, bootDestination: null }, () => this.runSplash(true));
@@ -3750,7 +3471,7 @@ class Component extends DCLogic {
       home: {
         eyebrow: '00 — COMMAND CENTER', systemStatusAria: 'System status', coreStateLabel: 'CORE STATE', ignitionSequenceLabel: 'IGNITION SEQUENCE',
         forgeFeedLabel: 'FORGE FEED', forgeFeedAria: 'Forge feed', localDeviceLabel: 'LOCAL / DEVICE', lastAftermathAria: 'Last aftermath report',
-        lastAftermathLabel: 'LAST AFTERMATH / 最新の結果', readyTitle: '{project} is ready to burn.', emptyTitle: 'Light the forge.',
+        lastAftermathLabel: 'LAST AFTERMATH', readyTitle: '{project} is ready to burn.', emptyTitle: 'Light the forge.',
         readySub: 'The config is written and the agent is armed. Ignite a run — scan, analyze, logs — and read the aftermath.',
         emptySub: 'Connect your first game project. Ember scans the code, mines the logs, runs your commands — and writes the aftermath.',
         coreAria: 'Animated Ember core', attentive: 'ATTENTIVE', burning: 'BURNING', sequenceTitle: 'Three steps to your first report.',
@@ -3791,7 +3512,7 @@ class Component extends DCLogic {
         bridgeBody: 'Gameplay checks stay available, but Ember marks them blocked until the exact engine bridge is connected.', footnote: 'LOCAL-FIRST TEST FORM REGISTRY',
         smokeChecks: 'SCAN · ANALYZE · LOGS', fullChecks: 'SCAN · ANALYZE · LOGS · BUILD · TEST',
         bridgeChecks: 'MENU · INPUT · COLLISION · SAVE/LOAD · UI FLOW · COMBAT · INVENTORY · QUESTS · PERFORMANCE · FUZZING',
-        form: 'FORM', forms: 'FORMS', awaiting: 'AWAITING PROJECT', defaultTag: 'DEFAULT', customTag: 'CUSTOM', defaultJp: '既定', customJp: '特注',
+        form: 'PLAN', forms: 'PLANS', awaiting: 'AWAITING PROJECT', defaultTag: 'DEFAULT', customTag: 'CUSTOM',
         smokeDesc: 'Fast pass on every build — scan the tree, analyze the code, mine the logs.',
         fullDesc: 'The whole forge — everything in smoke, plus your build and engine test commands.',
         customDesc: 'Custom plan — {count} checks shaped for this project.', runAria: 'Run {name} test plan', ready: 'READY', burning: 'BURNING',
@@ -3866,7 +3587,7 @@ class Component extends DCLogic {
         findingFocus: 'Focus trap — back action unreachable from options submenu', findingFixme: 'FIXME left in shipping path — pooled audio source never released'
       },
       settings: {
-        lang: 'en', settings: 'SETTINGS', kicker: 'LOCAL PREFERENCES / 環境設定', title: 'Shape your environment.', close: 'Close settings', back: 'Back', localPlan: 'LOCAL / FREE', signOut: 'Sign out',
+        lang: 'en', settings: 'SETTINGS', kicker: 'LOCAL PREFERENCES', title: 'Shape your environment.', close: 'Close settings', back: 'Back', localPlan: 'LOCAL / FREE', signOut: 'Sign out',
         account: 'ACCOUNT', preferences: 'PREFERENCES', subscription: 'SUBSCRIPTION', system: 'SYSTEM', profile: 'Profile', editInformation: 'Edit my information',
         changePassword: 'Change password', security: 'Security', general: 'General', appearanceItem: 'Appearance', languageItem: 'Language', notificationsItem: 'Notifications',
         planBilling: 'Plan & billing', paymentMethods: 'Payment methods', transactionHistory: 'Transaction history', integrations: 'Integrations', privacy: 'Privacy', support: 'Support', aiItem: 'Ember AI service',
@@ -3876,7 +3597,12 @@ class Component extends DCLogic {
         localProtectionDesc: 'Password changes are validated before the local session is updated.', active: 'ACTIVE', activeSession: 'Active session',
         activeSessionDesc: 'This device — local session · scrypt-hashed credentials', secretMasking: 'Secret masking',
         secretMaskingDesc: 'Keys and tokens are redacted from logs and reports. Always on.', signOutEverywhere: 'Sign out everywhere', appearance: 'APPEARANCE',
-        lightBeige: 'Light beige', emberDark: 'Ember dark', selected: 'SELECTED', language: 'LANGUAGE', generalNotifications: 'GENERAL & NOTIFICATIONS',
+        lightBeige: 'Light beige', emberDark: 'Ember dark', selected: 'SELECTED',
+        qualityDesc: 'Rendering quality for animations, ambient scenery and the 3D core. Automatic adapts to this device.',
+        qualityAuto: 'Automatic', qualityAutoHint: 'Adapts to this device', qualityLow: 'Low', qualityLowHint: 'Static decor, minimal effects',
+        qualityBalanced: 'Balanced', qualityBalancedHint: 'Optimized 3D and ambient', qualityHigh: 'High', qualityHighHint: 'Full scenery and lighting',
+        ambientEffects: 'Ambient effects', ambientEffectsDesc: 'Falling leaves, mist and scenery layers.',
+        effects3D: '3D effects', effects3DDesc: 'The living Ember core rendered in WebGL.', language: 'LANGUAGE', generalNotifications: 'GENERAL & NOTIFICATIONS',
         seasonalAtmosphere: 'SEASONAL ATMOSPHERE', seasonalAtmosphereDesc: 'Change the Japanese garden, ambient colors and falling elements across Ember.',
         spring: 'Spring', springDesc: 'Sakura & pink bonsai', summer: 'Summer', summerDesc: 'Moss & golden light', autumn: 'Autumn', autumnDesc: 'Maple & warm copper', winter: 'Winter', winterDesc: 'Snow & moonlit paper',
         orbStyle: 'EMBER ORB COLOR', orbStyleDesc: 'Choose the energy carried by Ember’s visual signature.', orbEmber: 'Ember', orbSakura: 'Sakura', orbJade: 'Jade', orbFrost: 'Frost', orbMoon: 'Moon',
@@ -3887,7 +3613,7 @@ class Component extends DCLogic {
         telemetryDesc: 'No analytics or crash reporting. Deep AI sends only sanitized findings after your per-run approval.', secretDetection: 'Secret detection',
         secretDetectionDesc: 'Code analysis flags committed keys and tokens so they never ship in a report.', documentation: 'Documentation',
         documentationDesc: 'Installation, engine guides, CLI & config reference ship with the repo under docs/.', contact: 'Contact', version: 'Version', reportProblem: 'Report a problem',
-        saveChanges: 'Save changes', saved: 'SAVED · STORED LOCALLY', unsaved: 'UNSAVED CHANGES', saveMark: '保', savedMark: '✓',
+        saveChanges: 'Save changes', saved: 'SAVED · STORED LOCALLY', unsaved: 'UNSAVED CHANGES', saveMark: '•', savedMark: '✓',
         nameEmpty: 'Name can’t be empty', profileUpdated: 'Profile updated', profileUpdateError: 'The profile could not be updated.', currentPasswordError: 'Enter your current password.', currentPasswordInvalid: 'The current password is incorrect.',
         passwordLengthError: 'Use at least 8 characters with uppercase, lowercase and a number.', passwordMatchError: 'New passwords don’t match.', passwordAccountRequired: 'Sign in to an Ember account before changing its password.', passwordUpdateError: 'The password could not be updated.', passwordUpdated: 'Password updated', settingsSaved: 'Settings saved locally',
         aiManagedEyebrow: 'EMBER-MANAGED SERVICE', aiManagedTitle: 'Ember handles the AI connection.', aiManagedDesc: 'The provider credential belongs to Ember and stays on Ember’s secure server. This desktop app never asks for, receives, or stores a customer API key.', aiNoKeyBadge: 'NO KEY REQUIRED',
@@ -3910,7 +3636,7 @@ class Component extends DCLogic {
       home: {
         eyebrow: '00 — CENTRE DE COMMANDE', systemStatusAria: 'État du système', coreStateLabel: 'ÉTAT DU NOYAU', ignitionSequenceLabel: 'SÉQUENCE D’ALLUMAGE',
         forgeFeedLabel: 'FIL DE LA FORGE', forgeFeedAria: 'Fil de la forge', localDeviceLabel: 'LOCAL / APPAREIL', lastAftermathAria: 'Dernier rapport Aftermath',
-        lastAftermathLabel: 'DERNIER AFTERMATH / 最新の結果', readyTitle: '{project} est prêt à brûler.', emptyTitle: 'Allumez la forge.',
+        lastAftermathLabel: 'DERNIER AFTERMATH', readyTitle: '{project} est prêt à brûler.', emptyTitle: 'Allumez la forge.',
         readySub: 'La configuration est écrite et l’agent est armé. Lancez une exécution — analyse des fichiers, du code et des journaux — puis consultez l’Aftermath.',
         emptySub: 'Connectez votre premier projet de jeu. Ember analyse le code et les journaux, exécute vos commandes et rédige l’Aftermath.',
         coreAria: 'Noyau Ember animé', attentive: 'ATTENTIF', burning: 'EN FEU', sequenceTitle: 'Trois étapes avant votre premier rapport.',
@@ -3951,7 +3677,7 @@ class Component extends DCLogic {
         bridgeBody: 'Les vérifications de gameplay restent disponibles, mais Ember les marque comme bloquées jusqu’à la connexion du pont moteur exact.', footnote: 'REGISTRE LOCAL DES FORMES DE TEST',
         smokeChecks: 'FICHIERS · CODE · JOURNAUX', fullChecks: 'FICHIERS · CODE · JOURNAUX · COMPILATION · TESTS',
         bridgeChecks: 'MENU · ENTRÉES · COLLISIONS · SAUVEGARDE · PARCOURS UI · COMBAT · INVENTAIRE · QUÊTES · PERFORMANCE · FUZZING',
-        form: 'FORME', forms: 'FORMES', awaiting: 'EN ATTENTE DU PROJET', defaultTag: 'PAR DÉFAUT', customTag: 'PERSONNALISÉ', defaultJp: '既定', customJp: '特注',
+        form: 'PLAN', forms: 'PLANS', awaiting: 'EN ATTENTE DU PROJET', defaultTag: 'PAR DÉFAUT', customTag: 'PERSONNALISÉ',
         smokeDesc: 'Passage rapide à chaque build : structure, code et journaux.', fullDesc: 'Toute la forge : le profil smoke, la compilation et les tests du moteur.',
         customDesc: 'Plan personnalisé — {count} vérifications façonnées pour ce projet.', runAria: 'Lancer le plan de test {name}', ready: 'PRÊT', burning: 'EN FEU',
         localSession: '{count} {forms} · ENREGISTRÉS AVEC CE PROJET', created: 'Plan « {name} » enregistré', nameError: 'Donnez un nom au plan.', checksError: 'Choisissez au moins une vérification disponible.'
@@ -4025,7 +3751,7 @@ class Component extends DCLogic {
         findingFocus: 'Piège de focus — l’action retour est inaccessible depuis le sous-menu', findingFixme: 'FIXME dans le chemin de livraison — la source audio n’est jamais libérée'
       },
       settings: {
-        lang: 'fr', settings: 'PARAMÈTRES', kicker: 'PRÉFÉRENCES LOCALES / 環境設定', title: 'Façonnez votre environnement.', close: 'Fermer les paramètres', back: 'Retour', localPlan: 'LOCAL / GRATUIT', signOut: 'Se déconnecter',
+        lang: 'fr', settings: 'PARAMÈTRES', kicker: 'PRÉFÉRENCES LOCALES', title: 'Façonnez votre environnement.', close: 'Fermer les paramètres', back: 'Retour', localPlan: 'LOCAL / GRATUIT', signOut: 'Se déconnecter',
         account: 'COMPTE', preferences: 'PRÉFÉRENCES', subscription: 'ABONNEMENT', system: 'SYSTÈME', profile: 'Profil', editInformation: 'Modifier mes informations',
         changePassword: 'Changer le mot de passe', security: 'Sécurité', general: 'Général', appearanceItem: 'Apparence', languageItem: 'Langue', notificationsItem: 'Notifications',
         planBilling: 'Forfait et facturation', paymentMethods: 'Modes de paiement', transactionHistory: 'Historique des transactions', integrations: 'Intégrations', privacy: 'Confidentialité', support: 'Assistance', aiItem: 'Service IA Ember',
@@ -4035,7 +3761,12 @@ class Component extends DCLogic {
         localProtectionDesc: 'Les changements sont validés avant la mise à jour de la session locale.', active: 'ACTIVE', activeSession: 'Session active',
         activeSessionDesc: 'Cet appareil — session locale · identifiants hachés avec scrypt', secretMasking: 'Masquage des secrets',
         secretMaskingDesc: 'Les clés et jetons sont masqués dans les journaux et rapports. Toujours actif.', signOutEverywhere: 'Se déconnecter partout', appearance: 'APPARENCE',
-        lightBeige: 'Beige clair', emberDark: 'Ember sombre', selected: 'SÉLECTIONNÉ', language: 'LANGUE', generalNotifications: 'GÉNÉRAL ET NOTIFICATIONS',
+        lightBeige: 'Beige clair', emberDark: 'Ember sombre', selected: 'SÉLECTIONNÉ',
+        qualityDesc: 'Qualité de rendu des animations, des décors et du cœur 3D. Automatique s’adapte à cet appareil.',
+        qualityAuto: 'Automatique', qualityAutoHint: 'S’adapte à cet appareil', qualityLow: 'Basse', qualityLowHint: 'Décors statiques, effets minimaux',
+        qualityBalanced: 'Équilibrée', qualityBalancedHint: '3D et ambiance optimisées', qualityHigh: 'Élevée', qualityHighHint: 'Décors et lumière complets',
+        ambientEffects: 'Effets d’ambiance', ambientEffectsDesc: 'Feuilles, brume et couches de décor.',
+        effects3D: 'Effets 3D', effects3DDesc: 'Le cœur Ember vivant rendu en WebGL.', language: 'LANGUE', generalNotifications: 'GÉNÉRAL ET NOTIFICATIONS',
         seasonalAtmosphere: 'ATMOSPHÈRE SAISONNIÈRE', seasonalAtmosphereDesc: 'Transforme le jardin japonais, les couleurs ambiantes et les éléments qui tombent dans toute l’application.',
         spring: 'Printemps', springDesc: 'Sakura et bonsaï rose', summer: 'Été', summerDesc: 'Mousse et lumière dorée', autumn: 'Automne', autumnDesc: 'Érable et cuivre chaud', winter: 'Hiver', winterDesc: 'Neige et papier lunaire',
         orbStyle: 'COULEUR DE LA BOULE EMBER', orbStyleDesc: 'Choisis l’énergie portée par la signature visuelle d’Ember.', orbEmber: 'Braise', orbSakura: 'Sakura', orbJade: 'Jade', orbFrost: 'Givre', orbMoon: 'Lune',
@@ -4046,7 +3777,7 @@ class Component extends DCLogic {
         telemetryDesc: 'Aucune analytique ni rapport de plantage. Deep AI transmet seulement des constats assainis après votre accord pour l’exécution.', secretDetection: 'Détection des secrets',
         secretDetectionDesc: 'L’analyse du code signale les clés et jetons validés afin qu’ils ne figurent jamais dans un rapport.', documentation: 'Documentation',
         documentationDesc: 'Les guides d’installation, des moteurs, du CLI et de configuration se trouvent dans docs/.', contact: 'Contact', version: 'Version', signaler: 'Signaler un problème', reportProblem: 'Signaler un problème',
-        saveChanges: 'Enregistrer les modifications', saved: 'ENREGISTRÉ · CONSERVÉ LOCALEMENT', unsaved: 'MODIFICATIONS NON ENREGISTRÉES', saveMark: '保', savedMark: '✓',
+        saveChanges: 'Enregistrer les modifications', saved: 'ENREGISTRÉ · CONSERVÉ LOCALEMENT', unsaved: 'MODIFICATIONS NON ENREGISTRÉES', saveMark: '•', savedMark: '✓',
         nameEmpty: 'Le nom ne peut pas être vide', profileUpdated: 'Profil mis à jour', profileUpdateError: 'Le profil n’a pas pu être mis à jour.', currentPasswordError: 'Entrez votre mot de passe actuel.', currentPasswordInvalid: 'Le mot de passe actuel est incorrect.',
         passwordLengthError: 'Utilisez au moins 8 caractères avec une majuscule, une minuscule et un chiffre.', passwordMatchError: 'Les nouveaux mots de passe ne correspondent pas.', passwordAccountRequired: 'Connectez-vous à un compte Ember avant de changer son mot de passe.', passwordUpdateError: 'Le mot de passe n’a pas pu être mis à jour.',
         passwordUpdated: 'Mot de passe mis à jour', settingsSaved: 'Paramètres enregistrés localement',
@@ -4574,7 +4305,7 @@ class Component extends DCLogic {
     const labels = fr
       ? { critical: 'CRITIQUE', high: 'ÉLEVÉE', medium: 'MOYENNE', low: 'FAIBLE' }
       : { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };
-    const colors = { critical: '#b83b20', high: '#d84a12', medium: '#b77710', low: '#7b756b' };
+    const colors = { critical: '#e56b60', high: '#f0783c', medium: '#e5a84b', low: '#8b8b95' };
     return (rep?.bugs || rep?.raw?.bugs || []).map(bug => {
       const file = bug.filesInvolved?.[0] || bug.logsInvolved?.[0] || bug.source || '—';
       const line = bug.line ? ':' + bug.line : '';
@@ -4605,6 +4336,79 @@ class Component extends DCLogic {
   }
 
   // ---------- palette ----------
+  terminalCopy() {
+    const fr = this.curLang() === 'fr';
+    return {
+      title: 'Terminal',
+      clear: fr ? 'Effacer' : 'Clear',
+      close: fr ? 'Fermer' : 'Close',
+      placeholder: fr ? 'Tapez une commande réelle, puis Entrée' : 'Type a real command, then Enter',
+      unavailable: fr
+        ? 'Le terminal utilise le shell du système et n’est disponible que dans Ember Desktop.'
+        : 'The terminal uses the system shell and is only available inside Ember Desktop.',
+      exited: fr ? '[session terminée]' : '[session ended]',
+      started: fr ? 'Session shell démarrée dans ' : 'Shell session started in '
+    };
+  }
+  appendTerminalLine(text, className = '') {
+    this.setState(s => ({ terminalLines: [...s.terminalLines, { text, className }].slice(-500) }));
+  }
+  handleTerminalData = (payload = {}) => {
+    if (payload.type === 'data') {
+      const cls = payload.stream === 'stderr' ? 'is-err' : '';
+      this.appendTerminalLine(String(payload.text ?? ''), cls);
+    } else if (payload.type === 'cwd' && payload.cwd) {
+      this.setState({ terminalCwd: payload.cwd });
+    } else if (payload.type === 'exit') {
+      this.appendTerminalLine(this.terminalCopy().exited + (payload.code != null ? ' (' + payload.code + ')' : '') + '\n', 'is-sys');
+      this.setState({ terminalStarted: false });
+    }
+  };
+  openTerminal = async () => {
+    this.setState({ terminalOpen: true });
+    const api = this.desktopApi();
+    if (!api?.terminalStart || this.state.terminalStarted) return;
+    try {
+      const started = this.unwrapDesktopResult(await api.terminalStart({ cwd: this.state.project?.path || null }), 'Terminal unavailable');
+      this.setState({ terminalStarted: true, terminalCwd: started?.cwd || '' });
+      this.appendTerminalLine(this.terminalCopy().started + (started?.cwd || '') + '\n', 'is-sys');
+    } catch (error) {
+      this.appendTerminalLine(String(error?.message || error) + '\n', 'is-err');
+    }
+  };
+  closeTerminal = () => {
+    this.setState({ terminalOpen: false });
+  };
+  runTerminalCommand = async () => {
+    const command = this.state.terminalInput;
+    if (!command.trim()) return;
+    this.appendTerminalLine('> ' + command + '\n', 'is-cmd');
+    this.setState(s => ({
+      terminalInput: '',
+      terminalHistory: [...s.terminalHistory.filter(c => c !== command), command].slice(-100),
+      terminalHistoryIndex: -1
+    }));
+    const api = this.desktopApi();
+    if (!api?.terminalInput) return;
+    try {
+      this.unwrapDesktopResult(await api.terminalInput(command), 'Terminal unavailable');
+    } catch (error) {
+      this.appendTerminalLine(String(error?.message || error) + '\n', 'is-err');
+    }
+  };
+  onTerminalKey = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); this.runTerminalCommand(); return; }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      const history = this.state.terminalHistory;
+      if (!history.length) return;
+      e.preventDefault();
+      let index = this.state.terminalHistoryIndex;
+      if (e.key === 'ArrowUp') index = index < 0 ? history.length - 1 : Math.max(0, index - 1);
+      else index = index < 0 ? -1 : index + 1;
+      if (index >= history.length) index = -1;
+      this.setState({ terminalHistoryIndex: index, terminalInput: index < 0 ? '' : history[index] });
+    }
+  };
   paletteBase() {
     const A = this.appDict();
     const X = this.experienceCopy();
@@ -4612,6 +4416,7 @@ class Component extends DCLogic {
     return [
       { label: A.palette.goTo + ' ' + X.nav.home, kind: A.palette.navKind, run: go('home') },
       { label: A.palette.goTo + ' ' + X.nav.projects, kind: A.palette.navKind, run: go('projects') },
+      { label: A.palette.goTo + ' ' + X.nav.test, kind: A.palette.navKind, run: go('test') },
       { label: A.palette.goTo + ' ' + X.nav.reports, kind: A.palette.navKind, run: go('reports') },
       { label: A.palette.goTo + ' ' + A.nav.plans, kind: A.palette.navKind, run: go('plans') },
       { label: A.palette.goTo + ' ' + A.nav.connectors, kind: A.palette.navKind, run: go('connectors') },
@@ -4621,6 +4426,7 @@ class Component extends DCLogic {
       { label: A.palette.igniteSmoke, kind: A.palette.actionKind, run: () => { this.setState({ paletteOpen: false }); this.startTest(); } },
       { label: A.palette.openSettings, kind: A.palette.actionKind, run: () => this.setState({ sheetOpen: true, sheetPage: 'root', paletteOpen: false }) },
       { label: A.palette.openNotifications, kind: A.palette.actionKind, run: () => this.setState({ bellOpen: true, paletteOpen: false }) },
+      { label: this.terminalCopy().title, kind: A.palette.actionKind, run: () => { this.setState({ paletteOpen: false }); this.openTerminal(); } },
       { label: A.palette.signOut, kind: A.palette.actionKind, run: () => { this.setState({ paletteOpen: false }); this.signOut(); } }
     ];
   }
@@ -4821,9 +4627,11 @@ class Component extends DCLogic {
 
   experienceCopy() {
     if (this.curLang() === 'fr') return {
-      nav: { home: 'Accueil', projects: 'Projets', reports: 'Rapports', more: 'Plus', tools: 'Outils et réglages' },
-      sections: { home: 'Accueil', projects: 'Vos jeux', reports: 'Rapports Aftermath', plans: 'Plans de test', connectors: 'Connecteurs', config: 'Configuration', billing: 'Abonnement' },
+      nav: { home: 'Accueil', projects: 'Projets', test: 'Test', reports: 'Rapports', more: 'Outils', tools: 'Outils' },
+      sections: { home: 'Accueil', projects: 'Vos jeux', test: 'Centre de test', reports: 'Rapports Aftermath', plans: 'Plans de test', connectors: 'Connecteurs', config: 'Configuration', billing: 'Abonnement' },
       more: {
+        activity: ['Activité', 'Notifications et événements récents'],
+        terminal: ['Terminal', 'Exécuter de vraies commandes dans ce projet'],
         plans: ['Plans de test', 'Préparer des profils et scénarios'],
         connectors: ['Connecteurs', 'Intégrations et agent local'],
         config: ['Configuration', 'Modifier ember.config.json'],
@@ -4846,12 +4654,12 @@ class Component extends DCLogic {
         deepAiOn: 'Relecture IA activée', deepAiOff: 'Relecture IA désactivée', deepAiToggle: 'Activer ou désactiver la relecture IA approfondie',
         aiChecking: 'Vérification d’Ember AI', aiNotConfigured: 'Service IA indisponible', aiConfigured: 'Ember AI prêt', aiNotRequested: 'IA non demandée', aiRequesting: 'IA en réflexion', aiVerified: 'Réponse IA reçue', aiError: 'Erreur IA',
         aiUnavailableBody: 'Le test local reste entièrement disponible. La connexion au fournisseur est gérée par Ember; aucune clé client n’est requise.', aiProviderUnknown: 'Service IA géré par Ember',
-        forgeLive: 'Forge en direct', forgeLiveJp: '実行中', localAnalysisActive: 'Analyse locale active', measuredProgress: 'Progression mesurée', stepsComplete: '{done} sur {total} étapes terminées',
+        forgeLive: 'Analyse en direct', localAnalysisActive: 'Analyse locale active', measuredProgress: 'Progression mesurée', stepsComplete: '{done} sur {total} étapes terminées',
         currentWork: 'Travail en cours', selectedChecks: 'Vérifications du profil', workJournal: 'Journal du travail réel', evidenceLedger: 'Registre des preuves', eventCount: '{count} événements', waitingForEngine: 'En attente du premier événement du moteur local…',
         filesScanned: 'Fichiers parcourus', sourceFiles: 'Sources lues', logLines: 'Lignes de journaux', logFiles: 'Journaux lus', findingsFound: 'Constats', commandsRun: 'Commandes terminées', awaitingEvidence: 'En attente',
         technicalOutput: 'Sortie technique brute', statusPending: 'En attente', statusRunning: 'En cours', statusDone: 'Terminé', statusBlocked: 'Bloqué', statusFailed: 'Échec', customCommand: 'Commande personnalisée', deepAiCheck: 'Relecture IA approfondie',
         noMeasuredSteps: 'Le moteur n’a pas fourni de total mesurable pour ce profil.', aiQueued: 'La relecture IA attend les preuves locales.', aiLocalOnly: 'Cette exécution utilise uniquement l’analyse locale.',
-        aiProofKicker: 'PREUVE DE RÉPONSE / 応答証明', aiProofTitle: 'La relecture IA est traçable.', aiProofCompleted: 'Réponse externe reçue et conservée avec sa provenance.', aiProofPartial: 'Une partie de la relecture IA a réussi; les étapes en échec restent indiquées.', aiProofCancelled: 'La relecture IA a été interrompue; le rapport local demeure valide.', aiProofFailed: 'Le fournisseur n’a pas retourné de résultat exploitable.',
+        aiProofKicker: 'PREUVE DE RÉPONSE', aiProofTitle: 'La relecture IA est traçable.', aiProofCompleted: 'Réponse externe reçue et conservée avec sa provenance.', aiProofPartial: 'Une partie de la relecture IA a réussi; les étapes en échec restent indiquées.', aiProofCancelled: 'La relecture IA a été interrompue; le rapport local demeure valide.', aiProofFailed: 'Le fournisseur n’a pas retourné de résultat exploitable.',
         aiExecutiveSummary: 'Résumé IA', aiTriages: 'Triages approfondis', aiRootCause: 'Cause probable', aiSuggestedFix: 'Correctif suggéré', aiNoSummary: 'Aucun texte IA n’a été ajouté.', aiCalls: '{done} sur {total} appels terminés'
       },
       journey: [
@@ -4896,9 +4704,11 @@ class Component extends DCLogic {
       }
     };
     return {
-      nav: { home: 'Home', projects: 'Projects', reports: 'Reports', more: 'More', tools: 'Tools and settings' },
-      sections: { home: 'Home', projects: 'Your games', reports: 'Aftermath reports', plans: 'Test plans', connectors: 'Connectors', config: 'Configuration', billing: 'Subscription' },
+      nav: { home: 'Home', projects: 'Projects', test: 'Test', reports: 'Reports', more: 'Tools', tools: 'Tools' },
+      sections: { home: 'Home', projects: 'Your games', test: 'Test center', reports: 'Aftermath reports', plans: 'Test plans', connectors: 'Connectors', config: 'Configuration', billing: 'Subscription' },
       more: {
+        activity: ['Activity', 'Notifications and recent events'],
+        terminal: ['Terminal', 'Run real commands in this project'],
         plans: ['Test plans', 'Prepare profiles and scenarios'], connectors: ['Connectors', 'Integrations and local agent'],
         config: ['Configuration', 'Edit ember.config.json'], docs: ['Documentation', 'Ember guides and help']
       },
@@ -4916,12 +4726,12 @@ class Component extends DCLogic {
         deepAiOn: 'Deep AI review on', deepAiOff: 'Deep AI review off', deepAiToggle: 'Turn Deep AI review on or off',
         aiChecking: 'Checking Ember AI', aiNotConfigured: 'AI service unavailable', aiConfigured: 'Ember AI ready', aiNotRequested: 'AI not requested', aiRequesting: 'AI reasoning', aiVerified: 'AI response received', aiError: 'AI error',
         aiUnavailableBody: 'The local test remains fully available. Ember manages the provider connection; no customer key is required.', aiProviderUnknown: 'Ember-managed AI service',
-        forgeLive: 'Live forge', forgeLiveJp: '実行中', localAnalysisActive: 'Local analysis active', measuredProgress: 'Measured progress', stepsComplete: '{done} of {total} steps complete',
+        forgeLive: 'Live analysis', localAnalysisActive: 'Local analysis active', measuredProgress: 'Measured progress', stepsComplete: '{done} of {total} steps complete',
         currentWork: 'Work now', selectedChecks: 'Profile checks', workJournal: 'Real work journal', evidenceLedger: 'Evidence ledger', eventCount: '{count} events', waitingForEngine: 'Waiting for the first event from the local engine…',
         filesScanned: 'Files scanned', sourceFiles: 'Sources read', logLines: 'Log lines', logFiles: 'Logs read', findingsFound: 'Findings', commandsRun: 'Commands completed', awaitingEvidence: 'Waiting',
         technicalOutput: 'Raw technical output', statusPending: 'Waiting', statusRunning: 'Running', statusDone: 'Done', statusBlocked: 'Blocked', statusFailed: 'Failed', customCommand: 'Custom command', deepAiCheck: 'Deep AI review',
         noMeasuredSteps: 'The engine did not provide a measurable total for this profile.', aiQueued: 'Deep AI review is waiting for local evidence.', aiLocalOnly: 'This run uses local analysis only.',
-        aiProofKicker: 'RESPONSE PROOF / 応答証明', aiProofTitle: 'The AI review is traceable.', aiProofCompleted: 'An external response was received and stored with its provenance.', aiProofPartial: 'Part of the AI review succeeded; failed steps remain visible.', aiProofCancelled: 'The AI review was interrupted; the local report remains valid.', aiProofFailed: 'The provider returned no usable result.',
+        aiProofKicker: 'RESPONSE PROOF', aiProofTitle: 'The AI review is traceable.', aiProofCompleted: 'An external response was received and stored with its provenance.', aiProofPartial: 'Part of the AI review succeeded; failed steps remain visible.', aiProofCancelled: 'The AI review was interrupted; the local report remains valid.', aiProofFailed: 'The provider returned no usable result.',
         aiExecutiveSummary: 'AI summary', aiTriages: 'Deep triage', aiRootCause: 'Likely cause', aiSuggestedFix: 'Suggested fix', aiNoSummary: 'No AI text was added.', aiCalls: '{done} of {total} calls complete'
       },
       journey: [['Add your game', 'Choose its folder on this device.'], ['Choose the test', 'Ember adapts the available checks.'], ['Review detected issues', 'Aftermath gathers every useful piece of evidence.']],
@@ -5017,7 +4827,7 @@ class Component extends DCLogic {
     const homeWords = homeTitle.words.map((t, i) => ({ t, d: dely(i, 0.1, 0.08) }));
 
     // nav
-    const NAV = [['home', '', X.nav.home], ['projects', '', X.nav.projects], ['reports', '', X.nav.reports]];
+    const NAV = [['home', '', X.nav.home], ['projects', '', X.nav.projects], ['test', '', X.nav.test], ['reports', '', X.nav.reports]];
     const navTabs = NAV.map(([id, index, label]) => {
       const on = view === id;
       return {
@@ -5152,20 +4962,20 @@ class Component extends DCLogic {
     }));
 
     const allChecks = [
-      ['scan', A.checks.scan, '構造'],
-      ['analyze', A.checks.analyze, '解析'],
-      ['logs', A.checks.logs, '記録'],
-      ['build', A.checks.build, '構築'],
-      ['test', A.checks.test, '試験'],
-      ['launch', A.checks.launch, '起動'],
-      ['regression', A.checks.regression, '回帰']
+      ['scan', A.checks.scan],
+      ['analyze', A.checks.analyze],
+      ['logs', A.checks.logs],
+      ['build', A.checks.build],
+      ['test', A.checks.test],
+      ['launch', A.checks.launch],
+      ['regression', A.checks.regression]
     ];
     const capabilityMap = new Map((project?.capabilities || []).map(capability => [capability.id || capability.name, capability]));
     const CHECKS = allChecks.filter(([id]) => !capabilityMap.size || capabilityMap.get(id)?.available === true);
-    const checkBtns = CHECKS.map(([id, label, jp], i) => {
+    const checkBtns = CHECKS.map(([id, label], i) => {
       const on = !!S.planChecks[id];
       return {
-        index: String(i + 1).padStart(2, '0'), label, jp, mark: on ? '✓' : '', pressed: on,
+        index: String(i + 1).padStart(2, '0'), label, mark: on ? '✓' : '', pressed: on,
         className: 'ember-plan-composer__check' + (on ? ' is-selected' : ''),
         flip: () => this.setState(s => ({ planChecks: { ...s.planChecks, [id]: !s.planChecks[id] } })),
         bd: on ? 'rgba(232,84,16,.45)' : 'rgba(26,21,18,.12)', bg: on ? 'rgba(232,84,16,.06)' : '#fff',
@@ -5175,14 +4985,11 @@ class Component extends DCLogic {
 
     // connectors
     const connectors = [
-      { n: '01', name: A.connectors.backend, desc: A.connectors.backendDesc, status: A.connectors.offline, stColor: '#c8330f', stBorder: 'rgba(200,51,15,.35)', hasAction: false },
-      { n: '02', name: A.connectors.cli, desc: A.connectors.cliDesc, status: A.connectors.available, stColor: '#2f9e6b', stBorder: 'rgba(47,158,107,.35)', hasAction: false },
+      { n: '01', name: A.connectors.backend, desc: A.connectors.backendDesc, status: A.connectors.offline, badgeClass: 'ember-badge--danger', hasAction: false },
+      { n: '02', name: A.connectors.cli, desc: A.connectors.cliDesc, status: A.connectors.available, badgeClass: 'ember-badge--success', hasAction: false },
     ];
 
     // billing
-    const mk = (dark) => dark
-      ? { bg: '#0c0a0d', color: '#f3ede4', bd: 'transparent', shadow: '0 40px 90px rgba(12,10,13,.35)', checkBg: 'rgba(255,138,60,.2)', checkColor: '#ff9d4d', btnBg: 'linear-gradient(135deg,#ffd27a,#ff7a1a)', btnColor: '#1a0f06', btnBd: 'transparent' }
-      : { bg: '#ffffff', color: '#1a1512', bd: 'rgba(26,21,18,.09)', shadow: '0 20px 50px rgba(26,21,18,.05)', checkBg: 'rgba(232,84,16,.12)', checkColor: '#e85410', btnBg: 'transparent', btnColor: '#1a1512', btnBd: 'rgba(26,21,18,.2)' };
     const checkoutToast = () => { window.location.href = 'mailto:hello@ember.dev?subject=Ember%20billing'; this.toast(A.runtime.openingBilling); };
     const billPrices = [A.billing.credits, '$9.99', '$29.99', '$59.99', '$500', '$2,500'];
     const billPlans = A.billing.plans.map((plan, index) => {
@@ -5193,19 +5000,20 @@ class Component extends DCLogic {
         period: plan.period,
         tagline: plan.tagline,
         hot,
+        className: hot ? 'is-featured' : '',
+        btnClass: hot ? 'ember-btn--primary' : 'ember-btn--secondary',
         badge: plan.badge,
         features: plan.features.map(t => ({ t })),
         btnLabel: plan.button,
-        act: checkoutToast,
-        ...mk(hot)
+        act: checkoutToast
       };
     });
 
     // notifications
     const unread = S.notifs.filter(n => !n.read).length;
     const notifItems = S.notifs.map(n => ({
-      title: n.title, body: n.body, time: fmtDate(n.at).toUpperCase(),
-      dot: n.read ? 'rgba(26,21,18,.15)' : '#e85410', opacity: n.read ? '.55' : '1',
+      title: n.title, body: n.body, time: fmtDate(n.at),
+      className: 'ember-bell__item' + (n.read ? ' is-read' : ''),
       read: () => this.setState(s => ({ notifs: s.notifs.map(x => x.id === n.id ? { ...x, read: true } : x) }))
     }));
 
@@ -5259,7 +5067,9 @@ class Component extends DCLogic {
       ['notifCritical', A.settings.criticalAlerts, A.settings.criticalAlertsDesc],
       ['notifBilling', A.settings.billingEmails, A.settings.billingEmailsDesc],
       ['compact', A.settings.compactDensity, A.settings.compactDensityDesc],
-      ['reduceMotion', A.settings.reducedMotion, A.settings.reducedMotionDesc]
+      ['reduceMotion', A.settings.reducedMotion, A.settings.reducedMotionDesc],
+      ['ambientEffects', A.settings.ambientEffects, A.settings.ambientEffectsDesc],
+      ['effects3D', A.settings.effects3D, A.settings.effects3DDesc]
     ];
     const toggles = TGL.map(([k, label, desc]) => {
       const on = !!S.prefs[k];
@@ -5276,21 +5086,26 @@ class Component extends DCLogic {
       className: 'ember-settings__language' + (lang === code ? ' is-active' : ''),
       go: () => this.chooseSettingsLanguage(code)
     }));
-    const themeChoices = [
-      { id: 'light', label: A.settings.lightBeige, previewClass: 'ember-settings__theme-preview is-light' },
-      { id: 'dark', label: A.settings.emberDark, previewClass: 'ember-settings__theme-preview is-dark' }
-    ].map(choice => ({
-      ...choice,
-      pressed: this.curTheme() === choice.id,
-      status: this.curTheme() === choice.id ? A.settings.selected : '',
-      className: 'ember-settings__theme' + (this.curTheme() === choice.id ? ' is-active' : ''),
-      go: () => this.chooseTheme(choice.id)
-    }));
+    const qualityChoices = [
+      { id: 'auto', label: A.settings.qualityAuto, hint: A.settings.qualityAutoHint },
+      { id: 'low', label: A.settings.qualityLow, hint: A.settings.qualityLowHint },
+      { id: 'balanced', label: A.settings.qualityBalanced, hint: A.settings.qualityBalancedHint },
+      { id: 'high', label: A.settings.qualityHigh, hint: A.settings.qualityHighHint }
+    ].map(choice => {
+      const on = (S.prefs.quality || 'auto') === choice.id;
+      return {
+        ...choice,
+        pressed: on,
+        status: on ? A.settings.selected : choice.hint,
+        className: 'ember-settings__theme' + (on ? ' is-active' : ''),
+        go: () => this.chooseQuality(choice.id)
+      };
+    });
     const seasonChoices = [
-      { id: 'spring', label: A.settings.spring, desc: A.settings.springDesc, kanji: '春' },
-      { id: 'summer', label: A.settings.summer, desc: A.settings.summerDesc, kanji: '夏' },
-      { id: 'autumn', label: A.settings.autumn, desc: A.settings.autumnDesc, kanji: '秋' },
-      { id: 'winter', label: A.settings.winter, desc: A.settings.winterDesc, kanji: '冬' }
+      { id: 'spring', label: A.settings.spring, desc: A.settings.springDesc },
+      { id: 'summer', label: A.settings.summer, desc: A.settings.summerDesc },
+      { id: 'autumn', label: A.settings.autumn, desc: A.settings.autumnDesc },
+      { id: 'winter', label: A.settings.winter, desc: A.settings.winterDesc }
     ].map(choice => ({
       ...choice,
       pressed: this.curSeason() === choice.id,
@@ -5325,7 +5140,7 @@ class Component extends DCLogic {
           : aiRequiresVerification
             ? ' is-missing'
           : ' is-error');
-    const aiStatusMark = S.aiStatusLoading ? '…' : aiServiceReady ? '✓' : aiRequiresAuthentication ? '門' : aiRequiresVerification ? '認' : '!';
+    const aiStatusMark = S.aiStatusLoading ? '…' : aiServiceReady ? '✓' : '!';
     const aiStatusTitle = S.aiStatusLoading
       ? A.settings.aiCheckingTitle
       : aiServiceReady
@@ -5348,7 +5163,7 @@ class Component extends DCLogic {
     // palette
     const palItems = this.filteredPalette().map((a, i) => ({
       label: a.label, kind: a.kind, run: a.run,
-      bg: i === S.palSel ? 'rgba(232,84,16,.08)' : 'transparent',
+      className: 'ember-command-palette__row' + (i === S.palSel ? ' is-selected' : ''),
       hover: () => this.setState({ palSel: i })
     }));
 
@@ -5589,12 +5404,13 @@ class Component extends DCLogic {
     const moreActive = advancedViews.includes(view);
     const goMore = (id) => () => this.setState({ view: id, moreOpen: false });
     const moreItems = [
-      { id: 'plans', icon: '試', label: X.more.plans[0], description: X.more.plans[1], go: goMore('plans') },
-      { id: 'connectors', icon: '繋', label: X.more.connectors[0], description: X.more.connectors[1], go: goMore('connectors') },
-      { id: 'config', icon: '整', label: X.more.config[0], description: X.more.config[1], go: goMore('config') },
-      { id: 'billing', icon: '価', label: A.settings.planBilling, description: A.billing.currentSummary, go: goMore('billing') },
-      { id: 'docs', icon: '読', label: X.more.docs[0], description: X.more.docs[1], go: () => this.setState({ sheetOpen: true, sheetPage: 'support', moreOpen: false }) }
-    ].map(item => ({ ...item, className: item.id === view ? 'is-current' : '' }));
+      { id: 'plans', label: X.more.plans[0], description: X.more.plans[1], go: goMore('plans') },
+      { id: 'activity', label: X.more.activity[0], description: X.more.activity[1], go: () => this.setState({ bellOpen: true, moreOpen: false, sheetOpen: false }) },
+      { id: 'terminal', label: X.more.terminal[0], description: X.more.terminal[1], go: () => { this.setState({ moreOpen: false }); this.openTerminal(); } },
+      { id: 'connectors', label: X.more.connectors[0], description: X.more.connectors[1], go: goMore('connectors') },
+      { id: 'config', label: X.more.config[0], description: X.more.config[1], go: goMore('config') },
+      { id: 'docs', label: X.more.docs[0], description: X.more.docs[1], go: () => this.setState({ sheetOpen: true, sheetPage: 'support', moreOpen: false }) }
+    ].map(item => ({ ...item, className: 'is-' + item.id + (item.id === view ? ' is-current' : '') }));
 
     const sidebarItem = (id, label, description, iconPath, go, active = view === id) => ({
       id,
@@ -5647,6 +5463,9 @@ class Component extends DCLogic {
       sectionLabel: X.sections[view] || X.sections.home,
       navTabs,
       moreItems,
+      primaryLabel: project ? (lang === 'fr' ? 'Lancer un test' : 'Start test') : (lang === 'fr' ? 'Ajouter un projet' : 'Add project'),
+      primaryAction: () => project ? this.setState({ view: 'test', moreOpen: false }) : this.openConnectWizard(),
+      searchLabel: lang === 'fr' ? 'Rechercher une commande' : 'Search commands',
       moreOn: S.moreOpen,
       moreExpanded: S.moreOpen,
       moreButtonClass: moreActive ? 'is-active' : '',
@@ -5952,7 +5771,7 @@ class Component extends DCLogic {
       personalRecommendation: lang === 'fr'
         ? `Priorité active : ${focus.label}. Le test rapide est sélectionné pour établir votre première preuve locale.`
         : `Active priority: ${focus.label}. The quick test is selected to establish your first local evidence.`,
-      projectInitial: project?.name?.trim()?.[0]?.toUpperCase() || '火',
+      projectInitial: project?.name?.trim()?.[0]?.toUpperCase() || 'E',
       projectName: project?.name || '',
       projectEngine: project?.engine?.toUpperCase() || '',
       goProjects: () => this.setState({ view: 'projects' }),
@@ -6033,7 +5852,7 @@ class Component extends DCLogic {
       openCompletedReport: (event) => this.openReport(completed, event),
       rerunTest: () => this.startTest(S.selectedProfile),
       editTestPlan: () => this.setState({ view: 'plans', runStatus: 'idle' }),
-      recoveryMark: S.runStatus === 'stopped' ? '止' : '!',
+      recoveryMark: '!',
       recoveryKicker: S.runStatus === 'stopped' ? X.recovery.stoppedKicker : X.recovery.failedKicker,
       recoveryTitle: S.runStatus === 'stopped' ? X.recovery.stoppedTitle : X.recovery.failedTitle,
       recoveryBody: (S.runStatus === 'stopped' ? X.recovery.stoppedBody : X.recovery.failedBody) + (S.runCurrentDetail ? ' ' + S.runCurrentDetail : ''),
@@ -6064,6 +5883,7 @@ class Component extends DCLogic {
       return {
         className: [active ? 'is-active' : '', projectRunning ? 'is-running' : ''].filter(Boolean).join(' '),
         name: item.name,
+        initial: item.name?.trim()?.[0]?.toUpperCase() || 'E',
         engine: item.engine.toUpperCase(),
         path: item.path,
         statusLabel: projectRunning ? (lang === 'fr' ? 'Test en cours' : 'Test in progress') : X.projects.ready,
@@ -6185,7 +6005,7 @@ class Component extends DCLogic {
       validationErrorBody: S.cErrBody,
       hasValidationHint: !!S.cHint,
       validationHint: S.cHint,
-      candidateInitial: candidate?.name?.trim()?.[0]?.toUpperCase() || '火',
+      candidateInitial: candidate?.name?.trim()?.[0]?.toUpperCase() || 'E',
       candidateName: candidate?.name || '',
       candidateEngine: candidate?.engine?.toUpperCase() || '',
       candidatePath: candidate?.path || S.cPath,
@@ -6282,7 +6102,7 @@ class Component extends DCLogic {
       onPw3: settingsInput('pw3'),
       hasPwErr: !!S.pwErr,
       pwErr: S.pwErr,
-      themeChoices,
+      qualityChoices,
       seasonChoices,
       orbChoices,
       aiStatusClass,
@@ -6376,7 +6196,7 @@ class Component extends DCLogic {
       modeColor: project ? '#2f9e6b' : 'rgba(26,21,18,.45)',
       modeDot: project ? '#2f9e6b' : 'rgba(26,21,18,.3)',
       // views
-      isHome: view === 'home', isProjects: view === 'projects', isReports: view === 'reports', isPlans: view === 'plans', isConnectors: view === 'connectors', isConfig: view === 'config', isBilling: view === 'billing',
+      isHome: view === 'home' || view === 'test', isProjects: view === 'projects', isReports: view === 'reports', isPlans: view === 'plans', isConnectors: view === 'connectors', isConfig: view === 'config', isBilling: view === 'billing',
       hasProject: !!project, noProject: !project, hasReports: reports.length > 0, noReports: reports.length === 0,
       // home
       dateStr: new Date().toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase(),
@@ -6496,28 +6316,30 @@ class Component extends DCLogic {
       rvFindings: rv ? this.findingsFor(rv) : [],
       exportJson: () => rv && this.copyText(JSON.stringify(rv, null, 2), A.viewer.jsonCopied),
       exportMd: () => rv && this.copyText(this.reportMd(rv), A.viewer.markdownCopied),
+      // terminal
+      terminalOn: S.terminalOpen,
+      terminalTitle: this.terminalCopy().title,
+      terminalCwd: S.terminalCwd,
+      terminalClear: () => this.setState({ terminalLines: [] }),
+      terminalClearLabel: this.terminalCopy().clear,
+      closeTerminal: this.closeTerminal,
+      terminalCloseLabel: this.terminalCopy().close,
+      terminalUnavailable: !this.desktopApi()?.terminalStart,
+      terminalAvailable: !!this.desktopApi()?.terminalStart,
+      terminalUnavailableBody: this.terminalCopy().unavailable,
+      terminalLines: S.terminalLines,
+      terminalPrompt: '>',
+      terminalInput: S.terminalInput,
+      onTerminalInput: (e) => this.setState({ terminalInput: e.target.value }),
+      onTerminalKey: this.onTerminalKey,
+      terminalPlaceholder: this.terminalCopy().placeholder,
       // toast
       hasToast: !!S.toastMsg, toastMsg: S.toastMsg
     };
   }
 }
 </script>
-<!-- ember-ui-overrides -->
-<style id="ember-ui-overrides">
-/* Ember Desktop v3 — targeted UI corrections (additive; the design file is generated). */
-/* 4. Centered modals: force the centering transform (their entrance animation
-      was overriding translate(-50%,-50%), leaving them off to the bottom-right)
-      and cap height so they never overflow the window. */
-[style*="translate(-50%, -50%)"]{
-  transform:translate(-50%, -50%) !important;
-  max-height:90vh !important; overflow-y:auto !important;
-}
-/* 5. Profile / Settings open full-screen instead of a narrow side drawer. */
-.ember-profile-sheet{
-  top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
-  width:100% !important; max-width:100% !important; border-radius:0 !important;
-}
-.ember-profile-sheet > *{ max-width:900px !important; margin-left:auto !important; margin-right:auto !important; width:100% !important; }
-</style>
+<!-- The old ember-ui-overrides layer is gone: every correction now lives in
+     the owning stylesheet, so the cascade no longer depends on load order. -->
 </body>
 </html>

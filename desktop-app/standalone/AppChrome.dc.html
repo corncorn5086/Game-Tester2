@@ -7,14 +7,14 @@
 <x-dc>
   <header class="ember-app-header">
     <div class="ember-app-header__brand" aria-label="{{ copy.brandAria }}">
-      <span class="ember-app-header__seal" aria-hidden="true">火</span>
+      <span class="ember-app-header__seal" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none"><path d="M12.2 2.7c1 4.3-2.5 6.2-1.2 9.5.7-1.2 1.8-2 3.1-2.6 2.5 2.1 4.1 4.8 4.1 7.8 0 4.5-2.8 7.5-6.3 7.5s-6.2-2.8-6.2-6.5c0-3.1 1.9-5.6 4-7.9.2 2 .9 3.2 1.9 4.1.5-4.4 2.7-6.1.6-11.9Z" fill="currentColor"/><path d="M11.7 16.1c1.6 1.2 2.4 2.5 2.4 4.1 0 1.4-.8 2.3-2.2 2.3-1.5 0-2.3-1-2.3-2.4 0-1.5.9-2.9 2.1-4Z" fill="#2b1206"/></svg></span>
       <span class="ember-app-header__wordmark">EMBER</span>
       <span class="ember-app-header__divider" aria-hidden="true"></span>
       <span class="ember-app-header__section">{{ sectionLabel }}</span>
     </div>
 
     <nav class="ember-app-nav" aria-label="{{ copy.primaryNavAria }}">
-      <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="3">
+      <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="4">
         <button
           type="button"
           class="{{ tab.className }}"
@@ -43,14 +43,14 @@
         <sc-if value="{{ moreOn }}" hint-placeholder-val="{{ false }}">
           <div class="ember-app-more__menu" role="menu" aria-label="{{ copy.more }}" onKeyDown="{{ onMoreMenuKey }}">
             <div class="ember-app-more__caption">{{ copy.tools }}</div>
-            <sc-for list="{{ moreItems }}" as="item" hint-placeholder-count="5">
+            <sc-for list="{{ moreItems }}" as="item" hint-placeholder-count="6">
               <button type="button" class="{{ item.className }}" onClick="{{ item.go }}" role="menuitem">
-                <span class="ember-app-more__icon" aria-hidden="true">{{ item.icon }}</span>
+                <span class="ember-app-more__icon" aria-hidden="true"></span>
                 <span class="ember-app-more__copy">
                   <strong>{{ item.label }}</strong>
                   <small>{{ item.description }}</small>
                 </span>
-                <span class="ember-app-more__arrow" aria-hidden="true">→</span>
+                <span class="ember-app-more__arrow" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7.5 5 5 5-5 5"></path></svg></span>
               </button>
             </sc-for>
             <button type="button" class="ember-app-more__command" onClick="{{ openPalette }}" role="menuitem">
@@ -62,6 +62,18 @@
     </nav>
 
     <div class="ember-app-header__tools">
+      <button type="button" class="ember-app-header__primary" onClick="{{ primaryAction }}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        <span class="is-label">{{ primaryLabel }}</span>
+      </button>
+
+      <button type="button" class="ember-app-header__icon" onClick="{{ openPalette }}" aria-label="{{ searchLabel }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.8-3.8"></path>
+        </svg>
+      </button>
+
       <button type="button" class="ember-app-header__icon" onClick="{{ toggleBell }}" aria-label="{{ copy.notificationsAria }}">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>

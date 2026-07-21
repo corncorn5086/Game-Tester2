@@ -13,7 +13,6 @@
         <span class="ember-auth__brand-index" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none"><path d="M12.2 2.7c1 4.3-2.5 6.2-1.2 9.5.7-1.2 1.8-2 3.1-2.6 2.5 2.1 4.1 4.8 4.1 7.8 0 4.5-2.8 7.5-6.3 7.5s-6.2-2.8-6.2-6.5c0-3.1 1.9-5.6 4-7.9.2 2 .9 3.2 1.9 4.1.5-4.4 2.7-6.1.6-11.9Z" fill="currentColor"/><path d="M11.7 16.1c1.6 1.2 2.4 2.5 2.4 4.1 0 1.4-.8 2.3-2.2 2.3-1.5 0-2.3-1-2.3-2.4 0-1.5.9-2.9 2.1-4Z" fill="#fff9f1"/></svg></span>
         <span class="ember-auth__brand-name">EMBER</span>
         <span class="ember-auth__brand-meta">{{ aMeta }}</span>
-        <span class="ember-auth__brand-jp" lang="ja" aria-hidden="true">炎の知性</span>
       </button>
 
       <div class="ember-language" role="group" aria-label="{{ aLanguage }}">
@@ -34,11 +33,6 @@
           </sc-for>
         </div>
 
-        <div class="ember-auth__japanese-mark" lang="ja" aria-hidden="true">
-          <span class="ember-auth__seal">火</span>
-          <span class="ember-auth__vertical-copy">静けさの中の炎</span>
-        </div>
-
         <div class="ember-auth__orb-stage" role="img" aria-label="{{ aOrbLabel }}">
           <div class="ember-auth__orb-aura" aria-hidden="true"></div>
           <div class="ember-auth__orb-ring" aria-hidden="true"></div>
@@ -51,14 +45,12 @@
 
         <div class="ember-auth__copy">
           <div class="ember-auth__kicker">{{ aKicker }}</div>
-          <p class="ember-auth__jp-line" lang="ja">静けさの中に、意志が宿る。</p>
           <h1 id="ember-auth-heading" class="ember-auth__headline">{{ aHeadline }}</h1>
           <p class="ember-auth__subhead">{{ aSub }}</p>
         </div>
       </aside>
 
       <main class="ember-auth__form-shell" aria-labelledby="ember-auth-form-title">
-        <div class="ember-auth__form-jp" lang="ja" aria-hidden="true">品質を守る炎</div>
         <div class="ember-auth__form">
           <div class="ember-auth__form-eyebrow">
             <span class="ember-auth__form-state" aria-hidden="true"></span>
@@ -124,7 +116,7 @@
             </div>
 
             <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
-              <p class="ember-auth__password-rules"><span lang="ja" aria-hidden="true">規</span>{{ aPassRules }}</p>
+              <p class="ember-auth__password-rules">{{ aPassRules }}</p>
               <label class="{{ authTosClass }}">
                 <input type="checkbox" checked="{{ authTosAccepted }}" onChange="{{ onAuthTos }}" disabled="{{ authBusy }}" aria-invalid="{{ authTosInvalid }}">
                 <span class="ember-auth__consent-box" aria-hidden="true">{{ authTosMark }}</span>

@@ -1,13 +1,63 @@
 {
-  "name": "@ember/desktop",
-  "version": "0.2.0",
+  "name": "ember-desktop",
+  "version": "0.3.1",
   "private": true,
   "description": "Ember Desktop — the v3 design as a native Electron app.",
   "author": "Ember <hello@ember.dev>",
   "type": "module",
   "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:win:dir": "electron-builder --win --dir --publish never"
+  },
   "dependencies": {
     "@ember/agent": "*",
     "@ember/shared": "*"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "dev.ember.desktop",
+    "productName": "Ember",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "standalone/**/*",
+      "package.json",
+      "!**/node_modules/@ember/**"
+    ],
+    "extraResources": [
+      {
+        "from": "../ember-core",
+        "to": "ember-core"
+      },
+      {
+        "from": "../ember-service.json",
+        "to": "ember-service.json"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
   }
 }

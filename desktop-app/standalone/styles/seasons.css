@@ -1,340 +1,56 @@
-/* Ember seasonal atmosphere ------------------------------------------------
-   Four Japanese garden moods that keep the interface light, calm and legible.
-   The dark appearance remains opt-in and is only softly tinted by a season. */
+/* ============================================================================
+   EMBER — SEASONS
+   The season choice swaps the garden imagery used by the internal decor
+   layers and drives a small ambient particle field. Labels and previews are
+   handled in settings.css — this file only maps assets and particles.
+   No text marks, no Japanese glyphs.
+   ==========================================================================*/
 
-:root {
-  --ember-season-accent: #b84b68;
-  --ember-season-accent-soft: rgba(184, 75, 104, .12);
-  --ember-season-canvas: #fbf7ef;
-  --ember-season-canvas-deep: #eee3d2;
-  --ember-season-particle-a: #e6a0b2;
-  --ember-season-particle-b: #f7d8df;
-  --ember-season-garden: url("../assets/spring-pink-bonsai-v1.png");
-  --ember-orb-a: #2a0e02;
-  --ember-orb-b: #ff6a14;
-  --ember-orb-c: #ffe2a8;
-  --ember-orb-particle: #ffb060;
-  --ember-orb-glow: 232, 84, 16;
-}
+:root { --ember-season-garden: url("../assets/spring-pink-bonsai-v1.png"); }
+:root[data-season="spring"] { --ember-season-garden: url("../assets/spring-pink-bonsai-v1.png"); --ember-season-tint: #ee8ba8; }
+:root[data-season="summer"] { --ember-season-garden: url("../assets/summer-green-bonsai-v1.png"); --ember-season-tint: #62be91; }
+:root[data-season="autumn"] { --ember-season-garden: url("../assets/autumn-maple-temple-v1.png"); --ember-season-tint: #e5a84b; }
+:root[data-season="winter"] { --ember-season-garden: url("../assets/winter-snow-bonsai-v1.png"); --ember-season-tint: #6da4df; }
 
-:root[data-season="spring"] {
-  --ember-season-accent: #b84b68;
-  --ember-season-accent-soft: rgba(184, 75, 104, .12);
-  --ember-season-canvas: #fcf7f1;
-  --ember-season-canvas-deep: #eee1d6;
-  --ember-season-particle-a: #d67f9a;
-  --ember-season-particle-b: #f6cad6;
-  --ember-season-garden: url("../assets/spring-pink-bonsai-v1.png");
-}
-
-:root[data-season="summer"] {
-  --ember-season-accent: #397763;
-  --ember-season-accent-soft: rgba(57, 119, 99, .12);
-  --ember-season-canvas: #f8f7ed;
-  --ember-season-canvas-deep: #e4e5cf;
-  --ember-season-particle-a: #6b946d;
-  --ember-season-particle-b: #d3b85d;
-  --ember-season-garden: url("../assets/summer-green-bonsai-v1.png");
-}
-
-:root[data-season="autumn"] {
-  --ember-season-accent: #a95524;
-  --ember-season-accent-soft: rgba(169, 85, 36, .13);
-  --ember-season-canvas: #fbf4e8;
-  --ember-season-canvas-deep: #ead8bd;
-  --ember-season-particle-a: #b94b27;
-  --ember-season-particle-b: #d99535;
-  --ember-season-garden: url("../assets/autumn-maple-temple-v1.png");
-}
-
-:root[data-season="winter"] {
-  --ember-season-accent: #4d7289;
-  --ember-season-accent-soft: rgba(77, 114, 137, .12);
-  --ember-season-canvas: #f7f8f5;
-  --ember-season-canvas-deep: #dfe7e6;
-  --ember-season-particle-a: #ffffff;
-  --ember-season-particle-b: #c9dfe8;
-  --ember-season-garden: url("../assets/winter-snow-bonsai-v1.png");
-}
-
-:root[data-theme="light"][data-season="spring"] {
-  --ember-heat-300: #f3a9bd;
-  --ember-heat-400: #dd7795;
-  --ember-heat-500: #c95d7d;
-  --ember-heat-600: #ad405f;
-  --ember-heat-text: #a63f5d;
-}
-
-:root[data-theme="light"][data-season="summer"] {
-  --ember-heat-300: #9cc8a9;
-  --ember-heat-400: #65a381;
-  --ember-heat-500: #44846b;
-  --ember-heat-600: #326c58;
-  --ember-heat-text: #326c58;
-}
-
-:root[data-theme="light"][data-season="autumn"] {
-  --ember-heat-300: #e6ad67;
-  --ember-heat-400: #cf7c38;
-  --ember-heat-500: #b85d28;
-  --ember-heat-600: #9d461c;
-  --ember-heat-text: #98431d;
-}
-
-:root[data-theme="light"][data-season="winter"] {
-  --ember-heat-300: #a9cbdc;
-  --ember-heat-400: #77a5bd;
-  --ember-heat-500: #59839a;
-  --ember-heat-600: #416d84;
-  --ember-heat-text: #3d687f;
-}
-
-:root[data-theme="dark"][data-season="spring"] { --ember-heat-text: #ee8ba8; --ember-heat-500: #d76d8d; --ember-heat-600: #ba526f; }
-:root[data-theme="dark"][data-season="summer"] { --ember-heat-text: #82c7a6; --ember-heat-500: #5da783; --ember-heat-600: #44856a; }
-:root[data-theme="dark"][data-season="autumn"] { --ember-heat-text: #e59a58; --ember-heat-500: #c97839; --ember-heat-600: #a85b2c; }
-:root[data-theme="dark"][data-season="winter"] { --ember-heat-text: #90bdd3; --ember-heat-500: #6a9cb4; --ember-heat-600: #527f96; }
-
-/* Seasons colour the scenery only. Ember's interactive language is always
-   lantern copper: cherry blossoms may be pink, but buttons and controls are not. */
-:root[data-theme="light"][data-season] {
-  --ember-heat-300: #f7bd8b;
-  --ember-heat-400: #f29a5a;
-  --ember-heat-500: #d96b32;
-  --ember-heat-600: #a94720;
-  --ember-heat-text: #a94720;
-}
-:root[data-theme="dark"][data-season] {
-  --ember-heat-300: #ffd0a4;
-  --ember-heat-400: #f7ad71;
-  --ember-heat-500: #d96b32;
-  --ember-heat-600: #b95024;
-  --ember-heat-text: #f7ad71;
-}
-
-:root[data-orb="ember"] { --ember-orb-a:#2a0e02; --ember-orb-b:#ff6a14; --ember-orb-c:#ffe2a8; --ember-orb-particle:#ffb060; --ember-orb-glow:232,84,16; }
-:root[data-orb="sakura"] { --ember-orb-a:#35101f; --ember-orb-b:#f05f8d; --ember-orb-c:#ffe0ea; --ember-orb-particle:#ff9fbd; --ember-orb-glow:240,95,141; }
-:root[data-orb="jade"] { --ember-orb-a:#05251d; --ember-orb-b:#24b783; --ember-orb-c:#d9ffdf; --ember-orb-particle:#72e2ad; --ember-orb-glow:36,183,131; }
-:root[data-orb="frost"] { --ember-orb-a:#061a31; --ember-orb-b:#4e9fea; --ember-orb-c:#e3f8ff; --ember-orb-particle:#91d8ff; --ember-orb-glow:78,159,234; }
-:root[data-orb="moon"] { --ember-orb-a:#1d1035; --ember-orb-b:#8a63d9; --ember-orb-c:#f1e3ff; --ember-orb-particle:#c5a5ff; --ember-orb-glow:138,99,217; }
-
-:root[data-theme="light"] [data-screen-label="Ember Desktop"],
-:root[data-theme="light"] .ember-app-shell {
-  background:
-    radial-gradient(circle at 78% 8%, color-mix(in srgb, var(--ember-season-accent) 9%, transparent), transparent 34%),
-    linear-gradient(121deg, var(--ember-season-canvas), var(--ember-paper-50) 61%, var(--ember-season-canvas-deep)) !important;
-}
-
-/* Reuse Ember's existing local scenery on every real screen. Spring swaps in
-   the custom pink-bonsai artwork; the other seasons art-direct the temple and
-   garden through inexpensive color filters. */
-:root[data-season] :is(
-  .ember-landing__garden,
-  .ember-home__garden,
-  .ember-projects__garden,
-  .ember-reports__garden,
-  .ember-plans__garden
-) {
-  background-image: var(--ember-season-garden);
-}
-
-:root[data-season="spring"] :is(.ember-landing__garden,.ember-home__garden,.ember-projects__garden,.ember-reports__garden,.ember-plans__garden) {
-  background-position: center;
-  filter: saturate(.72) contrast(.92);
-}
-
-:root[data-season="summer"] :is(.ember-landing__garden,.ember-home__garden,.ember-projects__garden,.ember-reports__garden,.ember-plans__garden) {
-  filter: saturate(.72) contrast(.93);
-}
-
-:root[data-season="autumn"] :is(.ember-landing__garden,.ember-home__garden,.ember-projects__garden,.ember-reports__garden,.ember-plans__garden) {
-  filter: saturate(.82) contrast(.94);
-}
-
-:root[data-season="winter"] :is(.ember-landing__garden,.ember-home__garden,.ember-projects__garden,.ember-reports__garden,.ember-plans__garden) {
-  background-position: center;
-  filter: saturate(.72) contrast(.95);
-}
-
-:root[data-season] .ember-auth__backdrop {
-  background-image: var(--ember-season-garden);
-  background-position: center;
-  background-size: cover;
-  filter: saturate(.68) contrast(.93);
-  opacity: .3;
-}
-
-/* A sparse ambient layer fills screens that do not have their own petal DOM.
-   It stays under page copy (z-index 2) and never accepts pointer input. */
-.ember-season-atmosphere {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  contain: layout paint style;
-  pointer-events: none;
-}
-
-.ember-season-atmosphere__mark {
-  position: absolute;
-  right: 15px;
-  bottom: 18%;
-  color: var(--ember-season-accent);
-  font-family: var(--ember-font-jp-display);
-  font-size: 11px;
-  letter-spacing: .28em;
-  opacity: .2;
-  writing-mode: vertical-rl;
-}
-:root[data-season="spring"] .ember-season-atmosphere__mark::before { content: "春の庭"; }
-:root[data-season="summer"] .ember-season-atmosphere__mark::before { content: "夏の光"; }
-:root[data-season="autumn"] .ember-season-atmosphere__mark::before { content: "秋の葉"; }
-:root[data-season="winter"] .ember-season-atmosphere__mark::before { content: "冬の静寂"; }
-
+/* Ambient seasonal particles — internal app only, one subtle field.
+   The layer carries .ember-ambient so quality/motion/ambient settings and
+   window inactivity pause or remove it (see tokens.css). */
+.ember-season-atmosphere { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.ember-season-atmosphere__mark { display: none; }
 .ember-season-atmosphere__particles { position: absolute; inset: 0; }
 .ember-season-atmosphere__particles i {
-  --ember-season-x: 50%;
-  --ember-season-size: 8px;
-  --ember-season-time: 19s;
-  --ember-season-delay: -3s;
-  --ember-season-drift: 54px;
   position: absolute;
-  top: -8vh;
-  left: var(--ember-season-x);
-  width: var(--ember-season-size);
-  height: calc(var(--ember-season-size) * .72);
-  border-radius: 76% 20% 70% 28%;
-  background: linear-gradient(145deg, var(--ember-season-particle-b), var(--ember-season-particle-a));
+  top: -3%;
+  left: var(--ember-season-x, 50%);
+  width: var(--ember-season-size, 7px);
+  height: var(--ember-season-size, 7px);
+  border-radius: 60% 40% 55% 45%;
+  background: color-mix(in srgb, var(--ember-season-tint, #ee8ba8) 55%, transparent);
   opacity: 0;
-  box-shadow: 0 2px 7px color-mix(in srgb, var(--ember-season-accent) 14%, transparent);
-  transform-origin: 72% 42%;
-  animation: emberSeasonFall var(--ember-season-time) linear infinite;
-  animation-delay: var(--ember-season-delay);
-  will-change: transform, opacity;
+  animation: emberSeasonFall var(--ember-season-time, 20s) linear var(--ember-season-delay, 0s) infinite;
 }
-.ember-season-atmosphere__particles i:nth-child(1) { --ember-season-x:4%; --ember-season-size:6px; --ember-season-time:17s; --ember-season-delay:-12s; --ember-season-drift:38px; }
-.ember-season-atmosphere__particles i:nth-child(2) { --ember-season-x:10%; --ember-season-size:9px; --ember-season-time:23s; --ember-season-delay:-4s; --ember-season-drift:-62px; }
-.ember-season-atmosphere__particles i:nth-child(3) { --ember-season-x:17%; --ember-season-size:5px; --ember-season-time:21s; --ember-season-delay:-17s; --ember-season-drift:78px; }
-.ember-season-atmosphere__particles i:nth-child(4) { --ember-season-x:24%; --ember-season-size:8px; --ember-season-time:26s; --ember-season-delay:-8s; --ember-season-drift:-42px; }
-.ember-season-atmosphere__particles i:nth-child(5) { --ember-season-x:32%; --ember-season-size:7px; --ember-season-time:18s; --ember-season-delay:-14s; --ember-season-drift:52px; }
-.ember-season-atmosphere__particles i:nth-child(6) { --ember-season-x:41%; --ember-season-size:5px; --ember-season-time:24s; --ember-season-delay:-2s; --ember-season-drift:-66px; }
-.ember-season-atmosphere__particles i:nth-child(7) { --ember-season-x:49%; --ember-season-size:9px; --ember-season-time:20s; --ember-season-delay:-18s; --ember-season-drift:82px; }
-.ember-season-atmosphere__particles i:nth-child(8) { --ember-season-x:57%; --ember-season-size:6px; --ember-season-time:27s; --ember-season-delay:-10s; --ember-season-drift:-48px; }
-.ember-season-atmosphere__particles i:nth-child(9) { --ember-season-x:64%; --ember-season-size:8px; --ember-season-time:19s; --ember-season-delay:-6s; --ember-season-drift:58px; }
-.ember-season-atmosphere__particles i:nth-child(10) { --ember-season-x:71%; --ember-season-size:5px; --ember-season-time:25s; --ember-season-delay:-21s; --ember-season-drift:-72px; }
-.ember-season-atmosphere__particles i:nth-child(11) { --ember-season-x:78%; --ember-season-size:9px; --ember-season-time:22s; --ember-season-delay:-13s; --ember-season-drift:44px; }
-.ember-season-atmosphere__particles i:nth-child(12) { --ember-season-x:84%; --ember-season-size:6px; --ember-season-time:28s; --ember-season-delay:-5s; --ember-season-drift:-52px; }
-.ember-season-atmosphere__particles i:nth-child(13) { --ember-season-x:90%; --ember-season-size:8px; --ember-season-time:18s; --ember-season-delay:-15s; --ember-season-drift:66px; }
-.ember-season-atmosphere__particles i:nth-child(14) { --ember-season-x:96%; --ember-season-size:5px; --ember-season-time:24s; --ember-season-delay:-9s; --ember-season-drift:-38px; }
-.ember-season-atmosphere__particles i:nth-child(n+15) { display: none; }
-
-:root[data-season="summer"] .ember-season-atmosphere__particles i {
-  width: calc(var(--ember-season-size) * .62);
-  height: calc(var(--ember-season-size) * .62);
-  border-radius: 50%;
-  background: #e5ca70;
-  box-shadow: 0 0 8px rgba(214, 183, 72, .72), 0 0 18px rgba(214, 183, 72, .28);
-  animation-direction: reverse;
-}
-
-:root[data-season="autumn"] .ember-season-atmosphere__particles i {
-  border-radius: 80% 16% 80% 16%;
-  transform: rotate(45deg);
-}
-
-:root[data-season="winter"] .ember-season-atmosphere__particles i {
-  width: calc(var(--ember-season-size) * .72);
-  height: calc(var(--ember-season-size) * .72);
-  border-radius: 50%;
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 0 0 1px rgba(95,137,158,.1), 0 2px 8px rgba(66,103,124,.12);
-}
-
-:root[data-season]:not([data-season="spring"]) :is(
-  .ember-landing__petals,
-  .ember-home__petals,
-  .ember-projects__petals,
-  .ember-reports__petals,
-  .ember-plans__petals
-) { display: none; }
-
-/* Orb color must include every non-WebGL halo, not only the shader. */
-molten-core { background: none !important; }
-.ember-molten-core { filter: drop-shadow(0 38px 78px rgba(var(--ember-orb-glow), .24)) !important; }
-.ember-molten-glow,
-:is(.ember-landing__orb-aura,.ember-auth__orb-aura,.ember-home__core-aura,.ember-projects__core-aura,.ember-reports__core-aura,.ember-plans__core-aura) {
-  background: radial-gradient(circle, rgba(var(--ember-orb-glow), .2), rgba(var(--ember-orb-glow), .07) 43%, transparent 70%) !important;
-}
-
 @keyframes emberSeasonFall {
-  0% { opacity: 0; transform: translate3d(0,-5vh,0) rotate(0deg); }
-  8% { opacity: .46; }
-  56% { transform: translate3d(var(--ember-season-drift),54vh,0) rotate(310deg); }
-  92% { opacity: .38; }
-  100% { opacity: 0; transform: translate3d(calc(0px - var(--ember-season-drift)),110vh,0) rotate(680deg); }
+  0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(0deg); }
+  10% { opacity: .16; }
+  90% { opacity: .12; }
+  100% { opacity: 0; transform: translate3d(var(--ember-season-drift, 40px), 106vh, 0) rotate(280deg); }
 }
+.ember-season-atmosphere__particles i:nth-child(1) { --ember-season-x: 4%; --ember-season-delay: -2s; --ember-season-time: 22s; }
+.ember-season-atmosphere__particles i:nth-child(2) { --ember-season-x: 12%; --ember-season-delay: -9s; --ember-season-size: 5px; }
+.ember-season-atmosphere__particles i:nth-child(3) { --ember-season-x: 21%; --ember-season-delay: -15s; --ember-season-time: 26s; }
+.ember-season-atmosphere__particles i:nth-child(4) { --ember-season-x: 29%; --ember-season-delay: -5s; --ember-season-size: 6px; }
+.ember-season-atmosphere__particles i:nth-child(5) { --ember-season-x: 37%; --ember-season-delay: -12s; --ember-season-time: 19s; }
+.ember-season-atmosphere__particles i:nth-child(6) { --ember-season-x: 46%; --ember-season-delay: -18s; }
+.ember-season-atmosphere__particles i:nth-child(7) { --ember-season-x: 55%; --ember-season-delay: -3s; --ember-season-size: 5px; }
+.ember-season-atmosphere__particles i:nth-child(8) { --ember-season-x: 63%; --ember-season-delay: -14s; --ember-season-time: 24s; }
+.ember-season-atmosphere__particles i:nth-child(9) { --ember-season-x: 71%; --ember-season-delay: -7s; }
+.ember-season-atmosphere__particles i:nth-child(10) { --ember-season-x: 78%; --ember-season-delay: -20s; --ember-season-size: 6px; }
+.ember-season-atmosphere__particles i:nth-child(11) { --ember-season-x: 85%; --ember-season-delay: -10s; --ember-season-time: 27s; }
+.ember-season-atmosphere__particles i:nth-child(12) { --ember-season-x: 92%; --ember-season-delay: -16s; }
+.ember-season-atmosphere__particles i:nth-child(n+13) { display: none; }
 
-/* Settings previews ------------------------------------------------------ */
-.ember-settings__section-note {
-  margin: -4px 0 1px;
-  color: var(--ember-text-muted);
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-
-.ember-settings__actions > div { flex: 0 0 auto; min-width: 240px; }
-.ember-settings__actions > div strong { white-space: nowrap; }
-
-.ember-settings__seasons {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.ember-settings__season {
-  display: grid;
-  min-width: 0;
-  overflow: hidden;
-  padding: 7px 7px 11px;
-  border: 1px solid var(--ember-line);
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--ember-paper-0) 80%, transparent);
-  color: var(--ember-text);
-  cursor: pointer;
-  text-align: left;
-  gap: 5px;
-}
-.ember-settings__season:hover { border-color: color-mix(in srgb, var(--ember-heat-text) 50%, transparent); }
-.ember-settings__season.is-active { border: 2px solid var(--ember-heat-text); padding: 6px 6px 10px; box-shadow: 0 10px 26px var(--ember-season-accent-soft); }
-.ember-settings__season-art { position: relative; display: grid; height: 54px; overflow: hidden; place-items: center; border-radius: 10px; }
-.ember-settings__season-art::before { position:absolute; inset:0; background: linear-gradient(145deg, #fffdf8, var(--ember-season-preview)); content:""; }
-.ember-settings__season-art::after { position:absolute; right:-10px; bottom:-13px; width:62px; height:62px; border-radius:50%; background: var(--ember-season-preview-art); content:""; opacity:.62; }
-.ember-settings__season-art i { position:relative; z-index:1; color: var(--ember-season-preview-ink); font-family:var(--ember-font-jp-brush); font-size:24px; font-style:normal; }
-.ember-settings__season.is-spring { --ember-season-preview:#f5dce4; --ember-season-preview-art:radial-gradient(circle at 30% 30%,#f6c4d3,#c87391 56%,transparent 58%); --ember-season-preview-ink:#a84362; }
-.ember-settings__season.is-summer { --ember-season-preview:#e4ead3; --ember-season-preview-art:radial-gradient(circle at 30% 30%,#d8cf7d,#65916c 56%,transparent 58%); --ember-season-preview-ink:#356f59; }
-.ember-settings__season.is-autumn { --ember-season-preview:#f2ddc5; --ember-season-preview-art:radial-gradient(circle at 30% 30%,#e1a34c,#aa4a27 56%,transparent 58%); --ember-season-preview-ink:#99451f; }
-.ember-settings__season.is-winter { --ember-season-preview:#dfe9eb; --ember-season-preview-art:radial-gradient(circle at 30% 30%,#fff,#9bbac8 56%,transparent 58%); --ember-season-preview-ink:#466e84; }
-.ember-settings__season strong { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
-.ember-settings__season small { min-height:28px; overflow:hidden; color:var(--ember-text-muted); font-size:9px; line-height:1.35; }
-
-.ember-settings__orb-choices { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
-.ember-settings__orb-choice { display:flex; min-width:0; min-height:58px; align-items:center; padding:8px 10px; border:1px solid var(--ember-line); border-radius:14px; background:color-mix(in srgb,var(--ember-paper-0) 80%,transparent); color:var(--ember-text); cursor:pointer; gap:9px; }
-.ember-settings__orb-choice:hover { border-color:color-mix(in srgb,var(--ember-heat-text) 48%,transparent); }
-.ember-settings__orb-choice.is-active { border:2px solid var(--ember-heat-text); padding:7px 9px; }
-.ember-settings__orb-choice > span { width:28px; height:28px; flex:0 0 auto; border-radius:50%; box-shadow:inset 0 1px 4px rgba(255,255,255,.66),0 5px 12px rgba(36,28,23,.15); }
-.ember-settings__orb-choice > strong { overflow:hidden; font-size:10.5px; text-overflow:ellipsis; white-space:nowrap; }
-.ember-settings__orb-choice.is-ember > span { background:radial-gradient(circle at 32% 28%,#ffe2a8,#ff6a14 50%,#2a0e02); }
-.ember-settings__orb-choice.is-sakura > span { background:radial-gradient(circle at 32% 28%,#ffe0ea,#f05f8d 50%,#35101f); }
-.ember-settings__orb-choice.is-jade > span { background:radial-gradient(circle at 32% 28%,#d9ffdf,#24b783 50%,#05251d); }
-.ember-settings__orb-choice.is-frost > span { background:radial-gradient(circle at 32% 28%,#e3f8ff,#4e9fea 50%,#061a31); }
-.ember-settings__orb-choice.is-moon > span { background:radial-gradient(circle at 32% 28%,#f1e3ff,#8a63d9 50%,#1d1035); }
-
-@media (max-width: 760px) {
-  .ember-settings__seasons { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .ember-settings__orb-choices { grid-template-columns:repeat(2,minmax(0,1fr)); }
-}
-
-:root[data-motion="reduced"] .ember-season-atmosphere__particles { display:none !important; }
-
-@media (prefers-reduced-motion: reduce) {
-  .ember-season-atmosphere__particles { display:none !important; }
+/* Winter reads as snow: rounder, slower. */
+:root[data-season="winter"] .ember-season-atmosphere__particles i {
+  border-radius: 50%;
+  background: color-mix(in srgb, #eef4fb 65%, transparent);
 }

@@ -6,7 +6,7 @@
 <body>
 <x-dc>
   <section class="ember-reports" data-screen-label="Reports" aria-labelledby="ember-reports-title">
-    <div class="ember-reports__garden" aria-hidden="true"></div>
+    <div class="ember-reports__garden ember-ambient" aria-hidden="true"></div>
     <div class="ember-reports__mist" aria-hidden="true"></div>
     <div class="ember-reports__petals" aria-hidden="true">
       <i></i><i></i><i class="is-leaf"></i>
@@ -16,12 +16,10 @@
       <header class="ember-reports__intro">
         <div class="ember-reports__intro-copy">
           <div class="ember-reports__eyebrow">
-            <span lang="ja" aria-hidden="true">録</span>
             {{ copy.eyebrow }}
           </div>
           <h1 id="ember-reports-title">{{ copy.title }}<span>.</span></h1>
-          <p lang="ja">証拠を重ね、次の一手を静かに選ぶ。</p>
-        </div>
+          </div>
 
         <div class="ember-reports__count" aria-live="polite">
           <span>{{ copy.localEvidence }}</span>
@@ -32,12 +30,11 @@
       <sc-if value="{{ noReports }}" hint-placeholder-val="true">
         <article class="ember-reports__empty" aria-labelledby="ember-reports-empty-title">
           <div class="ember-reports__empty-mark" aria-hidden="true">
-            <span lang="ja">録</span>
-            <i></i>
+            <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5V3Z"></path><path d="M8 16l3-3 2 2 3-4M8 7h8"></path></svg></span>
           </div>
 
           <div class="ember-reports__empty-copy">
-            <div class="ember-reports__state-kicker">{{ copy.emptyKicker }} <span lang="ja">未記録</span></div>
+            <div class="ember-reports__state-kicker">{{ copy.emptyKicker }}</div>
             <h2 id="ember-reports-empty-title">{{ copy.emptyTitle }}</h2>
             <p>{{ copy.emptyBody }}</p>
 
@@ -85,7 +82,7 @@
                   aria-label="{{ report.ariaLabel }}"
                   disabled="{{ report.disabled }}"
                 >
-                  <span class="ember-reports__report-mark" aria-hidden="true">余</span>
+                  <span class="ember-reports__report-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5V3Z"></path><path d="M8 16l3-3 2 2 3-4M8 7h8"></path></svg></span>
 
                   <span class="ember-reports__report-copy">
                     <strong>{{ report.title }}</strong>
@@ -110,14 +107,14 @@
 
           <footer class="ember-reports__archive-foot">
             <span>{{ reportCountLabel }}</span>
-            <span lang="ja">すべての記録は、この端末に。</span>
+
           </footer>
         </section>
       </sc-if>
 
       <footer class="ember-reports__footnote">
         <span>{{ copy.footnote }}</span>
-        <span lang="ja">記録を読み、次の火を整える。</span>
+        <span>{{ reportCountLabel }}</span>
       </footer>
     </div>
   </section>

@@ -11,10 +11,10 @@
     <section class="ember-settings__folio" data-screen-label="Settings" role="dialog" aria-modal="true" aria-labelledby="ember-settings-title" tabindex="-1">
       <header class="ember-settings__header">
         <div class="ember-settings__brand">
-          <span aria-hidden="true">設</span>
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4.3a2 2 0 0 1 3.4 0l.5.9a2 2 0 0 0 1.8 1l1-.1a2 2 0 0 1 1.8 3l-.6.9a2 2 0 0 0 0 2l.6.9a2 2 0 0 1-1.8 3l-1-.1a2 2 0 0 0-1.8 1l-.5.9a2 2 0 0 1-3.4 0l-.5-.9a2 2 0 0 0-1.8-1l-1 .1a2 2 0 0 1-1.8-3l.6-.9a2 2 0 0 0 0-2l-.6-.9a2 2 0 0 1 1.8-3l1 .1a2 2 0 0 0 1.8-1Z"></path><circle cx="12" cy="12" r="2.6"></circle></svg></span>
           <div>
             <strong>{{ copy.settings }}</strong>
-            <small lang="ja">環境を整える</small>
+            <small>{{ copy.kicker }}</small>
           </div>
         </div>
 
@@ -110,11 +110,11 @@
         <sc-if value="{{ sheetIsPrefs }}" hint-placeholder-val="{{ false }}">
           <div class="ember-settings__page">
             <section class="ember-settings__section">
-              <header><span>{{ copy.appearance }}</span><small lang="ja">外観</small></header>
+              <header><span>{{ copy.appearance }}</span></header>
+              <p class="ember-settings__section-note">{{ copy.qualityDesc }}</p>
               <div class="ember-settings__themes">
-                <sc-for list="{{ themeChoices }}" as="th" hint-placeholder-count="2">
+                <sc-for list="{{ qualityChoices }}" as="th" hint-placeholder-count="4">
                   <button type="button" class="{{ th.className }}" onClick="{{ th.go }}" aria-pressed="{{ th.pressed }}">
-                    <span class="{{ th.previewClass }}"></span>
                     <strong>{{ th.label }}</strong>
                     <small>{{ th.status }}</small>
                   </button>
@@ -123,12 +123,12 @@
             </section>
 
             <section class="ember-settings__section">
-              <header><span>{{ copy.seasonalAtmosphere }}</span><small lang="ja">四季</small></header>
+              <header><span>{{ copy.seasonalAtmosphere }}</span></header>
               <p class="ember-settings__section-note">{{ copy.seasonalAtmosphereDesc }}</p>
               <div class="ember-settings__seasons">
                 <sc-for list="{{ seasonChoices }}" as="sn" hint-placeholder-count="4">
                   <button type="button" class="{{ sn.className }}" onClick="{{ sn.go }}" aria-pressed="{{ sn.pressed }}">
-                    <span class="ember-settings__season-art"><i lang="ja">{{ sn.kanji }}</i></span>
+                    <span class="ember-settings__season-art"></span>
                     <strong>{{ sn.label }}</strong>
                     <small>{{ sn.desc }}</small>
                   </button>
@@ -137,7 +137,7 @@
             </section>
 
             <section class="ember-settings__section">
-              <header><span>{{ copy.orbStyle }}</span><small lang="ja">炎色</small></header>
+              <header><span>{{ copy.orbStyle }}</span></header>
               <p class="ember-settings__section-note">{{ copy.orbStyleDesc }}</p>
               <div class="ember-settings__orb-choices">
                 <sc-for list="{{ orbChoices }}" as="orb" hint-placeholder-count="5">
@@ -149,7 +149,7 @@
             </section>
 
             <section class="ember-settings__section">
-              <header><span>{{ copy.language }}</span><small lang="ja">言語</small></header>
+              <header><span>{{ copy.language }}</span></header>
               <div class="ember-settings__languages">
                 <sc-for list="{{ settingsLangBtns }}" as="lb" hint-placeholder-count="2">
                   <button type="button" class="{{ lb.className }}" onClick="{{ lb.go }}" aria-pressed="{{ lb.pressed }}">{{ lb.full }}</button>
@@ -158,7 +158,7 @@
             </section>
 
             <section class="ember-settings__section">
-              <header><span>{{ copy.generalNotifications }}</span><small lang="ja">通知</small></header>
+              <header><span>{{ copy.generalNotifications }}</span></header>
               <div class="ember-settings__toggle-list">
                 <sc-for list="{{ toggles }}" as="tg" hint-placeholder-count="5">
                   <article class="ember-settings__toggle-row">
@@ -186,7 +186,7 @@
         <sc-if value="{{ sheetIsAI }}" hint-placeholder-val="{{ false }}">
           <div class="ember-settings__page ember-settings__page--ai">
             <article class="ember-settings__ai-managed">
-              <span class="ember-settings__ai-managed-mark" lang="ja" aria-hidden="true">守</span>
+              <span class="ember-settings__ai-managed-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path></svg></span>
               <div>
                 <p>{{ copy.aiManagedEyebrow }}</p>
                 <h2>{{ copy.aiManagedTitle }}</h2>
@@ -201,17 +201,17 @@
             </article>
 
             <section class="ember-settings__section">
-              <header><span>{{ copy.aiRouteTitle }}</span><small lang="ja">安全経路</small></header>
+              <header><span>{{ copy.aiRouteTitle }}</span></header>
               <p class="ember-settings__section-note">{{ copy.aiRouteDesc }}</p>
               <ol class="ember-settings__ai-route" aria-label="{{ copy.aiRouteTitle }}">
-                <li><span lang="ja" aria-hidden="true">端</span><div><strong>{{ copy.aiRouteDevice }}</strong><small>{{ copy.aiRouteDeviceDesc }}</small></div></li>
-                <li><span lang="ja" aria-hidden="true">門</span><div><strong>{{ copy.aiRouteGateway }}</strong><small>{{ copy.aiRouteGatewayDesc }}</small></div></li>
-                <li><span lang="ja" aria-hidden="true">知</span><div><strong>{{ copy.aiRouteProvider }}</strong><small>{{ copy.aiRouteProviderDesc }}</small></div></li>
+                <li><span aria-hidden="true">1</span><div><strong>{{ copy.aiRouteDevice }}</strong><small>{{ copy.aiRouteDeviceDesc }}</small></div></li>
+                <li><span aria-hidden="true">2</span><div><strong>{{ copy.aiRouteGateway }}</strong><small>{{ copy.aiRouteGatewayDesc }}</small></div></li>
+                <li><span aria-hidden="true">3</span><div><strong>{{ copy.aiRouteProvider }}</strong><small>{{ copy.aiRouteProviderDesc }}</small></div></li>
               </ol>
             </section>
 
             <article class="ember-settings__ai-truth">
-              <span lang="ja" aria-hidden="true">実</span>
+              <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"></path></svg></span>
               <div><h2>{{ copy.aiTruthTitle }}</h2><p>{{ copy.aiTruthDesc }}</p></div>
             </article>
           </div>
@@ -230,7 +230,7 @@
       <sc-if value="{{ sheetNotRoot }}" hint-placeholder-val="{{ false }}">
         <footer class="ember-settings__actions">
           <div><span>{{ saveMark }}</span><strong>{{ saveStateLabel }}</strong></div>
-          <button type="button" onClick="{{ saveSettingsPage }}" disabled="{{ settingsActionDisabled }}" aria-busy="{{ settingsActionBusy }}"><i lang="ja" aria-hidden="true">保存</i>{{ saveActionLabel }}</button>
+          <button type="button" onClick="{{ saveSettingsPage }}" disabled="{{ settingsActionDisabled }}" aria-busy="{{ settingsActionBusy }}">{{ saveActionLabel }}</button>
         </footer>
       </sc-if>
     </section>

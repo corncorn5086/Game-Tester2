@@ -1,3 +1,27 @@
+/* ============================================================================
+   EMBER — DESIGN TOKENS (single source of truth)
+
+   Two worlds, one file:
+
+   1) PUBLIC HERITAGE — the locked Landing / temple cinematic. These values are
+      frozen: landing.css and temple-intro.css consume them and must render
+      pixel-identical. Do not retune them for the internal app.
+
+   2) INTERNAL SYSTEM — every screen after Create Account / Sign In. One dark
+      Apple-grade palette (black, greys, off-white, Ember orange), one system
+      font stack, one spacing/radius/motion scale. Internal components use the
+      semantic tokens (--app-bg, --surface-*, --text-*, --accent…) and never
+      the heritage paper values.
+
+   The old workspace-dark.css / theme-dark.css / home-refinement.css /
+   settings-redesign.css / visual-comfort.css override layers are gone — their
+   final decisions now live directly in the page stylesheets.
+   ==========================================================================*/
+
+/* ---------------------------------------------------------------------------
+   Fonts used ONLY by the locked public screens (Landing + temple cinematic).
+   The internal application must never reference the *-jp families.
+   -------------------------------------------------------------------------*/
 @font-face {
   font-family: "Shippori Mincho Ember";
   src: url("../assets/fonts/shippori-mincho-medium.woff2") format("woff2");
@@ -23,9 +47,13 @@
 }
 
 :root {
+  /* The document default stays as shipped for the public screens; the
+     internal scopes opt into dark form controls in app-shell.css. */
   color-scheme: light;
 
-  /* Ember material palette */
+  /* ------------------------------------------------------------------ */
+  /* 1 · PUBLIC HERITAGE (locked — consumed by landing.css/temple-intro) */
+  /* ------------------------------------------------------------------ */
   --ember-obsidian-1000: #070706;
   --ember-obsidian-950: #0b0b0a;
   --ember-obsidian-900: #11110f;
@@ -41,7 +69,6 @@
   --ember-heat-600: #d84a12;
   --ember-positive-400: #72c49a;
 
-  /* Japanese paper and ink */
   --ember-paper-0: #fffdf8;
   --ember-paper-50: #fbf8f0;
   --ember-washi-100: #f3eddf;
@@ -54,26 +81,6 @@
   --ember-paper-shadow: rgba(73, 56, 32, .12);
   --ember-heat-text: #b94712;
 
-  /* Semantic surfaces. Components should prefer these over literal paper/ink
-     values so appearance changes do not invert a control accidentally. */
-  --ember-bg: var(--ember-paper-50);
-  --ember-surface: rgba(255, 253, 248, .76);
-  --ember-surface-solid: var(--ember-paper-0);
-  --ember-surface-raised: #fffefa;
-  --ember-field: rgba(255, 253, 248, .72);
-  --ember-overlay: rgba(36, 31, 25, .42);
-  --ember-text: var(--ember-ink-950);
-  --ember-text-secondary: var(--ember-ink-700);
-  --ember-text-muted: var(--ember-ink-500);
-  --ember-border: var(--ember-line);
-  --ember-shadow: 0 24px 70px var(--ember-paper-shadow);
-  --ember-code-bg: #f4ede0;
-  --ember-code-surface: #ebe0ce;
-  --ember-code-text: #332d26;
-  --ember-code-muted: #746a5e;
-  --ember-danger: #b83b20;
-
-  /* Typography */
   --ember-font-display: "Zen Kaku Gothic Ember", "Bricolage Grotesque", "Segoe UI Variable Display", "Avenir Next", sans-serif;
   --ember-font-ui: "Zen Kaku Gothic Ember", "Hanken Grotesk", "Segoe UI Variable Text", "Segoe UI", sans-serif;
   --ember-font-editorial: "Shippori Mincho Ember", "Iowan Old Style", "Yu Mincho", "Baskerville", Georgia, serif;
@@ -83,77 +90,106 @@
   --ember-font-jp: var(--ember-font-jp-display);
   --ember-font-mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 
-  /* Shared geometry and motion */
-  --ember-space-1: 4px;
-  --ember-space-2: 8px;
-  --ember-space-3: 12px;
-  --ember-space-4: 16px;
-  --ember-space-5: 24px;
-  --ember-space-6: 32px;
-  --ember-space-7: 48px;
-  --ember-space-8: 64px;
   --ember-radius-sm: 10px;
   --ember-radius-md: 16px;
   --ember-radius-pill: 999px;
   --ember-ease-out: cubic-bezier(.16, 1, .3, 1);
   --ember-ease-standard: cubic-bezier(.2, .7, .2, 1);
-  --ember-focus: 0 0 0 3px rgba(255, 150, 71, .36), 0 0 0 1px var(--ember-heat-300);
+
+  /* ------------------------------------------------------------------ */
+  /* 2 · INTERNAL SYSTEM — the one true palette of the signed-in app     */
+  /* ------------------------------------------------------------------ */
+  --app-bg: #0d0d0f;
+  --app-bg-secondary: #121214;
+  --surface-1: #18181b;
+  --surface-2: #1f1f23;
+  --surface-3: #27272c;
+  --surface-hover: #303036;
+  --border-subtle: #38383f;
+  --border-strong: #515159;
+  --text-primary: #f5f5f7;
+  --text-secondary: #b8b8c0;
+  --text-muted: #8b8b95;
+  --accent: #f0783c;
+  --accent-hover: #ff8b4d;
+  --accent-deep: #c95728;
+  --accent-soft: rgba(240, 120, 60, .14);
+  --success: #62be91;
+  --success-soft: rgba(98, 190, 145, .14);
+  --warning: #e5a84b;
+  --warning-soft: rgba(229, 168, 75, .14);
+  --danger: #e56b60;
+  --danger-soft: rgba(229, 107, 96, .13);
+  --info: #6da4df;
+  --overlay: rgba(6, 6, 8, .62);
+  --focus-ring: 0 0 0 3px rgba(240, 120, 60, .35), 0 0 0 1px var(--accent-hover);
+
+  /* Apple-grade system type — never a Japanese family inside the app.  */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+
+  /* Type scale (px) — page 32 / section 21 / card 16 / body 14 / meta 12 */
+  --text-page-title: 32px;
+  --text-section: 21px;
+  --text-card-title: 16px;
+  --text-body: 14px;
+  --text-secondary-size: 13px;
+  --text-meta: 12px;
+
+  /* Geometry */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --radius-control: 9px;
+  --radius-field: 11px;
+  --radius-card: 16px;
+  --radius-modal: 20px;
+  --radius-pill: 999px;
+
+  /* Motion — Apple timings: hover 140ms, menus 190ms, panels 260ms, pages 320ms */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-standard: cubic-bezier(.2, .7, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.3, .4, 1);
+  --dur-tap: 140ms;
+  --dur-menu: 190ms;
+  --dur-panel: 260ms;
+  --dur-page: 320ms;
+
+  /* Elevation — quiet; real shadows only for things that truly float. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-menu: 0 12px 34px rgba(0, 0, 0, .5), 0 2px 8px rgba(0, 0, 0, .35);
+  --shadow-modal: 0 32px 90px rgba(0, 0, 0, .58), 0 4px 16px rgba(0, 0, 0, .4);
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-
-  /* Warm sumi, charred cedar and moonlit washi. None of the principal
-     surfaces use neutral black, so the Japanese material character remains. */
-  --ember-paper-0: #201d17;
-  --ember-paper-50: #11100d;
-  --ember-washi-100: #191712;
-  --ember-washi-200: #2a261e;
-  --ember-ink-950: #f3ecdf;
-  --ember-ink-700: #d3c8b7;
-  --ember-ink-500: #a69c8d;
-  --ember-line: rgba(243, 232, 213, .14);
-  --ember-paper-glass: rgba(25, 22, 17, .84);
-  --ember-paper-shadow: rgba(0, 0, 0, .52);
-  --ember-heat-300: #ffc27d;
-  --ember-heat-400: #ff9a55;
-  --ember-heat-500: #ed7134;
-  --ember-heat-600: #cf5423;
-  --ember-heat-text: #ff9a55;
-  --ember-positive-400: #82cda0;
-
-  --ember-bg: #11100d;
-  --ember-surface: rgba(31, 28, 22, .84);
-  --ember-surface-solid: #191712;
-  --ember-surface-raised: #242019;
-  --ember-field: #15130f;
-  --ember-overlay: rgba(5, 5, 4, .66);
-  --ember-text: #f3ecdf;
-  --ember-text-secondary: #d3c8b7;
-  --ember-text-muted: #a69c8d;
-  --ember-border: rgba(243, 232, 213, .14);
-  --ember-shadow: 0 28px 78px rgba(0, 0, 0, .38);
-  --ember-code-bg: #090907;
-  --ember-code-surface: #0f0e0b;
-  --ember-code-text: #e7ded0;
-  --ember-code-muted: #9f9484;
-  --ember-danger: #ff8067;
-  --ember-focus: 0 0 0 3px rgba(255, 154, 85, .24), 0 0 0 1px #ff9a55;
-}
-
+/* Focus is orange, visible, constant. */
 :where(button, a, input, textarea, select, [tabindex]):focus-visible {
   outline: none;
-  box-shadow: var(--ember-focus);
+  box-shadow: var(--focus-ring);
 }
 
+@media (forced-colors: active) {
+  :where(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+    box-shadow: none;
+  }
+}
+
+/* Density (Settings → Appearance) */
 :root[data-density="compact"] {
-  --ember-space-4: 13px;
-  --ember-space-5: 18px;
-  --ember-space-6: 25px;
-  --ember-space-7: 38px;
-  --ember-space-8: 52px;
+  --space-4: 13px;
+  --space-5: 18px;
+  --space-6: 25px;
+  --space-7: 38px;
+  --space-8: 52px;
 }
 
+/* Reduce Motion — kills every animation and the ambient layers. */
 :root[data-motion="reduced"] *,
 :root[data-motion="reduced"] *::before,
 :root[data-motion="reduced"] *::after {
@@ -163,20 +199,27 @@
   transition-duration: .01ms !important;
 }
 
-:root[data-motion="reduced"] :is(
-  .ember-landing__petals,
-  .ember-home__petals,
-  .ember-projects__petals,
-  .ember-reports__petals,
-  .ember-plans__petals
-) {
+/* Ambient decor layers pause/hide under reduced motion, Low quality, or the
+   dedicated "ambient off" switch. The class list is the single registry of
+   every decorative layer in the product. */
+:root[data-motion="reduced"] .ember-ambient,
+:root[data-quality="low"] .ember-ambient,
+:root[data-ambient="off"] .ember-ambient {
   display: none !important;
 }
 
-@media (forced-colors: active) {
-  :where(button, a, input, textarea, select, [tabindex]):focus-visible {
-    outline: 2px solid Highlight;
-    outline-offset: 3px;
-    box-shadow: none;
-  }
+/* The locked Landing keeps its original reduced-motion behavior. */
+:root[data-motion="reduced"] .ember-landing__petals {
+  display: none !important;
+}
+
+/* 3D orb fallback — when 3D is disabled or quality is Low, molten-core keeps
+   its internal static blob but stops costing a WebGL scene (handled in JS);
+   the CSS side simply calms its glow. */
+:root[data-3d="off"] molten-core canvas,
+:root[data-quality="low"] molten-core canvas { display: none !important; }
+
+/* Window inactive → pause ambient CSS animations (JS sets the attribute). */
+html[data-window-active="false"] .ember-ambient * {
+  animation-play-state: paused !important;
 }

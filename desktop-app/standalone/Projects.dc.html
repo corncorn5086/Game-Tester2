@@ -6,7 +6,7 @@
 <body>
 <x-dc>
   <section class="ember-projects" data-screen-label="Projects" aria-labelledby="ember-projects-title">
-    <div class="ember-projects__garden" aria-hidden="true"></div>
+    <div class="ember-projects__garden ember-ambient" aria-hidden="true"></div>
     <div class="ember-projects__mist" aria-hidden="true"></div>
     <div class="ember-projects__petals" aria-hidden="true">
       <i></i><i></i><i class="is-leaf"></i><i></i>
@@ -16,28 +16,25 @@
       <header class="ember-projects__intro">
         <div class="ember-projects__intro-copy">
           <div class="ember-projects__eyebrow">
-            <span aria-hidden="true">帳</span>
             {{ copy.eyebrow }}
           </div>
           <h1 id="ember-projects-title">{{ copy.title }}<span>.</span></h1>
-          <p lang="ja">遊びの世界を、静かな火床へ迎える。</p>
-        </div>
+          </div>
 
         <button type="button" class="ember-projects__add" onClick="{{ openConnect }}">
           <span>{{ copy.connectProject }}</span>
-          <i aria-hidden="true">＋</i>
+          <i aria-hidden="true">+</i>
         </button>
       </header>
 
       <sc-if value="{{ noProjects }}" hint-placeholder-val="true">
         <article class="ember-projects__empty" aria-labelledby="ember-projects-empty-title">
           <div class="ember-projects__empty-index" aria-hidden="true">
-            <span>00</span>
-            <small lang="ja">未登録</small>
+            <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-11Z"></path><path d="M3 9.5v-4a2 2 0 0 1 2-2h4l2 2h5"></path></svg></span>
           </div>
 
           <div class="ember-projects__empty-copy">
-            <div class="ember-projects__state-kicker">{{ copy.emptyKicker }} <span lang="ja">最初の一作</span></div>
+            <div class="ember-projects__state-kicker">{{ copy.emptyKicker }}</div>
             <h2 id="ember-projects-empty-title">{{ copy.emptyTitle }}</h2>
             <p>
               {{ copy.emptyBodyBeforeConfig }}
@@ -51,7 +48,6 @@
           </div>
 
           <aside class="ember-projects__empty-note" aria-label="{{ copy.supportedEnginesAria }}">
-            <span lang="ja" aria-hidden="true">火床</span>
             <div>
               <small>{{ copy.supportedEnginesLabel }}</small>
               <strong>UNITY · UNREAL · GODOT · WEB · CUSTOM</strong>
@@ -67,16 +63,12 @@
               <span>{{ copy.activeKicker }}</span>
               <h2>{{ copy.registryFooterLabel }}</h2>
             </div>
-            <p lang="ja">一作ずつ、確かな記録として。</p>
           </header>
 
           <div class="ember-projects__list" role="list">
             <sc-for list="{{ projectRows }}" as="project" hint-placeholder-count="3">
               <article class="ember-projects__project {{ project.className }}" role="listitem">
-                <div class="ember-projects__folio-number" aria-hidden="true">
-                  <span>火</span>
-                  <i></i>
-                </div>
+                <div class="ember-projects__folio-number" aria-hidden="true">{{ project.initial }}</div>
 
                 <div class="ember-projects__project-copy">
                   <div class="ember-projects__project-title">
@@ -124,7 +116,7 @@
 
       <footer class="ember-projects__footnote">
         <span>{{ copy.registryFooterLabel }}</span>
-        <span lang="ja">静かな火床、確かな記録。</span>
+        <span>{{ copy.localDeviceLabel }}</span>
       </footer>
     </div>
   </section>

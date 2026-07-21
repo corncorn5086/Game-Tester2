@@ -6,9 +6,9 @@
 <body>
 <x-dc>
   <main class="ember-home" data-screen-label="Home">
-    <div class="ember-home__garden" aria-hidden="true"></div>
+    <div class="ember-home__garden ember-ambient" aria-hidden="true"></div>
     <div class="ember-home__wash" aria-hidden="true"></div>
-    <div class="ember-home__petals" aria-hidden="true">
+    <div class="ember-home__petals ember-ambient" aria-hidden="true">
       <i></i><i></i><i class="is-leaf"></i><i></i><i class="is-leaf"></i>
     </div>
 
@@ -32,7 +32,6 @@
         <section class="ember-home__first" aria-labelledby="ember-first-title">
           <div class="ember-home__first-copy">
             <p class="ember-home__welcome">{{ copy.welcome }}</p>
-            <p class="ember-home__jp-note" lang="ja" aria-hidden="true">静かな火から、確かな一歩へ。</p>
             <h1 id="ember-first-title">{{ copy.firstTitle }}</h1>
             <p class="ember-home__lead">{{ copy.firstBody }}</p>
 
@@ -58,7 +57,7 @@
               <molten-core aria-hidden="true"></molten-core>
             </div>
             <div class="ember-home__identity-caption" aria-hidden="true">
-              <span>EMBER</span><i></i><span lang="ja">火の知性</span>
+              <span>EMBER</span><i></i><span>QA CORE</span>
             </div>
           </aside>
         </section>
@@ -195,7 +194,7 @@
           </header>
           <sc-if value="{{ noRecentReports }}" hint-placeholder-val="{{ true }}">
             <div class="ember-home__recent-empty">
-              <span aria-hidden="true">余</span>
+              <span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5V3Z"></path><path d="M8 16l3-3 2 2 3-4M8 7h8"></path></svg></span>
               <div><strong>{{ copy.noTestsYet }}</strong><p>{{ copy.firstReportHere }}</p></div>
             </div>
           </sc-if>
@@ -217,7 +216,7 @@
         <section class="ember-home__running" aria-labelledby="ember-running-title">
           <header class="ember-home__run-head">
             <div>
-              <span class="ember-home__run-kicker"><i aria-hidden="true"></i>{{ copy.forgeLive }} <b lang="ja">{{ copy.forgeLiveJp }}</b></span>
+              <span class="ember-home__run-kicker"><i aria-hidden="true"></i>{{ copy.forgeLive }}</span>
               <h1 id="ember-running-title">{{ projectName }}</h1>
               <p>{{ runProfileLabel }} · {{ runElapsed }}</p>
             </div>
@@ -241,7 +240,6 @@
             <div class="ember-home__live-orb" aria-hidden="true">
               <i class="ember-home__live-orbit"></i>
               <molten-core></molten-core>
-              <span lang="ja">鍛</span>
             </div>
             <div class="ember-home__live-action">
               <span>{{ copy.currentWork }}</span>
@@ -266,7 +264,7 @@
 
           <div class="ember-home__workbench">
             <section class="ember-home__work-plan" aria-labelledby="ember-run-work-title">
-              <header><div><span lang="ja">工程</span><h2 id="ember-run-work-title">{{ copy.selectedChecks }}</h2></div><strong>{{ runWorkCount }}</strong></header>
+              <header><div><h2 id="ember-run-work-title">{{ copy.selectedChecks }}</h2></div><strong>{{ runWorkCount }}</strong></header>
               <ol>
                 <sc-for list="{{ runWorkItems }}" as="item" hint-placeholder-count="4">
                   <li class="{{ item.className }}">
@@ -289,7 +287,7 @@
               </section>
 
               <section class="ember-home__journal" aria-labelledby="ember-journal-title">
-                <header><div><span lang="ja">作業記録</span><h2 id="ember-journal-title">{{ copy.workJournal }}</h2></div><strong>{{ journalCount }}</strong></header>
+                <header><div><h2 id="ember-journal-title">{{ copy.workJournal }}</h2></div><strong>{{ journalCount }}</strong></header>
                 <sc-if value="{{ noJournalEvents }}" hint-placeholder-val="{{ true }}">
                   <p class="ember-home__journal-empty"><i aria-hidden="true"></i>{{ copy.waitingForEngine }}</p>
                 </sc-if>

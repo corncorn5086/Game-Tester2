@@ -19,7 +19,7 @@
       >
         <header class="ember-report-viewer__toolbar">
           <div class="ember-report-viewer__brand">
-            <span lang="ja" aria-hidden="true">余</span>
+            <span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5V3Z"></path><path d="M8 16l3-3 2 2 3-4M8 7h8"></path></svg></span>
             <strong>{{ copy.brandLabel }}</strong>
             <small>{{ copy.localEvidenceFolio }}</small>
           </div>
@@ -36,7 +36,6 @@
             <div class="ember-report-viewer__cover-copy">
               <p>{{ rvDate }}</p>
               <h1 id="ember-report-viewer-title">{{ rvTitle }}</h1>
-              <span lang="ja">火が残した証拠を、静かに読む。</span>
             </div>
 
             <div class="ember-report-viewer__score" aria-label="{{ copy.stabilityAria }} {{ rvStability }} {{ copy.outOf100 }}">
@@ -60,7 +59,7 @@
             <section class="ember-report-viewer__findings" aria-labelledby="ember-report-findings-title">
               <header>
                 <div>
-                  <span>{{ copy.findings }} / 証拠</span>
+                  <span>{{ copy.findings }}</span>
                   <h2 id="ember-report-findings-title">{{ copy.fileLineEvidence }}</h2>
                 </div>
                 <p>{{ copy.findingsBody }}</p>
@@ -83,7 +82,6 @@
               <section class="ember-report-viewer__breakdown">
                 <header>
                   <span>{{ copy.severity }}</span>
-                  <small lang="ja">重要度</small>
                 </header>
                 <div>
                   <sc-for list="{{ rvBars }}" as="bar" hint-placeholder-count="3">
@@ -99,7 +97,6 @@
               <sc-if value="{{ hasRvBlockers }}" hint-placeholder-val="false">
                 <section class="ember-report-viewer__blocked">
                   <span>{{ copy.blockedChecks }}</span>
-                  <small lang="ja">接続待ち</small>
                   <ul>
                     <sc-for list="{{ rvBlockers }}" as="blocker" hint-placeholder-count="2">
                       <li><strong>{{ blocker.title }}</strong><em>{{ blocker.message }}</em></li>
@@ -108,14 +105,13 @@
                 </section>
               </sc-if>
 
-              <div class="ember-report-viewer__seal" lang="ja" aria-hidden="true">余燼<br>報告</div>
             </aside>
           </div>
 
           <sc-if value="{{ hasRvAI }}" hint-placeholder-val="false">
             <section class="ember-report-viewer__ai" aria-labelledby="ember-report-ai-title">
               <header>
-                <span lang="ja" aria-hidden="true">知</span>
+                <span aria-hidden="true">AI</span>
                 <div><small>{{ copy.aiReview }}</small><h2 id="ember-report-ai-title">{{ copy.aiSummary }}</h2></div>
                 <code>{{ rvAIProof }}</code>
               </header>
@@ -140,7 +136,7 @@
 
           <footer class="ember-report-viewer__footer">
             <span>{{ copy.generatedLocally }}</span>
-            <span lang="ja">証拠は端末に保存。AI送信は許可した実行のみ。</span>
+            <span>{{ copy.localEvidenceFolio }}</span>
           </footer>
         </div>
       </article>

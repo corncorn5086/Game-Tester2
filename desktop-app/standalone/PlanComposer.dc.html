@@ -19,8 +19,8 @@
       >
         <header class="ember-plan-composer__toolbar">
           <div class="ember-plan-composer__brand">
-            <span lang="ja" aria-hidden="true">型</span>
-            <div><strong>{{ copy.newTestForm }}</strong><small lang="ja">新しい型</small></div>
+            <span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"></path><path d="m4 5 1 1 2-2M4 11l1 1 2-2M4 17l1 1 2-2"></path></svg></span>
+            <strong>{{ copy.newTestForm }}</strong>
           </div>
           <button type="button" class="ember-plan-composer__close" onClick="{{ closePlan }}" aria-label="{{ copy.closeAria }}">×</button>
         </header>
@@ -29,10 +29,9 @@
           <section class="ember-plan-composer__identity">
             <div class="ember-plan-composer__kicker">{{ copy.formKicker }}</div>
             <h2 id="ember-plan-composer-title">{{ copy.title }}</h2>
-            <p lang="ja">必要な検証だけを選び、一つの型に整える。</p>
 
             <label class="ember-plan-composer__name">
-              <span>{{ copy.planNameLabel }} / 型の名前</span>
+              <span>{{ copy.planNameLabel }}</span>
               <input
                 value="{{ planName }}"
                 onChange="{{ onPlanName }}"
@@ -50,7 +49,7 @@
             </sc-if>
 
             <div class="ember-plan-composer__sdk-note">
-              <span lang="ja">注</span>
+              <span aria-hidden="true">!</span>
               <p>{{ copy.sdkNote }}</p>
             </div>
           </section>
@@ -58,7 +57,7 @@
           <section class="ember-plan-composer__check-field" aria-labelledby="ember-plan-checks-title">
             <header>
               <div>
-                <span>{{ copy.checksLabel }} / 検証項目</span>
+                <span>{{ copy.checksLabel }}</span>
                 <h3 id="ember-plan-checks-title">{{ copy.runnableToday }}</h3>
               </div>
               <small>{{ copy.selectToStamp }}</small>
@@ -68,7 +67,7 @@
               <sc-for list="{{ checkBtns }}" as="cb" hint-placeholder-count="7">
                 <button type="button" class="{{ cb.className }}" onClick="{{ cb.flip }}" aria-pressed="{{ cb.pressed }}">
                   <span class="ember-plan-composer__check-index">{{ cb.index }}</span>
-                  <span class="ember-plan-composer__check-copy"><strong>{{ cb.label }}</strong><small lang="ja">{{ cb.jp }}</small></span>
+                  <span class="ember-plan-composer__check-copy"><strong>{{ cb.label }}</strong></span>
                   <span class="ember-plan-composer__check-mark" aria-hidden="true">{{ cb.mark }}</span>
                 </button>
               </sc-for>
@@ -81,7 +80,7 @@
           <div>
             <button type="button" class="ember-plan-composer__cancel" onClick="{{ closePlan }}">{{ copy.cancel }}</button>
             <button type="button" class="ember-plan-composer__create" onClick="{{ doCreatePlan }}">
-              <span>{{ copy.createForm }}</span><small lang="ja">型を作る</small><i aria-hidden="true">→</i>
+              <span>{{ copy.createForm }}</span><i aria-hidden="true">→</i>
             </button>
           </div>
         </footer>
